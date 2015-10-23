@@ -40,7 +40,7 @@
       <HintPath>..\..\Lib\Farseer.Net.dll</HintPath>
     </Reference>
     <Reference Include="Farseer.Net.Utils.Form">
-      <HintPath>..\..\Source\Farseer.Net.Utils.Form\bin\Debug\Farseer.Net.Utils.Form.dll</HintPath>
+      <HintPath>..\..\Lib\Farseer.Net.Utils.Form.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
