@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Threading.Tasks;
 using FS.Configs;
 using FS.Sql.Infrastructure;
 
@@ -32,11 +33,27 @@ namespace FS.Sql
         }
 
         /// <summary>
+        ///     返回查询的值
+        /// </summary>
+        /// <param name="t">失败时返回的值</param>
+        public Task<T> GetValueAsync<T>(T t = default(T))
+        {
+            return Task.Factory.StartNew(() => GetValue(t));
+        }
+
+        /// <summary>
         ///     执行存储过程
         /// </summary>
         public int Execute()
         {
             return Context.ManualSql.Execute(Map.Sql);
+        }
+        /// <summary>
+        ///     执行存储过程
+        /// </summary>
+        public Task<int> ExecuteAsync()
+        {
+            return Task.Factory.StartNew(() => Execute());
         }
     }
 }

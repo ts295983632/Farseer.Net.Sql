@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using FS.Cache;
 using FS.Extends;
 using FS.Infrastructure;
@@ -81,6 +82,14 @@ namespace FS.Sql
                 Insert(info);
             }
         }
+        /// <summary>
+        ///     复制数据
+        /// </summary>
+        /// <param name="acTEntity">对新职的赋值</param>
+        public Task CopyAsync(Action<TEntity> acTEntity = null)
+        {
+            return Task.Factory.StartNew(() => Copy(acTEntity));
+        }
 
         /// <summary>
         ///     复制数据
@@ -94,6 +103,17 @@ namespace FS.Sql
             Where(ID, memberName);
             Copy(act);
         }
+        /// <summary>
+        ///     复制数据
+        /// </summary>
+        /// <param name="act">对新职的赋值</param>
+        /// <typeparam name="T">ID</typeparam>
+        /// <param name="ID">o => o.ID.Equals(ID)</param>
+        /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
+        public Task CopyAsync<T>(T ID, Action<TEntity> act = null, string memberName = null)
+        {
+            return Task.Factory.StartNew(() => Copy(ID, act, memberName));
+        }
 
         /// <summary>
         ///     复制数据
@@ -106,6 +126,17 @@ namespace FS.Sql
         {
             Where(lstIDs, memberName);
             Copy(act);
+        }
+        /// <summary>
+        ///     复制数据
+        /// </summary>
+        /// <param name="act">对新职的赋值</param>
+        /// <typeparam name="T">ID</typeparam>
+        /// <param name="lstIDs">o => IDs.Contains(o.ID)</param>
+        /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
+        public Task CopyAsync<T>(List<T> lstIDs, Action<TEntity> act = null, string memberName = null)
+        {
+            return Task.Factory.StartNew(() => Copy(lstIDs, act, memberName));
         }
 
         #endregion
@@ -125,6 +156,15 @@ namespace FS.Sql
             // 加入队列
             return QueueManger.CommitLazy(SetMap, (queue) => Context.Executeor.Execute(queue.SqlBuilder.Update()), true);
         }
+        /// <summary>
+        ///     修改（支持延迟加载）
+        ///     如果设置了主键ID，并且entity的ID设置了值，那么会自动将ID的值转换成条件 entity.ID == 值
+        /// </summary>
+        /// <param name="entity"></param>
+        public Task<int> UpdateAsync(TEntity entity)
+        {
+            return Task.Factory.StartNew(() => Update(entity));
+        }
 
         /// <summary>
         ///     更改实体类
@@ -137,6 +177,17 @@ namespace FS.Sql
         {
             return Where(ID, memberName).Update(info);
         }
+        /// <summary>
+        ///     更改实体类
+        /// </summary>
+        /// <param name="info">实体类</param>
+        /// <typeparam name="T">ID</typeparam>
+        /// <param name="ID">条件，等同于：o=>o.ID == ID 的操作</param>
+        /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
+        public Task<int> UpdateAsync<T>(TEntity info, T ID, string memberName = null)
+        {
+            return Task.Factory.StartNew(() => Update(info, ID, memberName));
+        }
 
         /// <summary>
         ///     更改实体类
@@ -148,6 +199,17 @@ namespace FS.Sql
         public int Update<T>(TEntity info, List<T> lstIDs, string memberName = null)
         {
             return Where(lstIDs, memberName).Update(info);
+        }
+        /// <summary>
+        ///     更改实体类
+        /// </summary>
+        /// <param name="info">实体类</param>
+        /// <typeparam name="T">ID</typeparam>
+        /// <param name="lstIDs">条件，等同于：o=> IDs.Contains(o.ID) 的操作</param>
+        /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
+        public Task<int> UpdateAsync<T>(TEntity info, List<T> lstIDs, string memberName = null)
+        {
+            return Task.Factory.StartNew(() => Update(info, lstIDs, memberName));
         }
 
         #endregion
@@ -179,6 +241,15 @@ namespace FS.Sql
 
             // 不返回标识字段
             return QueueManger.CommitLazy(SetMap, (queue) => Context.Executeor.Execute(queue.SqlBuilder.Insert()), false);
+        }
+        /// <summary>
+        ///     插入
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="isReturnLastID">是否需要返回标识字段（如果设置的话）</param>
+        public Task<int> InsertAsync(TEntity entity, bool isReturnLastID = false)
+        {
+            return Task.Factory.StartNew(() => Insert(entity, isReturnLastID));
         }
 
         /// <summary>
@@ -221,6 +292,14 @@ namespace FS.Sql
                 return lst.Count;
             }, false);
         }
+        /// <summary>
+        ///     插入
+        /// </summary>
+        /// <param name="lst">实体类</param>
+        public Task<int> InsertAsync(List<TEntity> lst)
+        {
+            return Task.Factory.StartNew(() => Insert(lst));
+        }
 
         #endregion
 
@@ -240,6 +319,13 @@ namespace FS.Sql
             // 加入队列
             return QueueManger.CommitLazy(SetMap, (queue) => Context.Executeor.Execute(queue.SqlBuilder.Delete()), false);
         }
+        /// <summary>
+        ///     删除
+        /// </summary>
+        public Task<int> DeleteAsync()
+        {
+            return Task.Factory.StartNew(() => Delete());
+        }
 
         /// <summary>
         ///     删除数据
@@ -251,6 +337,16 @@ namespace FS.Sql
         {
             return Where(ID, memberName).Delete();
         }
+        /// <summary>
+        ///     删除数据
+        /// </summary>
+        /// <param name="ID">条件，等同于：o=>o.ID.Equals(ID) 的操作</param>
+        /// <typeparam name="T">ID</typeparam>
+        /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
+        public Task<int> DeleteAsync<T>(T ID, string memberName = null)
+        {
+            return Task.Factory.StartNew(() => Delete(ID, memberName));
+        }
 
         /// <summary>
         ///     删除数据
@@ -261,6 +357,16 @@ namespace FS.Sql
         public int Delete<T>(List<T> lstIDs, string memberName = null)
         {
             return Where(lstIDs, memberName).Delete();
+        }
+        /// <summary>
+        ///     删除数据
+        /// </summary>
+        /// <param name="lstIDs">条件，等同于：o=> IDs.Contains(o.ID) 的操作</param>
+        /// <typeparam name="T">ID</typeparam>
+        /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
+        public Task<int> DeleteAsync<T>(List<T> lstIDs, string memberName = null)
+        {
+            return Task.Factory.StartNew(() => Delete(lstIDs, memberName));
         }
 
         #endregion
@@ -277,6 +383,13 @@ namespace FS.Sql
             // 加入队列
             return QueueManger.CommitLazy(SetMap, (queue) => Context.Executeor.Execute(queue.SqlBuilder.AddUp()), true);
         }
+        /// <summary>
+        ///     添加或者减少某个字段（支持延迟加载）
+        /// </summary>
+        public Task<int> AddUpAsync()
+        {
+            return Task.Factory.StartNew(() => AddUp());
+        }
 
         /// <summary>
         ///     添加或者减少某个字段（支持延迟加载）
@@ -287,6 +400,15 @@ namespace FS.Sql
         {
             return AddAssign(fieldName, fieldValue).AddUp();
         }
+        /// <summary>
+        ///     添加或者减少某个字段（支持延迟加载）
+        /// </summary>
+        /// <param name="fieldName">字段名称</param>
+        /// <param name="fieldValue">要+=的值</param>
+        public Task<int> AddUpAsync<T>(Expression<Func<TEntity, T>> fieldName, T fieldValue) where T : struct
+        {
+            return Task.Factory.StartNew(() => AddUp(fieldName, fieldValue));
+        }
 
         /// <summary>
         ///     添加或者减少某个字段（支持延迟加载）
@@ -296,6 +418,15 @@ namespace FS.Sql
         public int AddUp<T>(Expression<Func<TEntity, T?>> fieldName, T fieldValue) where T : struct
         {
             return AddAssign(fieldName, fieldValue).AddUp();
+        }
+        /// <summary>
+        ///     添加或者减少某个字段（支持延迟加载）
+        /// </summary>
+        /// <param name="fieldName">字段名称</param>
+        /// <param name="fieldValue">要+=的值</param>
+        public Task<int> AddUpAsync<T>(Expression<Func<TEntity, T?>> fieldName, T fieldValue) where T : struct
+        {
+            return Task.Factory.StartNew(() => AddUp(fieldName, fieldValue));
         }
 
         /// <summary>
@@ -310,6 +441,18 @@ namespace FS.Sql
         {
             return Where(ID, memberName).AddUp(select, fieldValue);
         }
+        /// <summary>
+        ///     更新单个字段值
+        /// </summary>
+        /// <typeparam name="T">更新的值类型</typeparam>
+        /// <param name="select"></param>
+        /// <param name="fieldValue">要更新的值</param>
+        /// <param name="ID">o => o.ID.Equals(ID)</param>
+        /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
+        public Task<int> AddUpAsync<T>(T? ID, Expression<Func<TEntity, T?>> select, T fieldValue, string memberName = null) where T : struct
+        {
+            return Task.Factory.StartNew(() => AddUp(ID, select, fieldValue, memberName));
+        }
 
         /// <summary>
         ///     更新单个字段值
@@ -323,6 +466,18 @@ namespace FS.Sql
         {
             return Where(ID, memberName).AddUp(select, fieldValue);
         }
+        /// <summary>
+        ///     更新单个字段值
+        /// </summary>
+        /// <typeparam name="T">更新的值类型</typeparam>
+        /// <param name="select"></param>
+        /// <param name="fieldValue">要更新的值</param>
+        /// <param name="ID">o => o.ID.Equals(ID)</param>
+        /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
+        public Task<int> AddUpAsync<T>(T ID, Expression<Func<TEntity, T>> select, T fieldValue, string memberName = null) where T : struct
+        {
+            return Task.Factory.StartNew(() => AddUp(ID, select, fieldValue, memberName));
+        }
 
         /// <summary>
         ///     更新单个字段值
@@ -334,7 +489,16 @@ namespace FS.Sql
         {
             return AddUp<T>(ID, null, fieldValue);
         }
-
+        /// <summary>
+        ///     更新单个字段值
+        /// </summary>
+        /// <param name="fieldValue">要更新的值</param>
+        /// <typeparam name="T">ID</typeparam>
+        /// <param name="ID">o => o.ID.Equals(ID)</param>
+        public Task<int> AddUpAsync<T>(T? ID, T fieldValue) where T : struct
+        {
+            return Task.Factory.StartNew(() => AddUp(ID, fieldValue));
+        }
         #endregion
     }
 }

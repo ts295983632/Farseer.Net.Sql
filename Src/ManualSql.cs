@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading.Tasks;
 using FS.Extends;
 using FS.Sql.Internal;
 
@@ -34,6 +35,16 @@ namespace FS.Sql
         {
             return Context.QueueManger.Commit(null, (queue) => Context.Executeor.GetValue(new SqlParam(sql, parameters), t), false);
         }
+        /// <summary>
+        ///     返回查询的值
+        /// </summary>
+        /// <param name="sql">SQL语句</param>
+        /// <param name="parameters">参数</param>
+        /// <param name="t">失败时返回的值</param>
+        public Task<T> GetValueAsync<T>(string sql, T t = default(T), params DbParameter[] parameters)
+        {
+            return Task.Factory.StartNew(() => GetValue(sql,t, parameters));
+        }
 
         /// <summary>
         ///     返回单条记录
@@ -43,6 +54,15 @@ namespace FS.Sql
         public TEntity ToEntity<TEntity>(string sql, params DbParameter[] parameters) where TEntity : class, new()
         {
             return Context.QueueManger.Commit(null, (queue) => Context.Executeor.ToEntity<TEntity>(new SqlParam(sql, parameters)), false);
+        }
+        /// <summary>
+        ///     返回单条记录
+        /// </summary>
+        /// <param name="sql">SQL语句</param>
+        /// <param name="parameters">参数</param>
+        public Task<TEntity> ToEntityAsync<TEntity>(string sql, params DbParameter[] parameters) where TEntity : class, new()
+        {
+            return Task.Factory.StartNew(() => ToEntity<TEntity>(sql, parameters));
         }
 
         /// <summary>
@@ -54,6 +74,15 @@ namespace FS.Sql
         {
             return Context.QueueManger.Commit(null, (queue) => Context.Executeor.ToTable(new SqlParam(sql, parameters)).ToList<TEntity>(), false);
         }
+        /// <summary>
+        ///     返回多条记录
+        /// </summary>
+        /// <param name="sql">SQL语句</param>
+        /// <param name="parameters">参数</param>
+        public Task<List<TEntity>> ToListAsync<TEntity>(string sql, params DbParameter[] parameters) where TEntity : class, new()
+        {
+            return Task.Factory.StartNew(() => ToList<TEntity>(sql, parameters));
+        }
 
         /// <summary>
         ///     执行存储过程
@@ -63,6 +92,15 @@ namespace FS.Sql
         public int Execute(string sql, params DbParameter[] parameters)
         {
             return Context.QueueManger.CommitLazy(null, (queue) => Context.Executeor.Execute(new SqlParam(sql, parameters)), false);
+        }
+        /// <summary>
+        ///     执行存储过程
+        /// </summary>
+        /// <param name="sql">SQL语句</param>
+        /// <param name="parameters">参数</param>
+        public Task<int> ExecuteAsync(string sql, params DbParameter[] parameters)
+        {
+            return Task.Factory.StartNew(() => Execute(sql, parameters));
         }
     }
 }

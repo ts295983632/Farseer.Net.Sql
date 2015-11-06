@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using FS.Extends;
 using FS.Sql.Infrastructure;
 using FS.Sql.Internal;
@@ -35,6 +36,15 @@ namespace FS.Sql
             // 加入委托
             return QueueManger.Commit(SetMap, (queue) => Context.Executeor.GetValue(Queue.ProcBuilder, entity, t), false);
         }
+        /// <summary>
+        ///     返回查询的值
+        /// </summary>
+        /// <param name="entity">传入被设置好参数赋值的实体</param>
+        /// <param name="t">失败时返回的值</param>
+        public Task<T> GetValueAsync<T>(TEntity entity = null, T t = default(T))
+        {
+            return Task.Factory.StartNew(() => GetValue(entity, t));
+        }
 
         /// <summary>
         ///     返回单条记录
@@ -44,6 +54,14 @@ namespace FS.Sql
         {
             // 加入委托
             return QueueManger.Commit(SetMap, (queue) => Context.Executeor.ToEntity(Queue.ProcBuilder, entity), false);
+        }
+        /// <summary>
+        ///     返回单条记录
+        /// </summary>
+        /// <param name="entity">传入被设置好参数赋值的实体</param>
+        public Task<TEntity> ToEntityAsync(TEntity entity = null)
+        {
+            return Task.Factory.StartNew(() => ToEntity(entity));
         }
 
         /// <summary>
@@ -55,6 +73,14 @@ namespace FS.Sql
             // 加入委托
             return QueueManger.Commit(SetMap, (queue) => Context.Executeor.ToTable(Queue.ProcBuilder, entity).ToList<TEntity>(), false);
         }
+        /// <summary>
+        ///     返回多条记录
+        /// </summary>
+        /// <param name="entity">传入被设置好参数赋值的实体</param>
+        public Task<List<TEntity>> ToListAsync(TEntity entity = null)
+        {
+            return Task.Factory.StartNew(() => ToList(entity));
+        }
 
         /// <summary>
         ///     返回多条记录
@@ -64,6 +90,14 @@ namespace FS.Sql
         {
             // 加入委托
             return QueueManger.Commit(SetMap, (queue) => Context.Executeor.ToTable(Queue.ProcBuilder, entity), false);
+        }
+        /// <summary>
+        ///     返回多条记录
+        /// </summary>
+        /// <param name="entity">传入被设置好参数赋值的实体</param>
+        public Task<DataTable> ToTableAsync(TEntity entity = null)
+        {
+            return Task.Factory.StartNew(() => ToTable(entity));
         }
 
         /// <summary>
@@ -76,6 +110,14 @@ namespace FS.Sql
             var isExitsOutParam = SetMap.PhysicsMap.MapList.Any(o => o.Value.Field.IsOutParam);
             Func<Queue, int> act = (queue) => Context.Executeor.Execute(Queue.ProcBuilder, entity);
             return isExitsOutParam ? QueueManger.Commit(SetMap, act, false) : QueueManger.CommitLazy(SetMap, act, false);
+        }
+        /// <summary>
+        ///     执行存储过程
+        /// </summary>
+        /// <param name="entity">传入被设置好参数赋值的实体</param>
+        public Task<int> ExecuteAsync(TEntity entity = null)
+        {
+            return Task.Factory.StartNew(() => Execute(entity));
         }
     }
 }
