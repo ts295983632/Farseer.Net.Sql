@@ -10,6 +10,7 @@ using FS.Infrastructure;
 using FS.Sql.Infrastructure;
 using FS.Sql.Internal;
 using FS.Sql.Map;
+using FS.Utils.Common;
 
 namespace FS.Sql
 {

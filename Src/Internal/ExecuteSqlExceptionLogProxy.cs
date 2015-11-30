@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using FS.Log;
+using FS.Log.Entity;
 using FS.Sql.Data;
 using FS.Sql.Infrastructure;
 
@@ -112,13 +113,13 @@ namespace FS.Sql.Internal
         /// <summary> 写入日志 </summary>
         private void WriteException(Exception ex, ISqlParam sqlParam)
         {
-            SqlExceptionLogEntity.Write(ex, sqlParam.Name, CommandType.Text, sqlParam.Sql.ToString(), sqlParam.Param ?? new List<DbParameter>());
+            new SqlErrorLogEntity(ex, sqlParam.Name, CommandType.Text, sqlParam.Sql.ToString(), sqlParam.Param ?? new List<DbParameter>()).AddToQueue();
         }
-
+        
         /// <summary> 写入日志 </summary>
         private void WriteException(Exception ex, ProcBuilder procBuilder)
         {
-            SqlExceptionLogEntity.Write(ex, procBuilder.Name, CommandType.StoredProcedure, "", procBuilder.Param ?? new List<DbParameter>());
+            new SqlErrorLogEntity(ex, procBuilder.Name, CommandType.StoredProcedure, "", procBuilder.Param ?? new List<DbParameter>()).AddToQueue();
         }
     }
 }

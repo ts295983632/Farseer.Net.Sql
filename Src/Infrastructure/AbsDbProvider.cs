@@ -37,6 +37,11 @@ namespace FS.Sql.Infrastructure
         public abstract DbProviderFactory GetDbProviderFactory { get; }
 
         /// <summary>
+        ///     是否支持事务操作
+        /// </summary>
+        public abstract bool IsSupportTransaction { get; }
+
+        /// <summary>
         ///     创建字段保护符
         /// </summary>
         /// <param name="fieldName">字符名称</param>

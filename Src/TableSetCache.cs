@@ -79,7 +79,7 @@ namespace FS.Sql
         /// <typeparam name="T">值类型</typeparam>
         /// <param name="fieldName">字段选择器</param>
         /// <param name="fieldValue">值</param>
-        public TableSetCache<TEntity> Append<T>(Expression<Func<TEntity, T>> fieldName, T fieldValue) where T : struct
+        public TableSetCache<TEntity> Append<T>(Expression<Func<TEntity, T>> fieldName, T fieldValue)
         {
             _set.AddAssign(fieldName, fieldValue);
             return this;
@@ -168,7 +168,7 @@ namespace FS.Sql
         /// <typeparam name="T">ID</typeparam>
         /// <param name="lstIDs">条件，等同于：o=> IDs.Contains(o.ID) 的操作</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public int Update<T>(TEntity entity, List<T> lstIDs, string memberName = null)
+        public int Update<T>(TEntity entity, List<T> lstIDs, string memberName = null) where T : struct
         {
             return Where(lstIDs, memberName).Update(entity);
         }
@@ -179,7 +179,7 @@ namespace FS.Sql
         /// <typeparam name="T">ID</typeparam>
         /// <param name="lstIDs">条件，等同于：o=> IDs.Contains(o.ID) 的操作</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public Task<int> UpdateAsync<T>(TEntity entity, List<T> lstIDs, string memberName = null)
+        public Task<int> UpdateAsync<T>(TEntity entity, List<T> lstIDs, string memberName = null) where T : struct
         {
             return Task.Factory.StartNew(() => Update(entity, lstIDs, memberName));
         }
@@ -295,7 +295,7 @@ namespace FS.Sql
         /// <param name="ID">条件，等同于：o=>o.ID.Equals(ID) 的操作</param>
         /// <typeparam name="T">ID</typeparam>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public Task<int> DeleteAsync<T>(T ID, string memberName = null)
+        public Task<int> DeleteAsync<T>(T ID, string memberName = null) where T : struct
         {
             return Task.Factory.StartNew(() => Delete(ID, memberName));
         }
@@ -306,7 +306,7 @@ namespace FS.Sql
         /// <param name="lstIDs">条件，等同于：o=> IDs.Contains(o.ID) 的操作</param>
         /// <typeparam name="T">ID</typeparam>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public int Delete<T>(List<T> lstIDs, string memberName = null)
+        public int Delete<T>(List<T> lstIDs, string memberName = null) where T : struct
         {
             return Where(lstIDs, memberName).Delete();
         }
@@ -316,7 +316,7 @@ namespace FS.Sql
         /// <param name="lstIDs">条件，等同于：o=> IDs.Contains(o.ID) 的操作</param>
         /// <typeparam name="T">ID</typeparam>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public Task<int> DeleteAsync<T>(List<T> lstIDs, string memberName = null)
+        public Task<int> DeleteAsync<T>(List<T> lstIDs, string memberName = null) where T : struct
         {
             return Task.Factory.StartNew(() => Delete(lstIDs, memberName));
         }
@@ -392,7 +392,7 @@ namespace FS.Sql
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
         public int AddUp<T>(T? ID, Expression<Func<TEntity, T?>> select, T fieldValue, string memberName = null) where T : struct
         {
-            return Where(ID, memberName).AddUp(select, fieldValue);
+            return Where(ID.GetValueOrDefault(), memberName).AddUp(select, fieldValue);
         }
         /// <summary>
         ///     更新单个字段值

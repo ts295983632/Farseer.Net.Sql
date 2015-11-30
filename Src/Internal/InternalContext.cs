@@ -100,15 +100,15 @@ namespace FS.Sql.Internal
         {
             if (IsInitializer) { return; }
 
+            // 数据库提供者
+            DbProvider = AbsDbProvider.CreateInstance(_contextConnection.DbType, _contextConnection.DataVer);
             // 默认SQL执行者
-            Executeor = new ExecuteSql(new DbExecutor(_contextConnection.ConnectionString, _contextConnection.DbType, _contextConnection.CommandTimeout, IsMergeCommand ? IsolationLevel.Serializable : IsolationLevel.Unspecified), this);
+            Executeor = new ExecuteSql(new DbExecutor(_contextConnection.ConnectionString, _contextConnection.DbType, _contextConnection.CommandTimeout, IsMergeCommand && DbProvider.IsSupportTransaction ? IsolationLevel.Serializable : IsolationLevel.Unspecified), this);
             // 代理SQL记录
             if (SystemConfigs.ConfigEntity.IsWriteDbLog) { Executeor = new ExecuteSqlLogProxy(Executeor); }
             // 代理异常记录
             if (SystemConfigs.ConfigEntity.IsWriteDbExceptionLog) { Executeor = new ExecuteSqlExceptionLogProxy(Executeor); }
 
-            // 数据库提供者
-            DbProvider = AbsDbProvider.CreateInstance(Executeor.DataBase.DataType, _contextConnection.DataVer);
             // 队列管理者
             QueueManger = new QueueManger(this);
             // 手动编写SQL

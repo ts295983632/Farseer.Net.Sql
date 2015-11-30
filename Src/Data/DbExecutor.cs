@@ -5,6 +5,8 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using FS.Infrastructure;
+using FS.Log;
+using FS.Sql.Infrastructure;
 
 namespace FS.Sql.Data
 {
@@ -94,7 +96,7 @@ namespace FS.Sql.Data
         {
             if (_conn == null)
             {
-                _factory = DbFactory.CreateDbProviderFactory(DataType);
+                _factory = AbsDbProvider.CreateInstance(DataType).GetDbProviderFactory;
                 _comm = _factory.CreateCommand();
                 _comm.CommandTimeout = _commandTimeout;
 
@@ -154,6 +156,7 @@ namespace FS.Sql.Data
 
                 return _comm.ExecuteScalar();
             }
+            catch (Exception exp) { LogManger.Log.Error(exp); return null; }
             finally { Close(false); }
         }
 
@@ -176,6 +179,7 @@ namespace FS.Sql.Data
 
                 return _comm.ExecuteNonQuery();
             }
+            catch (Exception exp) { LogManger.Log.Error(exp); return 0; }
             finally { Close(false); }
         }
 
@@ -189,12 +193,16 @@ namespace FS.Sql.Data
         public IDataReader GetReader(CommandType cmdType, string cmdText, params DbParameter[] parameters)
         {
             if (string.IsNullOrWhiteSpace(cmdText)) { return null; }
-            Open();
-            _comm.CommandType = cmdType;
-            _comm.CommandText = cmdText;
-            if (parameters != null) { _comm.Parameters.AddRange(parameters); }
+            try
+            {
+                Open();
+                _comm.CommandType = cmdType;
+                _comm.CommandText = cmdText;
+                if (parameters != null) { _comm.Parameters.AddRange(parameters); }
 
-            return IsTransaction ? _comm.ExecuteReader() : _comm.ExecuteReader(CommandBehavior.CloseConnection);
+                return IsTransaction ? _comm.ExecuteReader() : _comm.ExecuteReader(CommandBehavior.CloseConnection);
+            }
+            catch (Exception exp) { LogManger.Log.Error(exp); return null; }
         }
 
         /// <summary>
@@ -219,6 +227,7 @@ namespace FS.Sql.Data
                 ada.Fill(ds);
                 return ds;
             }
+            catch (Exception exp) { LogManger.Log.Error(exp); return null; }
             finally { Close(false); }
         }
 
@@ -246,7 +255,7 @@ namespace FS.Sql.Data
             try
             {
                 Open();
-                using (var bulkCopy = new SqlBulkCopy((SqlConnection) _conn, SqlBulkCopyOptions.Default, (SqlTransaction) _comm.Transaction))
+                using (var bulkCopy = new SqlBulkCopy((SqlConnection)_conn, SqlBulkCopyOptions.Default, (SqlTransaction)_comm.Transaction))
                 {
                     bulkCopy.DestinationTableName = tableName;
                     bulkCopy.BatchSize = dt.Rows.Count;
@@ -254,6 +263,7 @@ namespace FS.Sql.Data
                     bulkCopy.WriteToServer(dt);
                 }
             }
+            catch (Exception exp) { LogManger.Log.Error(exp); }
             finally { Close(false); }
         }
 
@@ -277,36 +287,47 @@ namespace FS.Sql.Data
     public enum FieldType
     {
         /// <summary> 整型 </summary>
-        [Display(Name = "Int")] Int,
+        [Display(Name = "Int")]
+        Int,
 
         /// <summary> 布尔型 </summary>
-        [Display(Name = "Bit")] Bit,
+        [Display(Name = "Bit")]
+        Bit,
 
         /// <summary> 可变字符串 </summary>
-        [Display(Name = "Varchar")] Varchar,
+        [Display(Name = "Varchar")]
+        Varchar,
 
         /// <summary> 可变字符串（双字节） </summary>
-        [Display(Name = "Nvarchar")] Nvarchar,
+        [Display(Name = "Nvarchar")]
+        Nvarchar,
 
         /// <summary> 不可变字符串 </summary>
-        [Display(Name = "Char")] Char,
+        [Display(Name = "Char")]
+        Char,
 
         /// <summary> 不可变字符串（双字节） </summary>
-        [Display(Name = "NChar")] NChar,
+        [Display(Name = "NChar")]
+        NChar,
 
         /// <summary> 不可变文本 </summary>
-        [Display(Name = "Text")] Text,
+        [Display(Name = "Text")]
+        Text,
 
         /// <summary> 不可变文本 </summary>
-        [Display(Name = "Ntext")] Ntext,
+        [Display(Name = "Ntext")]
+        Ntext,
 
         /// <summary> 日期 </summary>
-        [Display(Name = "DateTime")] DateTime,
+        [Display(Name = "DateTime")]
+        DateTime,
 
         /// <summary> 短整型 </summary>
-        [Display(Name = "Smallint")] Smallint,
+        [Display(Name = "Smallint")]
+        Smallint,
 
         /// <summary> 浮点 </summary>
-        [Display(Name = "Float")] Float,
+        [Display(Name = "Float")]
+        Float,
     }
 }

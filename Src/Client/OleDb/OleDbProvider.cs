@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Data.Common;
+using System.Reflection;
 using System.Text;
+using FS.Cache;
 using FS.Sql.ExpressionVisitor;
 using FS.Sql.Infrastructure;
 using FS.Sql.Internal;
@@ -13,12 +15,13 @@ namespace FS.Sql.Client.OleDb
     /// </summary>
     public class OleDbProvider : AbsDbProvider
     {
-        public override DbProviderFactory GetDbProviderFactory => DbProviderFactories.GetFactory("System.Data.OleDb");
+        public override DbProviderFactory GetDbProviderFactory => System.Data.OleDb.OleDbFactory.Instance;
 
         internal override ISqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name)
         {
             return new OleDbSqlBuilder(this, expBuilder, name);
         }
+        public override bool IsSupportTransaction => false;
 
         public override string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "")
         {

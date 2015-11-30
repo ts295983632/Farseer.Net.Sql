@@ -1,4 +1,6 @@
 ﻿using System.Data.Common;
+using System.Reflection;
+using FS.Cache;
 using FS.Sql.Infrastructure;
 using FS.Sql.Internal;
 
@@ -9,7 +11,8 @@ namespace FS.Sql.Client.MySql
     /// </summary>
     public class MySqlProvider : AbsDbProvider
     {
-        public override DbProviderFactory GetDbProviderFactory => DbProviderFactories.GetFactory("MySql.Data.MySqlClient");
+        public override DbProviderFactory GetDbProviderFactory => (DbProviderFactory)InstanceCacheManger.Cache(Assembly.Load("MySql.Data.MySqlClient").GetType("MySql.Data.MySqlClient.MySqlClientFactory"));
+        public override bool IsSupportTransaction => true;
 
         public override string KeywordAegis(string fieldName)
         {

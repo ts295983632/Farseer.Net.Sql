@@ -30,8 +30,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Farseer.Net, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Farseer.Net">
       <HintPath>..\Lib\Farseer.Net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -46,7 +45,6 @@
   <ItemGroup>
     <Compile Include="Client\OleDb\OleDbWhereVisitor.cs" />
     <Compile Include="Internal\DefaultDataCache.cs" />
-    <Compile Include="Result.cs" />
     <Compile Include="_\FS.Cache\ConnStringCacheManger.cs" />
     <Compile Include="_\FS.Cache\ContextMapCacheManger.cs" />
     <Compile Include="_\FS.Cache\ContextSetTypeCacheManger.cs" />
@@ -123,7 +121,6 @@
     <Compile Include="_\FS.Extends\SetExtend.cs" />
     <Compile Include="_\FS.Extends\TypeConvertExtend.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,5 +1,7 @@
 ﻿using System.Data.Common;
+using System.Reflection;
 using System.Text;
+using FS.Cache;
 using FS.Sql.Infrastructure;
 using FS.Sql.Internal;
 
@@ -10,13 +12,13 @@ namespace FS.Sql.Client.SqlServer
     /// </summary>
     public class SqlServerProvider : AbsDbProvider
     {
-        public override DbProviderFactory GetDbProviderFactory => DbProviderFactories.GetFactory("System.Data.SqlClient");
+        public override DbProviderFactory GetDbProviderFactory => System.Data.SqlClient.SqlClientFactory.Instance;
 
         internal override ISqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name)
         {
             return new SqlServerSqlBuilder(this, expBuilder, name);
         }
-
+        public override bool IsSupportTransaction => true;
         public override string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "")
         {
             var sb = new StringBuilder();

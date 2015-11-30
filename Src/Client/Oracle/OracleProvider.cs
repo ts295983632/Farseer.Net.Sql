@@ -1,4 +1,6 @@
 ﻿using System.Data.Common;
+using System.Reflection;
+using FS.Cache;
 using FS.Sql.Infrastructure;
 using FS.Sql.Internal;
 
@@ -9,14 +11,14 @@ namespace FS.Sql.Client.Oracle
     /// </summary>
     public class OracleProvider : AbsDbProvider
     {
+        public override DbProviderFactory GetDbProviderFactory => (DbProviderFactory)InstanceCacheManger.Cache(Assembly.Load("System.Data.OracleClient").GetType("System.Data.OracleClient.OracleClientFactory"));
         public override string ParamsPrefix => ":";
 
         public override string KeywordAegis(string fieldName)
         {
             return fieldName;
         }
-
-        public override DbProviderFactory GetDbProviderFactory => DbProviderFactories.GetFactory("System.Data.OracleClient");
+        public override bool IsSupportTransaction => true;
 
         internal override ISqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name)
         {

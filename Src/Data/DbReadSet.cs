@@ -418,7 +418,7 @@ namespace FS.Sql.Data
         /// <typeparam name="T">ID</typeparam>
         /// <param name="ID">条件，等同于：o=>o.ID.Equals(ID) 的操作</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public virtual TEntity ToEntity<T>(T ID, string memberName = null)
+        public virtual TEntity ToEntity<T>(T ID, string memberName = null) where T : struct
         {
             Where(ID, memberName);
             return ToEntity();
@@ -429,7 +429,7 @@ namespace FS.Sql.Data
         /// <typeparam name="T">ID</typeparam>
         /// <param name="ID">条件，等同于：o=>o.ID.Equals(ID) 的操作</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public virtual Task<TEntity> ToEntityAsync<T>(T ID, string memberName = null)
+        public virtual Task<TEntity> ToEntityAsync<T>(T ID, string memberName = null) where T : struct
         {
             return Task.Factory.StartNew(() => ToEntity(ID, memberName));
         }
@@ -458,7 +458,7 @@ namespace FS.Sql.Data
         /// <typeparam name="T">ID</typeparam>
         /// <param name="ID">条件，等同于：o=>o.ID.Equals(ID) 的操作</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public virtual int Count<T>(T ID, string memberName = null)
+        public virtual int Count<T>(T ID, string memberName = null) where T : struct
         {
             Where(ID, memberName);
             return Count();
@@ -469,7 +469,7 @@ namespace FS.Sql.Data
         /// <typeparam name="T">ID</typeparam>
         /// <param name="ID">条件，等同于：o=>o.ID.Equals(ID) 的操作</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public virtual Task<int> CountAsync<T>(T ID, string memberName = null)
+        public virtual Task<int> CountAsync<T>(T ID, string memberName = null) where T : struct
         {
             return Task.Factory.StartNew(() => Count(ID, memberName));
         }
@@ -480,7 +480,7 @@ namespace FS.Sql.Data
         /// <typeparam name="T">ID</typeparam>
         /// <param name="lstIDs">条件，等同于：o=> IDs.Contains(o.ID) 的操作</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public virtual int Count<T>(List<T> lstIDs, string memberName = null)
+        public virtual int Count<T>(List<T> lstIDs, string memberName = null) where T : struct
         {
             Where(lstIDs, memberName);
             return Count();
@@ -491,7 +491,7 @@ namespace FS.Sql.Data
         /// <typeparam name="T">ID</typeparam>
         /// <param name="lstIDs">条件，等同于：o=> IDs.Contains(o.ID) 的操作</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public virtual Task<int> CountAsync<T>(List<T> lstIDs, string memberName = null)
+        public virtual Task<int> CountAsync<T>(List<T> lstIDs, string memberName = null) where T : struct
         {
             return Task.Factory.StartNew(() => Count(lstIDs, memberName));
         }
@@ -520,7 +520,7 @@ namespace FS.Sql.Data
         /// <typeparam name="T">ID</typeparam>
         /// <param name="ID">条件，等同于：o=>o.ID == ID 的操作</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public virtual bool IsHaving<T>(T ID, string memberName = null)
+        public virtual bool IsHaving<T>(T ID, string memberName = null) where T : struct
         {
             Where(ID, memberName);
             return IsHaving();
@@ -531,7 +531,7 @@ namespace FS.Sql.Data
         /// <typeparam name="T">ID</typeparam>
         /// <param name="ID">条件，等同于：o=>o.ID == ID 的操作</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public virtual Task<bool> IsHavingAsync<T>(T ID, string memberName = null)
+        public virtual Task<bool> IsHavingAsync<T>(T ID, string memberName = null) where T : struct
         {
             return Task.Factory.StartNew(() => IsHaving(ID, memberName));
         }
@@ -588,7 +588,7 @@ namespace FS.Sql.Data
         /// <param name="fieldName">筛选字段</param>
         /// <param name="defValue">不存在时默认值</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public virtual T2 GetValue<T1, T2>(T1 ID, Expression<Func<TEntity, T2>> fieldName, T2 defValue = default(T2), string memberName = null)
+        public virtual T2 GetValue<T1, T2>(T1 ID, Expression<Func<TEntity, T2>> fieldName, T2 defValue = default(T2), string memberName = null) where T1 : struct
         {
             Where(ID, memberName);
             return GetValue(fieldName, defValue);
@@ -602,7 +602,7 @@ namespace FS.Sql.Data
         /// <param name="fieldName">筛选字段</param>
         /// <param name="defValue">不存在时默认值</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public virtual Task<T2> GetValueAsync<T1, T2>(T1 ID, Expression<Func<TEntity, T2>> fieldName, T2 defValue = default(T2), string memberName = null)
+        public virtual Task<T2> GetValueAsync<T1, T2>(T1 ID, Expression<Func<TEntity, T2>> fieldName, T2 defValue = default(T2), string memberName = null) where T1 : struct
         {
             return Task.Factory.StartNew(() => GetValue(ID, fieldName, defValue, memberName));
         }
@@ -631,7 +631,7 @@ namespace FS.Sql.Data
         /// <summary>
         ///     查询最大数（不支持延迟加载）
         /// </summary>
-        public virtual T Max<T>(Expression<Func<TEntity, T>> fieldName, T defValue = default(T))
+        public virtual T Max<T>(Expression<Func<TEntity, T>> fieldName, T defValue = default(T)) where T : struct
         {
             if (fieldName == null) { throw new ArgumentNullException("fieldName", "查询Max操作时，fieldName参数不能为空！"); }
 
@@ -641,7 +641,7 @@ namespace FS.Sql.Data
         /// <summary>
         ///     查询最大数（不支持延迟加载）
         /// </summary>
-        public virtual Task<T> MaxAsync<T>(Expression<Func<TEntity, T>> fieldName, T defValue = default(T))
+        public virtual Task<T> MaxAsync<T>(Expression<Func<TEntity, T>> fieldName, T defValue = default(T)) where T : struct
         {
             return Task.Factory.StartNew(() => Max(fieldName, defValue));
         }
@@ -649,7 +649,7 @@ namespace FS.Sql.Data
         /// <summary>
         ///     查询最小数（不支持延迟加载）
         /// </summary>
-        public virtual T Min<T>(Expression<Func<TEntity, T>> fieldName, T defValue = default(T))
+        public virtual T Min<T>(Expression<Func<TEntity, T>> fieldName, T defValue = default(T)) where T : struct
         {
             if (fieldName == null) { throw new ArgumentNullException("fieldName", "查询Min操作时，fieldName参数不能为空！"); }
 
@@ -659,7 +659,7 @@ namespace FS.Sql.Data
         /// <summary>
         ///     查询最小数（不支持延迟加载）
         /// </summary>
-        public virtual Task<T> MinAsync<T>(Expression<Func<TEntity, T>> fieldName, T defValue = default(T))
+        public virtual Task<T> MinAsync<T>(Expression<Func<TEntity, T>> fieldName, T defValue = default(T)) where T : struct
         {
             return Task.Factory.StartNew(() => Min(fieldName, defValue));
         }

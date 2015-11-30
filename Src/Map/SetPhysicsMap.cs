@@ -38,48 +38,23 @@ namespace FS.Sql.Map
                 foreach (var item in attrs)
                 {
                     // 字段
-                    if (item is FieldAttribute)
-                    {
-                        modelAtt.Field = (FieldAttribute) item;
-                        continue;
-                    }
+                    if (item is FieldAttribute) { modelAtt.Field = (FieldAttribute)item; continue; }
                     // 字符串长度
-                    if (item is StringLengthAttribute)
-                    {
-                        modelAtt.StringLength = (StringLengthAttribute) item;
-                        continue;
-                    }
+                    if (item is StringLengthAttribute) { modelAtt.StringLength = (StringLengthAttribute)item; continue; }
                     // 是否必填
-                    if (item is RequiredAttribute)
-                    {
-                        modelAtt.Required = (RequiredAttribute) item;
-                        continue;
-                    }
+                    if (item is RequiredAttribute) { modelAtt.Required = (RequiredAttribute)item; continue; }
                     // 字段描述
-                    if (item is DisplayAttribute)
-                    {
-                        modelAtt.Display = (DisplayAttribute) item;
-                        continue;
-                    }
+                    if (item is DisplayAttribute) { modelAtt.Display = (DisplayAttribute)item; continue; }
                     // 值的长度
-                    if (item is RangeAttribute)
-                    {
-                        modelAtt.Range = (RangeAttribute) item;
-                        continue;
-                    }
+                    if (item is RangeAttribute) { modelAtt.Range = (RangeAttribute)item; continue; }
                     // 正则
-                    if (item is RegularExpressionAttribute)
-                    {
-                        modelAtt.RegularExpression = (RegularExpressionAttribute) item;
-                        continue;
-                    }
+                    if (item is RegularExpressionAttribute) { modelAtt.RegularExpression = (RegularExpressionAttribute)item; continue; }
                 }
-
                 #endregion
 
                 #region 初始化字段映射
 
-                if (modelAtt.Field == null) { modelAtt.Field = new FieldAttribute {Name = propertyInfo.Name}; }
+                if (modelAtt.Field == null) { modelAtt.Field = new FieldAttribute { Name = propertyInfo.Name }; }
                 if (string.IsNullOrEmpty(modelAtt.Field.Name)) { modelAtt.Field.Name = propertyInfo.Name; }
                 if (modelAtt.Field.IsMap)
                 {
@@ -93,7 +68,7 @@ namespace FS.Sql.Map
 
                 #region 初始化字段描述映射
 
-                if (modelAtt.Display == null) { modelAtt.Display = new DisplayAttribute {Name = propertyInfo.Name}; }
+                if (modelAtt.Display == null) { modelAtt.Display = new DisplayAttribute { Name = propertyInfo.Name }; }
                 if (string.IsNullOrEmpty(modelAtt.Display.Name)) { modelAtt.Display.Name = propertyInfo.Name; }
 
                 #endregion
@@ -101,15 +76,15 @@ namespace FS.Sql.Map
                 #region 加入智能错误显示消息
 
                 // 是否必填
-                if (modelAtt.Required != null && string.IsNullOrEmpty(modelAtt.Required.ErrorMessage)) { modelAtt.Required.ErrorMessage = string.Format("{0}，不能为空！", modelAtt.Display.Name); }
+                if (modelAtt.Required != null && string.IsNullOrEmpty(modelAtt.Required.ErrorMessage)) { modelAtt.Required.ErrorMessage = $"{modelAtt.Display.Name}，不能为空！"; }
 
                 // 字符串长度判断
                 if (modelAtt.StringLength != null && string.IsNullOrEmpty(modelAtt.StringLength.ErrorMessage))
                 {
-                    if (modelAtt.StringLength.MinimumLength > 0 && modelAtt.StringLength.MaximumLength > 0) { modelAtt.StringLength.ErrorMessage = string.Format("{0}，长度范围必须为：{1} - {2} 个字符之间！", modelAtt.Display.Name, modelAtt.StringLength.MinimumLength, modelAtt.StringLength.MaximumLength); }
-                    else if (modelAtt.StringLength.MaximumLength > 0) { modelAtt.StringLength.ErrorMessage = string.Format("{0}，长度不能大于{1}个字符！", modelAtt.Display.Name, modelAtt.StringLength.MaximumLength); }
+                    if (modelAtt.StringLength.MinimumLength > 0 && modelAtt.StringLength.MaximumLength > 0) { modelAtt.StringLength.ErrorMessage = $"{modelAtt.Display.Name}，长度范围必须为：{modelAtt.StringLength.MinimumLength} - {modelAtt.StringLength.MaximumLength} 个字符之间！"; }
+                    else if (modelAtt.StringLength.MaximumLength > 0) { modelAtt.StringLength.ErrorMessage = $"{modelAtt.Display.Name}，长度不能大于{modelAtt.StringLength.MaximumLength}个字符！"; }
                     else
-                    { modelAtt.StringLength.ErrorMessage = string.Format("{0}，长度不能小于{1}个字符！", modelAtt.Display.Name, modelAtt.StringLength.MinimumLength); }
+                    { modelAtt.StringLength.ErrorMessage = $"{modelAtt.Display.Name}，长度不能小于{modelAtt.StringLength.MinimumLength}个字符！"; }
                 }
 
                 // 值的长度
@@ -120,10 +95,10 @@ namespace FS.Sql.Map
                     decimal maximum;
                     decimal.TryParse(modelAtt.Range.Minimum.ToString(), out maximum);
 
-                    if (minnum > 0 && maximum > 0) { modelAtt.Range.ErrorMessage = string.Format("{0}，的值范围必须为：{1} - {2} 之间！", modelAtt.Display.Name, minnum, maximum); }
-                    else if (maximum > 0) { modelAtt.Range.ErrorMessage = string.Format("{0}，的值不能大于{1}！", modelAtt.Display.Name, maximum); }
+                    if (minnum > 0 && maximum > 0) { modelAtt.Range.ErrorMessage = $"{modelAtt.Display.Name}，的值范围必须为：{minnum} - {maximum} 之间！"; }
+                    else if (maximum > 0) { modelAtt.Range.ErrorMessage = $"{modelAtt.Display.Name}，的值不能大于{maximum}！"; }
                     else
-                    { modelAtt.Range.ErrorMessage = string.Format("{0}，的值不能小于{1}！", modelAtt.Display.Name, minnum); }
+                    { modelAtt.Range.ErrorMessage = $"{modelAtt.Display.Name}，的值不能小于{minnum}！"; }
                 }
 
                 #endregion

@@ -2,6 +2,7 @@
 using System.Data;
 using System.Diagnostics;
 using FS.Log;
+using FS.Log.Entity;
 using FS.Sql.Data;
 using FS.Sql.Infrastructure;
 
@@ -32,7 +33,7 @@ namespace FS.Sql.Internal
             var val = func();
             timer.Stop();
 
-            SqlLogEntity.Write(sqlParam.Name, CommandType.Text, sqlParam.Sql.ToString(), sqlParam.Param, timer.ElapsedMilliseconds);
+            new SqlRunLogEntity(sqlParam.Name, CommandType.Text, sqlParam.Sql.ToString(), sqlParam.Param, timer.ElapsedMilliseconds).AddToQueue();
             return val;
         }
 
@@ -46,7 +47,7 @@ namespace FS.Sql.Internal
             var val = func();
             timer.Stop();
 
-            SqlLogEntity.Write(procBuilder.Name, CommandType.StoredProcedure, "", procBuilder.Param, timer.ElapsedMilliseconds);
+            new SqlRunLogEntity(procBuilder.Name, CommandType.StoredProcedure, "", procBuilder.Param, timer.ElapsedMilliseconds).AddToQueue();
             return val;
         }
 

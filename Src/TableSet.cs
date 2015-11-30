@@ -35,7 +35,7 @@ namespace FS.Sql
         /// <typeparam name="T">值类型</typeparam>
         /// <param name="fieldName">字段选择器</param>
         /// <param name="fieldValue">值</param>
-        public TableSet<TEntity> AddAssign<T>(Expression<Func<TEntity, T>> fieldName, T fieldValue) where T : struct
+        public TableSet<TEntity> AddAssign<T>(Expression<Func<TEntity, T>> fieldName, T fieldValue)
         {
             Queue.ExpBuilder.AddAssign(fieldName, fieldValue);
             return this;
@@ -98,7 +98,7 @@ namespace FS.Sql
         /// <typeparam name="T">ID</typeparam>
         /// <param name="ID">o => o.ID.Equals(ID)</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public void Copy<T>(T ID, Action<TEntity> act = null, string memberName = null)
+        public void Copy<T>(T ID, Action<TEntity> act = null, string memberName = null) where T : struct
         {
             Where(ID, memberName);
             Copy(act);
@@ -110,7 +110,7 @@ namespace FS.Sql
         /// <typeparam name="T">ID</typeparam>
         /// <param name="ID">o => o.ID.Equals(ID)</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public Task CopyAsync<T>(T ID, Action<TEntity> act = null, string memberName = null)
+        public Task CopyAsync<T>(T ID, Action<TEntity> act = null, string memberName = null) where T : struct
         {
             return Task.Factory.StartNew(() => Copy(ID, act, memberName));
         }
@@ -122,7 +122,7 @@ namespace FS.Sql
         /// <typeparam name="T">ID</typeparam>
         /// <param name="lstIDs">o => IDs.Contains(o.ID)</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public void Copy<T>(List<T> lstIDs, Action<TEntity> act = null, string memberName = null)
+        public void Copy<T>(List<T> lstIDs, Action<TEntity> act = null, string memberName = null) where T : struct
         {
             Where(lstIDs, memberName);
             Copy(act);
@@ -134,7 +134,7 @@ namespace FS.Sql
         /// <typeparam name="T">ID</typeparam>
         /// <param name="lstIDs">o => IDs.Contains(o.ID)</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public Task CopyAsync<T>(List<T> lstIDs, Action<TEntity> act = null, string memberName = null)
+        public Task CopyAsync<T>(List<T> lstIDs, Action<TEntity> act = null, string memberName = null) where T : struct
         {
             return Task.Factory.StartNew(() => Copy(lstIDs, act, memberName));
         }
@@ -207,7 +207,7 @@ namespace FS.Sql
         /// <typeparam name="T">ID</typeparam>
         /// <param name="lstIDs">条件，等同于：o=> IDs.Contains(o.ID) 的操作</param>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public Task<int> UpdateAsync<T>(TEntity info, List<T> lstIDs, string memberName = null)
+        public Task<int> UpdateAsync<T>(TEntity info, List<T> lstIDs, string memberName = null) where T : struct
         {
             return Task.Factory.StartNew(() => Update(info, lstIDs, memberName));
         }
@@ -279,15 +279,22 @@ namespace FS.Sql
             return QueueManger.CommitLazy(SetMap, (queue) =>
             {
                 // 如果是MSSQLSER，则启用BulkCopy
-                if (Context.Executeor.DataBase.DataType == eumDbType.SqlServer) { Context.Executeor.DataBase.ExecuteSqlBulkCopy(SetMap.Name, lst.ToTable()); }
-                else
+                switch (Context.Executeor.DataBase.DataType)
                 {
-                    lst.ForEach(entity =>
-                    {
-                        // 实体类的赋值，转成表达式树
-                        queue.ExpBuilder.AssignInsert(entity);
-                        Context.Executeor.Execute(queue.SqlBuilder.Insert());
-                    });
+                    case eumDbType.SqlServer:
+                        Context.Executeor.DataBase.ExecuteSqlBulkCopy(SetMap.Name, lst.ToTable());
+                        break;
+                    case eumDbType.OleDb:
+                        lst.ForEach(entity => QueueManger.CommitLazy(SetMap, (queueLazy) => Context.Executeor.Execute(queueLazy.SqlBuilder.Insert()), false));
+                        break;
+                    default:
+                        lst.ForEach(entity =>
+                        {
+                            // 实体类的赋值，转成表达式树
+                            queue.ExpBuilder.AssignInsert(entity);
+                            Context.Executeor.Execute(queue.SqlBuilder.Insert());
+                        });
+                        break;
                 }
                 return lst.Count;
             }, false);
@@ -333,7 +340,18 @@ namespace FS.Sql
         /// <param name="ID">条件，等同于：o=>o.ID.Equals(ID) 的操作</param>
         /// <typeparam name="T">ID</typeparam>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public int Delete<T>(T ID, string memberName = null)
+        public int Delete<T>(T ID, string memberName = null) where T : struct
+        {
+            return Where(ID, memberName).Delete();
+        }
+
+        /// <summary>
+        ///     删除数据
+        /// </summary>
+        /// <param name="ID">条件，等同于：o=>o.ID.Equals(ID) 的操作</param>
+        /// <typeparam name="T">ID</typeparam>
+        /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
+        public int Delete<T>(T? ID, string memberName = null) where T : struct
         {
             return Where(ID, memberName).Delete();
         }
@@ -343,7 +361,7 @@ namespace FS.Sql
         /// <param name="ID">条件，等同于：o=>o.ID.Equals(ID) 的操作</param>
         /// <typeparam name="T">ID</typeparam>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public Task<int> DeleteAsync<T>(T ID, string memberName = null)
+        public Task<int> DeleteAsync<T>(T ID, string memberName = null) where T : struct
         {
             return Task.Factory.StartNew(() => Delete(ID, memberName));
         }
@@ -364,7 +382,7 @@ namespace FS.Sql
         /// <param name="lstIDs">条件，等同于：o=> IDs.Contains(o.ID) 的操作</param>
         /// <typeparam name="T">ID</typeparam>
         /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
-        public Task<int> DeleteAsync<T>(List<T> lstIDs, string memberName = null)
+        public Task<int> DeleteAsync<T>(List<T> lstIDs, string memberName = null) where T : struct
         {
             return Task.Factory.StartNew(() => Delete(lstIDs, memberName));
         }

@@ -5,7 +5,13 @@ using System.Data.SqlClient;
 using FS.Cache;
 using FS.Configs;
 using FS.Infrastructure;
+using FS.Sql.Client.MySql;
+using FS.Sql.Client.OleDb;
+using FS.Sql.Client.Oracle;
+using FS.Sql.Client.SqlServer;
+using FS.Sql.Client.SqLite;
 using FS.Sql.Data;
+using FS.Sql.Infrastructure;
 
 namespace FS.Sql
 {
@@ -23,28 +29,6 @@ namespace FS.Sql
         }
 
         /// <summary>
-        ///     返回数据库类型名称
-        /// </summary>
-        /// <param name="dbType">数据库类型</param>
-        public static DbProviderFactory CreateDbProviderFactory(eumDbType dbType)
-        {
-            switch (dbType)
-            {
-                case eumDbType.MySql:
-                    return DbProviderFactories.GetFactory("MySql.Data.MySqlClient");
-                case eumDbType.OleDb:
-                    return DbProviderFactories.GetFactory("System.Data.OleDb");
-                case eumDbType.Oracle:
-                    return DbProviderFactories.GetFactory("System.Data.OracleClient");
-                case eumDbType.SQLite:
-                    return DbProviderFactories.GetFactory("System.Data.SQLite");
-                case eumDbType.SqlServer:
-                    return DbProviderFactories.GetFactory("System.Data.SqlClient");
-            }
-            return DbProviderFactories.GetFactory("System.Data.SqlClient");
-        }
-
-        /// <summary>
         ///     获取数据库连接对象
         /// </summary>
         /// <param name="dbType">数据库类型</param>
@@ -56,10 +40,9 @@ namespace FS.Sql
             {
                 case eumDbType.SqlServer:
                     conn = new SqlConnection(connectionString);
-                    ;
                     break;
                 default:
-                    conn = CreateDbProviderFactory(dbType).CreateConnection();
+                    conn = AbsDbProvider.CreateInstance(dbType).GetDbProviderFactory.CreateConnection();
                     break;
             }
             conn.ConnectionString = connectionString;

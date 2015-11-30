@@ -1,5 +1,8 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Data.Common;
+using System.Reflection;
 using System.Text;
+using FS.Cache;
 using FS.Sql.Infrastructure;
 using FS.Sql.Internal;
 
@@ -10,13 +13,13 @@ namespace FS.Sql.Client.SqLite
     /// </summary>
     public class SqLiteProvider : AbsDbProvider
     {
-        public override DbProviderFactory GetDbProviderFactory => DbProviderFactories.GetFactory("System.Data.SQLite");
-
+        //public override DbProviderFactory GetDbProviderFactory => DbProviderFactories.GetFactory("System.Data.SQLite");
+        public override DbProviderFactory GetDbProviderFactory =>  (DbProviderFactory)  InstanceCacheManger.Cache(Assembly.Load("System.Data.SQLite").GetType("System.Data.SQLite.SQLiteFactory"));
         internal override ISqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name)
         {
             return new SqLiteSqlBuilder(this, expBuilder, name);
         }
-
+        public override bool IsSupportTransaction => true;
         public override string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "")
         {
             var sb = new StringBuilder();

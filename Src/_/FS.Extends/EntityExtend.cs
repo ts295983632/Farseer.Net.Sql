@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using FS.Cache;
+using FS.Sql;
 using FS.Sql.Infrastructure;
+using FS.Utils.Common;
 
 // ReSharper disable once CheckNamespace
 
@@ -51,7 +53,7 @@ namespace FS.Extends
         public static bool Check<TEntity>(this TEntity entity, out Dictionary<string, List<string>> dicError) where TEntity : IVerification
         {
             dicError = new Dictionary<string, List<string>>();
-            var map = SetMapCacheManger.Cache(typeof (TEntity));
+            var map = SetMapCacheManger.Cache(typeof(TEntity));
             foreach (var kic in map.MapList)
             {
                 var lstError = new List<string>();
@@ -73,6 +75,21 @@ namespace FS.Extends
                 if (lstError.Count > 0) { dicError.Add(kic.Key.Name, lstError); }
             }
             return dicError.Count == 0;
+        }
+
+        /// <summary>
+        ///     检测实体类值状况
+        /// </summary>
+        /// <param name="result">返返回结果情况</param>
+        /// <param name="entity">要检测的实体</param>
+        public static bool Check<TEntity>(this TEntity entity, Result result) where TEntity : IVerification
+        {
+            //返回错误
+            Dictionary<string, List<string>> dicError;
+            var isError = entity.Check(out dicError);
+
+            if (!isError) { result.Add(dicError); }
+            return isError;
         }
     }
 }

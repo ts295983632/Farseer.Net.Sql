@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Data.Common;
+using System.Reflection;
 using System.Threading.Tasks;
 using FS.Configs;
 using FS.Sql.Infrastructure;
@@ -27,33 +28,37 @@ namespace FS.Sql
         ///     返回查询的值
         /// </summary>
         /// <param name="t">失败时返回的值</param>
-        public T GetValue<T>(T t = default(T))
+        /// <param name="parameters">参数</param>
+        public T GetValue<T>(T t = default(T), params DbParameter[] parameters)
         {
-            return Context.ManualSql.GetValue(Map.Sql, t);
+            return Context.ManualSql.GetValue(Map.Sql, t, parameters);
         }
 
         /// <summary>
         ///     返回查询的值
         /// </summary>
         /// <param name="t">失败时返回的值</param>
-        public Task<T> GetValueAsync<T>(T t = default(T))
+        /// <param name="parameters">参数</param>
+        public Task<T> GetValueAsync<T>(T t = default(T), params DbParameter[] parameters)
         {
-            return Task.Factory.StartNew(() => GetValue(t));
+            return Task.Factory.StartNew(() => GetValue(t, parameters));
         }
 
         /// <summary>
         ///     执行存储过程
         /// </summary>
-        public int Execute()
+        /// <param name="parameters">参数</param>
+        public int Execute(params DbParameter[] parameters)
         {
-            return Context.ManualSql.Execute(Map.Sql);
+            return Context.ManualSql.Execute(Map.Sql, parameters);
         }
         /// <summary>
         ///     执行存储过程
         /// </summary>
-        public Task<int> ExecuteAsync()
+        /// <param name="parameters">参数</param>
+        public Task<int> ExecuteAsync(params DbParameter[] parameters)
         {
-            return Task.Factory.StartNew(() => Execute());
+            return Task.Factory.StartNew(() => Execute(parameters));
         }
     }
 }
