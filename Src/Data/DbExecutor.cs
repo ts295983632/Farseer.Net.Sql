@@ -240,7 +240,7 @@ namespace FS.Sql.Data
         public DataTable GetDataTable(CommandType cmdType, string cmdText, params DbParameter[] parameters)
         {
             var ds = GetDataSet(cmdType, cmdText, parameters);
-            return ds.Tables.Count == 0 ? new DataTable() : ds.Tables[0];
+            return ds == null || ds.Tables.Count == 0 ? new DataTable() : ds.Tables[0];
         }
 
         /// <summary>

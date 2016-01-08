@@ -61,10 +61,7 @@ namespace FS.Sql.Internal
         /// <summary>
         ///     表达式持久化
         /// </summary>
-        internal ExpressionBuilder ExpBuilder
-        {
-            get { return _expBuilder ?? (_expBuilder = new ExpressionBuilder(Map)); }
-        }
+        internal ExpressionBuilder ExpBuilder => _expBuilder ?? (_expBuilder = new ExpressionBuilder(Map));
 
         #endregion
 
@@ -75,10 +72,7 @@ namespace FS.Sql.Internal
         /// <summary>
         ///     SQL生成器
         /// </summary>
-        internal ISqlBuilder SqlBuilder
-        {
-            get { return _sqlBuilder ?? (_sqlBuilder = Context.DbProvider.CreateSqlBuilder(ExpBuilder, Map.Name)); }
-        }
+        internal ISqlBuilder SqlBuilder => _sqlBuilder ?? (_sqlBuilder = Context.DbProvider.CreateSqlBuilder(ExpBuilder, Map.Name));
 
         #endregion
 
@@ -89,10 +83,7 @@ namespace FS.Sql.Internal
         /// <summary>
         ///     存储过程生成器
         /// </summary>
-        internal ProcBuilder ProcBuilder
-        {
-            get { return _procBuilder ?? (_procBuilder = new ProcBuilder(Context.DbProvider, Map, Map.Name)); }
-        }
+        internal ProcBuilder ProcBuilder => _procBuilder ?? (_procBuilder = new ProcBuilder(Context.DbProvider, Map, Map.Name));
 
         #endregion
 

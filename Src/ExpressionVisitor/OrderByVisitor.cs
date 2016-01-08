@@ -29,13 +29,15 @@ namespace FS.Sql.ExpressionVisitor
         public virtual string Visit(Dictionary<System.Linq.Expressions.Expression, bool> lstExp)
         {
             if (lstExp == null) { return null; }
+            var lst = new List<string>();
             foreach (var keyValue in lstExp)
             {
                 Visit(keyValue.Key);
-                SqlList.Push($"{SqlList.Pop()} {(keyValue.Value ? "ASC" : "DESC")}");
+                while (SqlList.Count > 0) { lst.Add($"{SqlList.Pop()} {(keyValue.Value ? "ASC" : "DESC")}"); }
+                //SqlList.Push();
             }
-
-            return ConvertHelper.ToString(SqlList.Reverse(), ", ");
+            lst.Reverse();
+            return ConvertHelper.ToString(lst, ", ");
         }
     }
 }

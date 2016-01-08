@@ -225,8 +225,7 @@ namespace FS.Sql.Infrastructure
 
             var fileName = filePath.Replace("/", "\\");
             if (fileName.StartsWith("/")) { fileName = fileName.Substring(1); }
-
-            fileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data/" + fileName);
+            fileName = SysMapPath.AppData + fileName;
             return fileName;
         }
 

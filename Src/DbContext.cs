@@ -56,6 +56,11 @@ namespace FS.Sql
         /// </summary>
         internal static TPo Data<TPo>() where TPo : DbContext, new()
         {
+            // 2016年1月8日
+            // 感谢：QQ462492293 疯狂的蜗牛 同学，发现了BUG
+            // 场景：在For迭代操作数据库时，提示：【数据库连接池连接均在使用,并且达到了最大值】的错误。
+            // 解决：由于此处进行了_internalContext的二次初始化（在SqlSet进行了初始化）。需保证当前_internalContext未被初始化。
+
             var newInstance = new TPo();
             // 上下文初始化器
             newInstance._internalContext = new InternalContext(typeof(TPo), newInstance._contextConnection) { IsMergeCommand = false };
@@ -346,8 +351,7 @@ namespace FS.Sql
             //释放托管资源
             if (disposing)
             {
-                InternalContext.Executeor.DataBase.Dispose();
-                InternalContext.QueueManger.Dispose();
+                InternalContext.Dispose();
             }
         }
 

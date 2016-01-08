@@ -18,28 +18,10 @@ namespace TimeTests
     {
         static void Main(string[] args)
         {
-            //TestTableInstance(1);
-            //TestSetValueCache(1);
-            //TestGetValueCache(1);
-            //TestToList(1);
-            //TestDicKey(1);
-            Console.Clear();
-            //Console.WriteLine("请按任意键开始测试");
-            //Console.ReadKey();
-            //Console.Clear();
-
-            //#if DEBUG
-            //            Console.WriteLine("请在Release模式下进行");
-            //            Console.ReadKey();
-            //            return;
-            //#endif
-            //TestTableInstance();
-            //TestDicKey();
-            TestSetValueCache();
-            TestGetValueCache();
-            //TestToList();
-            //TestDynamicClass();
+            Table.Data.Orders.Delete();
+            TestInsert2(1000);
             Console.ReadKey();
+            Console.WriteLine(Table.Data.Orders.Count());
         }
         static void TestTableInstance(int count = 10000)
         {
@@ -156,6 +138,29 @@ namespace TimeTests
             {
                 var a = dicInt[hashCode];
             });
+        }
+
+        static void TestInsert(int count = 10000000)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Console.WriteLine(i);
+                var a = Table.Data.Orders.Insert(new OrdersVO { ID = Guid.NewGuid(), OrderNo = "1-" + i.ToString(), CreateAt = DateTime.Now, CreateName = "用户1" });
+            }
+        }
+        static void TestInsert2(int count = 10000000)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                var db = new Table();
+                db.CancelTransaction();
+                //using (var db = new Table())
+                {
+                    Console.WriteLine(i);
+                    var a = db.Orders.Insert(new OrdersVO { ID = Guid.NewGuid(), OrderNo = "1-" + i.ToString(), CreateAt = DateTime.Now, CreateName = "用户1" });
+                    //db.SaveChanges();
+                }
+            }
         }
     }
 }

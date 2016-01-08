@@ -8,10 +8,19 @@ namespace FS.Sql
 {
     public class SqlSet : AbsDbSet
     {
+        private SqlMap _map;
+
         /// <summary>
         ///     SQL语句配置文件
         /// </summary>
-        protected SqlMap Map;
+        protected SqlMap Map
+        {
+            get
+            {
+                if (_map == null) { return (_map = Context.ContextType.FullName + "." + SetMap.Name); }
+                return _map;
+            }
+        }
 
         /// <summary>
         ///     使用属性类型的创建
@@ -21,7 +30,6 @@ namespace FS.Sql
         internal SqlSet(DbContext context, PropertyInfo pInfo)
         {
             SetContext(context, pInfo);
-            Map = Context.ContextType.FullName + "." + SetMap.Name;
         }
 
         /// <summary>

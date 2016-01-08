@@ -85,7 +85,6 @@
     <Compile Include="Infrastructure\IProcParam.cs" />
     <Compile Include="Infrastructure\ISqlBuilder.cs" />
     <Compile Include="Infrastructure\ISqlParam.cs" />
-    <Compile Include="Infrastructure\IVerification.cs" />
     <Compile Include="Internal\ContextConnection.cs" />
     <Compile Include="Internal\ExecuteSql.cs" />
     <Compile Include="Internal\ExecuteSqlExceptionLogProxy.cs" />

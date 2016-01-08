@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FS.Cache;
+using FS.Infrastructure;
 using FS.Sql;
 using FS.Sql.Infrastructure;
 using FS.Utils.Common;
