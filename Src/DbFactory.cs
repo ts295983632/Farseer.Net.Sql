@@ -42,7 +42,7 @@ namespace FS.Sql
                     conn = new SqlConnection(connectionString);
                     break;
                 default:
-                    conn = AbsDbProvider.CreateInstance(dbType).GetDbProviderFactory.CreateConnection();
+                    conn = AbsDbProvider.CreateInstance(dbType).DbProviderFactory.CreateConnection();
                     break;
             }
             conn.ConnectionString = connectionString;

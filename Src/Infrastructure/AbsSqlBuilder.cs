@@ -4,16 +4,15 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 using FS.Sql.ExpressionVisitor;
-using FS.Sql.Infrastructure;
 using FS.Sql.Internal;
 using FS.Utils.Common;
 
-namespace FS.Sql.Client.Common
+namespace FS.Sql.Infrastructure
 {
     /// <summary>
     ///     通用SQL生成器
     /// </summary>
-    public class SqlBuilder : ISqlBuilder, ISqlParam
+    public abstract class AbsSqlBuilder : ISqlParam
     {
         /// <summary>
         ///     查询支持的SQL方法
@@ -21,7 +20,7 @@ namespace FS.Sql.Client.Common
         /// <param name="dbProvider">数据库提供者（不同数据库的特性）</param>
         /// <param name="expBuilder">表达式持久化</param>
         /// <param name="name">表名/视图名/存储过程名</param>
-        internal SqlBuilder(AbsDbProvider dbProvider, ExpressionBuilder expBuilder, string name)
+        internal AbsSqlBuilder(AbsDbProvider dbProvider, ExpressionBuilder expBuilder, string name)
         {
             DbProvider = dbProvider;
             ExpBuilder = expBuilder;
@@ -80,7 +79,9 @@ namespace FS.Sql.Client.Common
         /// </summary>
         private InsertVisitor InsertVisitor => DbProvider.CreateInsertVisitor(ExpBuilder.SetMap, Param);
 
-
+        /// <summary>
+        ///     查询单条记录
+        /// </summary>
         public virtual ISqlParam ToEntity()
         {
             var strSelectSql = SelectVisitor.Visit(ExpBuilder.ExpSelect);
@@ -94,6 +95,12 @@ namespace FS.Sql.Client.Common
             return this;
         }
 
+        /// <summary>
+        ///     查询多条记录
+        /// </summary>
+        /// <param name="top">限制显示的数量</param>
+        /// <param name="isDistinct">返回当前条件下非重复数据</param>
+        /// <param name="isRand">返回当前条件下随机的数据</param>
         public virtual ISqlParam ToList(int top = 0, bool isDistinct = false, bool isRand = false)
         {
             var strSelectSql = SelectVisitor.Visit(ExpBuilder.ExpSelect);
@@ -112,6 +119,12 @@ namespace FS.Sql.Client.Common
             return this;
         }
 
+        /// <summary>
+        ///     查询多条记录
+        /// </summary>
+        /// <param name="pageSize">每页显示数量</param>
+        /// <param name="pageIndex">分页索引</param>
+        /// <param name="isDistinct">返回当前条件下非重复数据</param>
         public virtual ISqlParam ToList(int pageSize, int pageIndex, bool isDistinct = false)
         {
             // 不分页
@@ -133,24 +146,33 @@ namespace FS.Sql.Client.Common
 
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
 
-            Sql.Append(string.Format("SELECT {0}TOP {2} {1} FROM (SELECT TOP {3} * FROM {4} {5} {6}) a  {7};", strDistinctSql, strSelectSql, pageSize, pageSize * pageIndex, Name, strWhereSql, strOrderBySql, strOrderBySqlReverse));
+            Sql.Append(string.Format("SELECT {0}TOP {2} {1} FROM (SELECT TOP {3} * FROM {4} {5} {6}) a  {7};", strDistinctSql, strSelectSql, pageSize, pageSize * pageIndex, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, strOrderBySqlReverse));
             return this;
         }
 
+        /// <summary>
+        ///     插入
+        /// </summary>
         public virtual ISqlParam Insert()
         {
             var strinsertAssemble = InsertVisitor.Visit(ExpBuilder.ExpAssign);
-            Sql.Append($"INSERT INTO {Name} {strinsertAssemble}");
+            Sql.Append($"INSERT INTO {DbProvider.KeywordAegis(Name)} {strinsertAssemble}");
             return this;
         }
 
+        /// <summary>
+        ///     插入，并返回标识
+        /// </summary>
         public virtual ISqlParam InsertIdentity()
         {
             var strinsertAssemble = InsertVisitor.Visit(ExpBuilder.ExpAssign);
-            Sql.Append($"INSERT INTO {Name} {strinsertAssemble} ");
+            Sql.Append($"INSERT INTO {DbProvider.KeywordAegis(Name)} {strinsertAssemble} ");
             return this;
         }
 
+        /// <summary>
+        ///     修改
+        /// </summary>
         public virtual ISqlParam Update()
         {
             var strWhereSql = WhereVisitor.Visit(ExpBuilder.ExpWhere);
@@ -163,6 +185,10 @@ namespace FS.Sql.Client.Common
             return this;
         }
 
+        /// <summary>
+        ///     查询数量
+        /// </summary>
+        /// <param name="isDistinct">返回当前条件下非重复数据</param>
         public virtual ISqlParam Count(bool isDistinct = false)
         {
             var strWhereSql = WhereVisitor.Visit(ExpBuilder.ExpWhere);
@@ -174,6 +200,9 @@ namespace FS.Sql.Client.Common
             return this;
         }
 
+        /// <summary>
+        ///     查询单个值
+        /// </summary>
         public virtual ISqlParam GetValue()
         {
             var strSelectSql = SelectVisitor.Visit(ExpBuilder.ExpSelect);
@@ -187,6 +216,9 @@ namespace FS.Sql.Client.Common
             return this;
         }
 
+        /// <summary>
+        ///     删除
+        /// </summary>
         public virtual ISqlParam Delete()
         {
             var strWhereSql = WhereVisitor.Visit(ExpBuilder.ExpWhere);
@@ -197,6 +229,9 @@ namespace FS.Sql.Client.Common
             return this;
         }
 
+        /// <summary>
+        ///     添加或者减少某个字段
+        /// </summary>
         public virtual ISqlParam AddUp()
         {
             Check.IsTure(ExpBuilder.ExpAssign == null, "赋值的参数不能为空！");
@@ -210,6 +245,9 @@ namespace FS.Sql.Client.Common
             return this;
         }
 
+        /// <summary>
+        ///     累计和
+        /// </summary>
         public virtual ISqlParam Sum()
         {
             var strSelectSql = SelectVisitor.Visit(ExpBuilder.ExpSelect);
@@ -222,6 +260,9 @@ namespace FS.Sql.Client.Common
             return this;
         }
 
+        /// <summary>
+        ///     查询最大数
+        /// </summary>
         public virtual ISqlParam Max()
         {
             var strSelectSql = SelectVisitor.Visit(ExpBuilder.ExpSelect);
@@ -234,6 +275,9 @@ namespace FS.Sql.Client.Common
             return this;
         }
 
+        /// <summary>
+        ///     查询最小数
+        /// </summary>
         public virtual ISqlParam Min()
         {
             var strSelectSql = SelectVisitor.Visit(ExpBuilder.ExpSelect);

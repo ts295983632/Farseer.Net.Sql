@@ -29,7 +29,8 @@ namespace FS.Sql.Tests.DB.Members
         public string LoginIP { get; set; }
 
         /// <summary> 登陆IP </summary>
-        [Field(Name = "getdate()", IsFun = true)]
+        [Field(Name = "now()", IsFun = true)]
+        //[Field(Name = "getdate()", IsFun = true)]
         public DateTime? GetDate { get; set; }
 
         /// <summary> 创建时间 </summary>

@@ -1,4 +1,5 @@
 ﻿using System;
+using FS.Sql.Client;
 using FS.Sql.Infrastructure;
 using FS.Sql.Map;
 
@@ -67,12 +68,12 @@ namespace FS.Sql.Internal
 
         #region SqlBuilderSQL生成器
 
-        private ISqlBuilder _sqlBuilder;
+        private AbsSqlBuilder _sqlBuilder;
 
         /// <summary>
         ///     SQL生成器
         /// </summary>
-        internal ISqlBuilder SqlBuilder => _sqlBuilder ?? (_sqlBuilder = Context.DbProvider.CreateSqlBuilder(ExpBuilder, Map.Name));
+        internal AbsSqlBuilder SqlBuilder => _sqlBuilder ?? (_sqlBuilder = Context.DbProvider.CreateSqlBuilder(ExpBuilder, Map.Name));
 
         #endregion
 

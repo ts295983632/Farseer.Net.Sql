@@ -96,7 +96,7 @@ namespace FS.Sql.Data
         {
             if (_conn == null)
             {
-                _factory = AbsDbProvider.CreateInstance(DataType).GetDbProviderFactory;
+                _factory = AbsDbProvider.CreateInstance(DataType).DbProviderFactory;
                 _comm = _factory.CreateCommand();
                 _comm.CommandTimeout = _commandTimeout;
 
@@ -156,7 +156,7 @@ namespace FS.Sql.Data
 
                 return _comm.ExecuteScalar();
             }
-            catch (Exception exp) { LogManger.Log.Error(exp); return null; }
+            catch (Exception exp) { LogManger.Log.Error(exp); throw exp; }
             finally { Close(false); }
         }
 
@@ -179,7 +179,7 @@ namespace FS.Sql.Data
 
                 return _comm.ExecuteNonQuery();
             }
-            catch (Exception exp) { LogManger.Log.Error(exp); return 0; }
+            catch (Exception exp) { LogManger.Log.Error(exp); throw exp; }
             finally { Close(false); }
         }
 
@@ -202,7 +202,7 @@ namespace FS.Sql.Data
 
                 return IsTransaction ? _comm.ExecuteReader() : _comm.ExecuteReader(CommandBehavior.CloseConnection);
             }
-            catch (Exception exp) { LogManger.Log.Error(exp); return null; }
+            catch (Exception exp) { LogManger.Log.Error(exp); throw exp; }
         }
 
         /// <summary>
@@ -227,7 +227,7 @@ namespace FS.Sql.Data
                 ada.Fill(ds);
                 return ds;
             }
-            catch (Exception exp) { LogManger.Log.Error(exp); return null; }
+            catch (Exception exp) { LogManger.Log.Error(exp); throw exp; }
             finally { Close(false); }
         }
 
@@ -263,7 +263,7 @@ namespace FS.Sql.Data
                     bulkCopy.WriteToServer(dt);
                 }
             }
-            catch (Exception exp) { LogManger.Log.Error(exp); }
+            catch (Exception exp) { LogManger.Log.Error(exp); throw exp; }
             finally { Close(false); }
         }
 

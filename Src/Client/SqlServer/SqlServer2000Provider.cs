@@ -8,9 +8,6 @@ namespace FS.Sql.Client.SqlServer
     /// </summary>
     public class SqlServer2000Provider : SqlServerProvider
     {
-        internal override ISqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name)
-        {
-            return new SqlServerSqlBuilder2000(this, expBuilder, name);
-        }
+        internal override AbsSqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name)=> new SqlServer2000Builder(this, expBuilder, name);
     }
 }

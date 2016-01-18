@@ -30,7 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Farseer.Net">
+    <Reference Include="Farseer.Net, Version=0.1.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Lib\Farseer.Net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -43,7 +44,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client\OleDb\OleDbWhereVisitor.cs" />
+    <Compile Include="Client\MySql\MySqlFunctionProvider.cs" />
+    <Compile Include="Client\OleDb\OleDbFunctionProvider.cs" />
+    <Compile Include="Client\Oracle\OracleFunctionProvider.cs" />
+    <Compile Include="Client\PostgreSql\PostgreSqlFunctionProvider.cs" />
+    <Compile Include="Client\PostgreSql\PostgreSqlProvider.cs" />
+    <Compile Include="Client\PostgreSql\PostgreSqlBuilder.cs" />
+    <Compile Include="Client\SqLite\SqLiteFunctionProvider.cs" />
+    <Compile Include="Client\SqlServer\SqlServerFunctionProvider.cs" />
+    <Compile Include="Infrastructure\AbsFunctionProvider.cs" />
     <Compile Include="Internal\DefaultDataCache.cs" />
     <Compile Include="_\FS.Cache\ConnStringCacheManger.cs" />
     <Compile Include="_\FS.Cache\ContextMapCacheManger.cs" />
@@ -51,19 +60,19 @@
     <Compile Include="_\FS.Cache\EntityCacheManger.cs" />
     <Compile Include="_\FS.Cache\SetMapCacheManger.cs" />
     <Compile Include="_\FS.Cache\SortDeleteCacheManger.cs" />
-    <Compile Include="Client\Common\SqlBuilder.cs" />
+    <Compile Include="Infrastructure\AbsSqlBuilder.cs" />
     <Compile Include="Client\MySql\MySqlProvider.cs" />
-    <Compile Include="Client\MySql\MySqlSqlBuilder.cs" />
+    <Compile Include="Client\MySql\MySqlBuilder.cs" />
     <Compile Include="Client\OleDb\OleDbProvider.cs" />
-    <Compile Include="Client\OleDb\OleDbSqlBuilder.cs" />
+    <Compile Include="Client\OleDb\OleDbBuilder.cs" />
     <Compile Include="Client\Oracle\OracleProvider.cs" />
-    <Compile Include="Client\Oracle\OracleSqlBuilder.cs" />
+    <Compile Include="Client\Oracle\OracleBuilder.cs" />
     <Compile Include="Client\SqLite\SqLiteProvider.cs" />
-    <Compile Include="Client\SqLite\SqLiteSqlBuilder.cs" />
+    <Compile Include="Client\SqLite\SqLiteBuilder.cs" />
     <Compile Include="Client\SqlServer\SqlServer2000Provider.cs" />
     <Compile Include="Client\SqlServer\SqlServerProvider.cs" />
-    <Compile Include="Client\SqlServer\SqlServerSqlBuilder.cs" />
-    <Compile Include="Client\SqlServer\SqlServerSqlBuilder2000.cs" />
+    <Compile Include="Client\SqlServer\SqlServerBuilder.cs" />
+    <Compile Include="Client\SqlServer\SqlServer2000Builder.cs" />
     <Compile Include="_\FS.Configs\SqlMapConfigs.cs" />
     <Compile Include="Data\DbExecutor.cs" />
     <Compile Include="Data\DbReadSet.cs" />
@@ -83,7 +92,6 @@
     <Compile Include="Infrastructure\IContextProvider.cs" />
     <Compile Include="Infrastructure\IExecuteSql.cs" />
     <Compile Include="Infrastructure\IProcParam.cs" />
-    <Compile Include="Infrastructure\ISqlBuilder.cs" />
     <Compile Include="Infrastructure\ISqlParam.cs" />
     <Compile Include="Internal\ContextConnection.cs" />
     <Compile Include="Internal\ExecuteSql.cs" />
@@ -120,6 +128,7 @@
     <Compile Include="_\FS.Extends\SetExtend.cs" />
     <Compile Include="_\FS.Extends\TypeConvertExtend.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

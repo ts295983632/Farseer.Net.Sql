@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -8,6 +9,7 @@ using System.Text.RegularExpressions;
 using FS.Sql.Infrastructure;
 using FS.Sql.Map;
 using FS.Utils.Common;
+using FS.Extends;
 
 namespace FS.Sql.ExpressionVisitor
 {
@@ -80,7 +82,7 @@ namespace FS.Sql.ExpressionVisitor
                 {
                     paramType = methodObject.Type;
                     paramName = CurrentDbParameter != null ? SqlList.Pop() : null;
-                    fieldType = CurrentDbParameter != null ? m.Arguments[0].Type : m.Arguments[1].Type;
+                    fieldType = CurrentDbParameter != null ? arguments[0].Type : arguments[1].Type;
                     fieldName = SqlList.Pop();
                 }
             }
@@ -160,18 +162,25 @@ namespace FS.Sql.ExpressionVisitor
 
                 // 判断是不是字段调用Contains
                 var isFieldCall = m.Object != null && m.Object.NodeType == ExpressionType.MemberAccess && ((MemberExpression)m.Object).Expression != null && ((MemberExpression)m.Object).Expression.NodeType == ExpressionType.Parameter;
-                SqlList.Push(isFieldCall ? $"CHARINDEX({paramName},{fieldName}) {(IsNot ? "<=" : ">")} 0" : $"CHARINDEX({fieldName},{paramName}) {(IsNot ? "<=" : ">")} 0");
+                SqlList.Push(isFieldCall ? FunctionProvider.CharIndex(fieldName, paramName, IsNot): FunctionProvider.CharIndex(paramName, fieldName, IsNot));
             }
             else
             {
-                // 不使用参数化形式，同时移除参数
-                var paramValue = CurrentDbParameter.Value;
+                // 删除参数化，后面需要改成多参数
+                var paramValue = CurrentDbParameter.Value.ToString();
                 ParamList.RemoveAt(ParamList.Count - 1);
 
-                // 字段是字符类型的，需要加入''符号
-                if (Type.GetTypeCode(fieldType) == TypeCode.String) { paramValue = "'" + paramValue.ToString().Replace(",", "','") + "'"; }
+                // 参数类型，转换成多参数
+                var lstParamName = new List<string>();
+                var index = 0;
+                foreach (var val in paramValue.Split(','))
+                {
+                    var param = DbProvider.CreateDbParam(CurrentDbParameter.ParameterName.Substring(1) + "_" + index++, val, fieldType);
+                    lstParamName.Add(param.ParameterName);
+                    ParamList.Add(param);
+                }
 
-                SqlList.Push($"{fieldName} {(IsNot ? "Not" : "")} IN ({paramValue})");
+                SqlList.Push(FunctionProvider.In(fieldName, lstParamName, IsNot));
             }
         }
 
@@ -184,7 +193,7 @@ namespace FS.Sql.ExpressionVisitor
         /// <param name="paramName"></param>
         protected virtual void VisitMethodStartswith(Type fieldType, string fieldName, Type paramType, string paramName)
         {
-            SqlList.Push($"CHARINDEX({paramName},{fieldName}) {(IsNot ? ">" : "=")} 1");
+            SqlList.Push(FunctionProvider.CharIndex(fieldName, paramName, IsNot));
         }
 
         /// <summary>
@@ -196,7 +205,7 @@ namespace FS.Sql.ExpressionVisitor
         /// <param name="paramName"></param>
         protected virtual void VisitMethodEndswith(Type fieldType, string fieldName, Type paramType, string paramName)
         {
-            SqlList.Push($"{fieldName} {(IsNot ? "Not" : "")} LIKE {paramName}");
+            SqlList.Push(FunctionProvider.EndsWith(fieldName, paramName, IsNot));
             CurrentDbParameter.Value = $"%{CurrentDbParameter.Value}";
         }
 
@@ -209,7 +218,7 @@ namespace FS.Sql.ExpressionVisitor
         /// <param name="paramName"></param>
         protected virtual void VisitMethodIsEquals(Type fieldType, string fieldName, Type paramType, string paramName)
         {
-            SqlList.Push($"{fieldName} {(IsNot ? "<>" : "=")} {paramName}");
+            SqlList.Push(FunctionProvider.IsEquals(fieldName, paramName, IsNot));
         }
 
         /// <summary>
@@ -221,7 +230,7 @@ namespace FS.Sql.ExpressionVisitor
         /// <param name="paramName"></param>
         protected virtual void VisitMethodEquals(Type fieldType, string fieldName, Type paramType, string paramName)
         {
-            SqlList.Push($"{fieldName} {(IsNot ? "<>" : "=")} {paramName}");
+            SqlList.Push(FunctionProvider.IsEquals(fieldName, paramName, IsNot));
         }
 
         /// <summary>
@@ -231,7 +240,7 @@ namespace FS.Sql.ExpressionVisitor
         /// <param name="fieldName"></param>
         protected virtual void VisitMethodToShortDate(Type fieldType, string fieldName)
         {
-            SqlList.Push($"CONVERT(varchar(100), {fieldName}, 23)");
+            SqlList.Push(FunctionProvider.ToShortDate(fieldName));
         }
     }
 }

@@ -1,12 +1,12 @@
 ﻿using FS.Sql.Infrastructure;
 using FS.Sql.Internal;
 
-namespace FS.Sql.Client.MySql
+namespace FS.Sql.Client.PostgreSql
 {
     /// <summary>
     ///     针对MySql 数据库 SQL生成器
     /// </summary>
-    public class MySqlSqlBuilder : Common.SqlBuilder
+    public class PostgreSqlBuilder : AbsSqlBuilder
     {
         /// <summary>
         ///     查询支持的SQL方法
@@ -14,7 +14,7 @@ namespace FS.Sql.Client.MySql
         /// <param name="dbProvider">数据库提供者（不同数据库的特性）</param>
         /// <param name="expBuilder">表达式持久化</param>
         /// <param name="name">表名/视图名/存储过程名</param>
-        internal MySqlSqlBuilder(AbsDbProvider dbProvider, ExpressionBuilder expBuilder, string name) : base(dbProvider, expBuilder, name)
+        internal PostgreSqlBuilder(AbsDbProvider dbProvider, ExpressionBuilder expBuilder, string name) : base(dbProvider, expBuilder, name)
         {
         }
 
@@ -44,9 +44,9 @@ namespace FS.Sql.Client.MySql
             if (!string.IsNullOrWhiteSpace(strOrderBySql)) { strOrderBySql = "ORDER BY " + strOrderBySql; }
 
             if (!isRand) { Sql.Append($"SELECT {strDistinctSql}{strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql} {strTopSql}"); }
-            else if (string.IsNullOrWhiteSpace(strOrderBySql)) { Sql.Append(string.Format("SELECT {0}{1}{5} FROM {2} {3} ORDER BY Rand() {4}", strDistinctSql, strSelectSql, DbProvider.KeywordAegis(Name), strWhereSql, strTopSql, isDistinct ? ",Rand() as newid" : "")); }
+            else if (string.IsNullOrWhiteSpace(strOrderBySql)) { Sql.Append(string.Format("SELECT {0}{1}{5} FROM {2} {3} ORDER BY random() {4}", strDistinctSql, strSelectSql, DbProvider.KeywordAegis(Name), strWhereSql, strTopSql, isDistinct ? ",random() as newid" : "")); }
             else
-            { Sql.Append(string.Format("SELECT {1} FROM (SELECT {0}*{6} FROM {2} {3} ORDER BY Rand() {5}) a {4}", strDistinctSql, strSelectSql, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, strTopSql, isDistinct ? ",Rand() as newid" : "")); }
+            { Sql.Append(string.Format("SELECT {1} FROM (SELECT {0}*{6} FROM {2} {3} ORDER BY random() {5}) a {4}", strDistinctSql, strSelectSql, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, strTopSql, isDistinct ? ",random() as newid" : "")); }
             return this;
         }
 
@@ -68,7 +68,7 @@ namespace FS.Sql.Client.MySql
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
             if (!string.IsNullOrWhiteSpace(strOrderBySql)) { strOrderBySql = "ORDER BY " + strOrderBySql; }
 
-            Sql.Append($"SELECT {strDistinctSql}{strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql} LIMIT {pageSize*(pageIndex - 1)},{pageSize}");
+            Sql.Append($"SELECT {strDistinctSql}{strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql} LIMIT {pageSize} OFFSET {pageSize*(pageIndex - 1)}");
             return this;
         }
 
@@ -88,7 +88,7 @@ namespace FS.Sql.Client.MySql
         public override ISqlParam InsertIdentity()
         {
             base.InsertIdentity();
-            Sql.Append(";SELECT @@IDENTITY;");
+            Sql.Append($" \r\nRETURNING {DbProvider.KeywordAegis(ExpBuilder.SetMap.PhysicsMap.DbGeneratedFields.Value.Name)}");
             return this;
         }
     }

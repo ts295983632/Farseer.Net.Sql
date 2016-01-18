@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.IO;
 using System.Linq;
 using System.Text;
 using FS.Cache;
@@ -12,12 +11,14 @@ using FS.Infrastructure;
 using FS.Sql.Client.MySql;
 using FS.Sql.Client.OleDb;
 using FS.Sql.Client.Oracle;
+using FS.Sql.Client.PostgreSql;
 using FS.Sql.Client.SqlServer;
 using FS.Sql.Client.SqLite;
 using FS.Sql.ExpressionVisitor;
 using FS.Sql.Internal;
 using FS.Sql.Map;
 using FS.Utils.Common;
+using FS.Extends;
 
 namespace FS.Sql.Infrastructure
 {
@@ -34,7 +35,12 @@ namespace FS.Sql.Infrastructure
         /// <summary>
         ///     创建提供程序对数据源类的实现的实例
         /// </summary>
-        public abstract DbProviderFactory GetDbProviderFactory { get; }
+        public abstract DbProviderFactory DbProviderFactory { get; }
+
+        /// <summary>
+        ///     创建提供程序对数据源类的实现的实例
+        /// </summary>
+        public abstract AbsFunctionProvider FunctionProvider { get; }
 
         /// <summary>
         ///     是否支持事务操作
@@ -82,13 +88,10 @@ namespace FS.Sql.Infrastructure
                     var enumerator = ((IEnumerable)valu).GetEnumerator();
                     while (enumerator.MoveNext()) { sb.Append(enumerator.Current + ","); }
                 }
-                else
+                else if (valu.GetType().GetGenericArguments()[0] == typeof(int))
                 {
-                    if (valu.GetType().GetGenericArguments()[0] == typeof(int))
-                    {
-                        var enumerator = ((IEnumerable<int?>)valu).GetEnumerator();
-                        while (enumerator.MoveNext()) { sb.Append(enumerator.Current.GetValueOrDefault() + ","); }
-                    }
+                    var enumerator = ((IEnumerable<int?>)valu).GetEnumerator();
+                    while (enumerator.MoveNext()) { sb.Append(enumerator.Current.GetValueOrDefault() + ","); }
                 }
                 valu = sb.Length > 0 ? sb.Remove(sb.Length - 1, 1).ToString() : "";
             }
@@ -100,11 +103,10 @@ namespace FS.Sql.Infrastructure
         /// </summary>
         /// <param name="type">参数类型</param>
         /// <param name="len">参数长度</param>
-        /// <returns></returns>
         public DbType GetDbType(Type type, out int len)
         {
-            if (type.Name.Equals("Nullable`1")) { type = Nullable.GetUnderlyingType(type); }
-            if (type.BaseType != null && type.BaseType.Name == "Enum")
+            type = type.GetNullableArguments();
+            if (type.BaseType != null && type.BaseType == typeof(Enum))
             {
                 len = 1;
                 return DbType.Byte;
@@ -153,7 +155,7 @@ namespace FS.Sql.Infrastructure
         /// <param name="output">是否是输出值</param>
         public DbParameter CreateDbParam(string name, object valu, DbType type, int len, bool output = false)
         {
-            var param = GetDbProviderFactory.CreateParameter();
+            var param = DbProviderFactory.CreateParameter();
             param.DbType = type;
             param.ParameterName = ParamsPrefix + name;
             param.Value = ParamConvertValue(valu, type);
@@ -198,7 +200,7 @@ namespace FS.Sql.Infrastructure
         public string CreateDbConnstring(int dbIndex = 0)
         {
             DbInfo dbInfo = dbIndex;
-            return CreateDbConnstring(dbInfo.UserID, dbInfo.PassWord, dbInfo.Server, dbInfo.Catalog, dbInfo.DataVer, dbInfo.ConnectTimeout, dbInfo.PoolMinSize, dbInfo.PoolMaxSize, dbInfo.Port);
+            return CreateDbConnstring(dbInfo.UserID, dbInfo.PassWord, dbInfo.Server, dbInfo.Catalog, dbInfo.DataVer, dbInfo.Additional, dbInfo.ConnectTimeout, dbInfo.PoolMinSize, dbInfo.PoolMaxSize, dbInfo.Port);
         }
 
         /// <summary>
@@ -209,11 +211,12 @@ namespace FS.Sql.Infrastructure
         /// <param name="server">服务器地址</param>
         /// <param name="catalog">表名</param>
         /// <param name="dataVer">数据库版本</param>
+        /// <param name="additional">自定义连接字符串</param>
         /// <param name="connectTimeout">链接超时时间</param>
         /// <param name="poolMinSize">连接池最小数量</param>
         /// <param name="poolMaxSize">连接池最大数量</param>
         /// <param name="port">端口</param>
-        public abstract string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "");
+        public abstract string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, string additional, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "");
 
         /// <summary>
         ///     获取数据库文件的路径
@@ -242,19 +245,15 @@ namespace FS.Sql.Infrastructure
         {
             switch (dbType)
             {
-                case eumDbType.OleDb:
-                    return new OleDbProvider();
-                case eumDbType.MySql:
-                    return new MySqlProvider();
-                case eumDbType.SQLite:
-                    return new SqLiteProvider();
-                case eumDbType.Oracle:
-                    return new OracleProvider();
+                case eumDbType.OleDb: return new OleDbProvider();
+                case eumDbType.MySql: return new MySqlProvider();
+                case eumDbType.SQLite: return new SqLiteProvider();
+                case eumDbType.Oracle: return new OracleProvider();
+                case eumDbType.PostgreSql: return new PostgreSqlProvider();
             }
             switch (dataVer)
             {
-                case "2000":
-                    return new SqlServer2000Provider();
+                case "2000": return new SqlServer2000Provider();
             }
             return new SqlServerProvider();
         }
@@ -267,7 +266,7 @@ namespace FS.Sql.Infrastructure
         /// <param name="expBuilder">表达式持久化</param>
         /// <param name="name">表名/视图名/存储过程名</param>
         /// 
-        internal abstract ISqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name);
+        internal abstract AbsSqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name);
 
         /// <summary>
         ///     存储过程创建SQL 输入、输出参数化

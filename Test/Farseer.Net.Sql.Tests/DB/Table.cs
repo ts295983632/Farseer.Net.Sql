@@ -10,6 +10,10 @@ namespace FS.Sql.Tests.DB
     /// </summary>
     public class Table : DbContext<Table>
     {
+        /// <summary>     默认为0时，可不显示填写这一项，当前只是为了演示 </summary>
+        public Table() : base(1)
+        {
+        }
         /// <summary>
         ///     加载表时触发
         /// </summary>
@@ -32,13 +36,6 @@ namespace FS.Sql.Tests.DB
             map["ValueUser"].SetName("sp_Value_User");
 
             map["Account"].SetName("View_Account");
-        }
-
-        /// <summary>
-        ///     默认为0时，可不显示填写这一项，当前只是为了演示
-        /// </summary>
-        public Table() : base(0)
-        {
         }
 
         /// <summary> 普通表 </summary>

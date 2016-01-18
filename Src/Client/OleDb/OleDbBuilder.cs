@@ -6,7 +6,7 @@ namespace FS.Sql.Client.OleDb
     /// <summary>
     ///     针对OleDb 数据库 SQL生成器
     /// </summary>
-    public class OleDbSqlBuilder : Common.SqlBuilder
+    public class OleDbBuilder : AbsSqlBuilder
     {
         /// <summary>
         ///     查询支持的SQL方法
@@ -14,7 +14,7 @@ namespace FS.Sql.Client.OleDb
         /// <param name="dbProvider">数据库提供者（不同数据库的特性）</param>
         /// <param name="expBuilder">表达式持久化</param>
         /// <param name="name">表名/视图名/存储过程名</param>
-        internal OleDbSqlBuilder(AbsDbProvider dbProvider, ExpressionBuilder expBuilder, string name) : base(dbProvider, expBuilder, name)
+        internal OleDbBuilder(AbsDbProvider dbProvider, ExpressionBuilder expBuilder, string name) : base(dbProvider, expBuilder, name)
         {
         }
 

@@ -4,7 +4,7 @@ using FS.Sql.Tests.DB;
 using FS.Sql.Tests.DB.Members;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FS.Sql.Tests.Features
+namespace FS.Sql.Tests.Tests.Features
 {
     [TestClass]
     public class AddUpTest

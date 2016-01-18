@@ -41,6 +41,11 @@ namespace FS.Sql.ExpressionVisitor
         protected AbsDbProvider DbProvider { get; }
 
         /// <summary>
+        ///     数据库函数提供者（不同数据库的函数）
+        /// </summary>
+        protected AbsFunctionProvider FunctionProvider => DbProvider.FunctionProvider;
+
+        /// <summary>
         ///     字段映射
         /// </summary>
         private SetDataMap SetMap { get; }
@@ -186,7 +191,7 @@ namespace FS.Sql.ExpressionVisitor
         /// <param name="right">操作符右边的SQL</param>
         protected virtual void VisitOperate(BinaryExpression bexp, string left, string right)
         {
-            SqlList.Push(String.Format("({0} {1} {2})", left, VisitOperate(bexp, left), right));
+            SqlList.Push($"({left} {VisitOperate(bexp, left)} {right})");
         }
 
         /// <summary>
@@ -222,8 +227,8 @@ namespace FS.Sql.ExpressionVisitor
                     case "Count":
                     case "Length":
                         {
-                            var exp = VisitMemberAccess((MemberExpression)m.Expression);
-                            SqlList.Push($"LEN({SqlList.Pop()})");
+                            VisitMemberAccess((MemberExpression)m.Expression);
+                            SqlList.Push(FunctionProvider.Len(SqlList.Pop()));
                             return m;
                         }
                 }

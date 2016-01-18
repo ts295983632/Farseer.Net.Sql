@@ -11,22 +11,19 @@ namespace FS.Sql.Client.MySql
     /// </summary>
     public class MySqlProvider : AbsDbProvider
     {
-        public override DbProviderFactory GetDbProviderFactory => (DbProviderFactory)InstanceCacheManger.Cache(Assembly.Load("MySql.Data.MySqlClient").GetType("MySql.Data.MySqlClient.MySqlClientFactory"));
+        public override DbProviderFactory DbProviderFactory => (DbProviderFactory)InstanceCacheManger.Cache(Assembly.Load("MySql.Data.MySqlClient").GetType("MySql.Data.MySqlClient.MySqlClientFactory"));
+        public override AbsFunctionProvider FunctionProvider => new MySqlFunctionProvider();
         public override bool IsSupportTransaction => true;
+        public override string KeywordAegis(string fieldName) => $"`{fieldName}`";
+        internal override AbsSqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name) => new MySqlBuilder(this, expBuilder, name);
 
-        public override string KeywordAegis(string fieldName)
+        public override string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, string additional, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "")
         {
-            return $"`{fieldName}`";
-        }
-
-        internal override ISqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name)
-        {
-            return new MySqlSqlBuilder(this, expBuilder, name);
-        }
-
-        public override string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "")
-        {
-            return $"Data Source='{server}';User Id='{userID}';Password='{passWord}';Database='{catalog}';charset='gbk'";
+            // 2016年1月13日
+            // 感谢：QQ21995346 ★Master★ 同学，发现了BUG
+            // 场景：连接连字符串，被强制指定了：charset='gbk'
+            // 解决：移除charset='gbk'，并在DbConfig配置中增加自定义连接方式
+            return $"Data Source='{server}';User Id='{userID}';Password='{passWord}';Database='{catalog}';{additional}";
         }
     }
 }

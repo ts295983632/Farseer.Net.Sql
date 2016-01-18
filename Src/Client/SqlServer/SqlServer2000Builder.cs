@@ -8,7 +8,7 @@ namespace FS.Sql.Client.SqlServer
     /// <summary>
     ///     针对SqlServer 2000 数据库 SQL生成器
     /// </summary>
-    public class SqlServerSqlBuilder2000 : SqlServerSqlBuilder
+    public class SqlServer2000Builder : SqlServerBuilder
     {
         /// <summary>
         ///     查询支持的SQL方法
@@ -16,7 +16,7 @@ namespace FS.Sql.Client.SqlServer
         /// <param name="dbProvider">数据库提供者（不同数据库的特性）</param>
         /// <param name="expBuilder">表达式持久化</param>
         /// <param name="name">表名/视图名/存储过程名</param>
-        internal SqlServerSqlBuilder2000(AbsDbProvider dbProvider, ExpressionBuilder expBuilder, string name) : base(dbProvider, expBuilder, name)
+        internal SqlServer2000Builder(AbsDbProvider dbProvider, ExpressionBuilder expBuilder, string name) : base(dbProvider, expBuilder, name)
         {
         }
 
@@ -42,7 +42,7 @@ namespace FS.Sql.Client.SqlServer
 
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
 
-            Sql.Append(string.Format("SELECT {0} TOP {2} {1} FROM (SELECT TOP {3} {1} FROM {4} {5} {6}) a  {7};", strDistinctSql, strSelectSql, pageSize, pageSize*pageIndex, Name, strWhereSql, strOrderBySql, strOrderBySqlReverse));
+            Sql.Append(string.Format("SELECT {0} TOP {2} {1} FROM (SELECT TOP {3} {1} FROM {4} {5} {6}) a  {7};", strDistinctSql, strSelectSql, pageSize, pageSize*pageIndex, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, strOrderBySqlReverse));
             return this;
         }
     }

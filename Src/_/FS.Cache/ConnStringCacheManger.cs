@@ -26,7 +26,7 @@ namespace FS.Cache
                 if (CacheList.ContainsKey(Key)) return CacheList[Key];
 
                 DbInfo dbInfo = Key;
-                CacheList.Add(Key, AbsDbProvider.CreateInstance(dbInfo.DataType, dbInfo.DataVer).CreateDbConnstring(dbInfo.UserID, dbInfo.PassWord, dbInfo.Server, dbInfo.Catalog, dbInfo.DataVer, dbInfo.ConnectTimeout, dbInfo.PoolMinSize, dbInfo.PoolMaxSize, dbInfo.Port));
+                CacheList.Add(Key, AbsDbProvider.CreateInstance(dbInfo.DataType, dbInfo.DataVer).CreateDbConnstring(dbInfo.UserID, dbInfo.PassWord, dbInfo.Server, dbInfo.Catalog, dbInfo.DataVer, dbInfo.Additional, dbInfo.ConnectTimeout, dbInfo.PoolMinSize, dbInfo.PoolMaxSize, dbInfo.Port));
             }
 
             return CacheList[Key];

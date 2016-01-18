@@ -1,12 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Data.Common;
-using System.Reflection;
+﻿using System.Data.Common;
 using System.Text;
-using FS.Cache;
-using FS.Sql.ExpressionVisitor;
 using FS.Sql.Infrastructure;
 using FS.Sql.Internal;
-using FS.Sql.Map;
 
 namespace FS.Sql.Client.OleDb
 {
@@ -15,15 +10,11 @@ namespace FS.Sql.Client.OleDb
     /// </summary>
     public class OleDbProvider : AbsDbProvider
     {
-        public override DbProviderFactory GetDbProviderFactory => System.Data.OleDb.OleDbFactory.Instance;
-
-        internal override ISqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name)
-        {
-            return new OleDbSqlBuilder(this, expBuilder, name);
-        }
+        public override DbProviderFactory DbProviderFactory => System.Data.OleDb.OleDbFactory.Instance;
+        public override AbsFunctionProvider FunctionProvider => new OleDbFunctionProvider();
+        internal override AbsSqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name)=> new OleDbBuilder(this, expBuilder, name);
         public override bool IsSupportTransaction => false;
-
-        public override string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "")
+        public override string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, string additional, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "")
         {
             var sb = new StringBuilder();
             switch (dataVer)
@@ -68,10 +59,8 @@ namespace FS.Sql.Client.OleDb
             sb.Append($"Data Source={GetFilePath(server)};");
             if (!string.IsNullOrWhiteSpace(userID)) { sb.Append($"User ID={userID};"); }
             if (!string.IsNullOrWhiteSpace(passWord)) { sb.Append($"Password={passWord};"); }
-
+            sb.Append(additional);
             return sb.ToString();
         }
-
-        public override WhereVisitor CreateWhereVisitor(SetDataMap map, List<DbParameter> paramList) => new OleDbWhereVisitor(this, map, paramList);
     }
 }

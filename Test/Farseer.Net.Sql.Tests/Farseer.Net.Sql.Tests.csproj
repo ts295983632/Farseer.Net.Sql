@@ -35,8 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Farseer.Net, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Farseer.Net">
       <HintPath>..\..\Lib\Farseer.Net.dll</HintPath>
     </Reference>
     <Reference Include="Farseer.Net.Utils.Form">
@@ -75,18 +74,14 @@
     <Compile Include="DB\Members\UserVO.cs" />
     <Compile Include="DB\Members\ValueUserVO.cs" />
     <Compile Include="DB\Table.cs" />
-    <Compile Include="Features\Cache.cs" />
-    <Compile Include="Features\SortDelete.cs" />
-    <Compile Include="ToSelectList.cs" />
-    <Compile Include="ToList.cs" />
-    <Compile Include="ToEntity.cs" />
-    <Compile Include="TableTest\GetValue.cs" />
-    <Compile Include="Insert.cs" />
-    <Compile Include="Delete.cs" />
-    <Compile Include="TableTest\AddUp.cs" />
-    <Compile Include="Update.cs" />
-    <Compile Include="AllContext.cs" />
-    <Compile Include="TableTest\Statistics.cs" />
+    <Compile Include="Tests\Features\SortDelete.cs" />
+    <Compile Include="Tests\SqlSet.cs" />
+    <Compile Include="Tests\ManualSql.cs" />
+    <Compile Include="Tests\ViewSetCache.cs" />
+    <Compile Include="Tests\ViewSet.cs" />
+    <Compile Include="Tests\ProcSet.cs" />
+    <Compile Include="Tests\TableSetCache.cs" />
+    <Compile Include="Tests\TableSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
