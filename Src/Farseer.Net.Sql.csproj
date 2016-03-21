@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0484262D-0AFC-4AB6-BAAF-E944778FF30E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FS.Sql</RootNamespace>
+    <AssemblyName>Farseer.Net.Sql</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Farseer.Net, Version=0.1.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\Farseer.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Client\MySql\MySqlFunctionProvider.cs" />
+    <Compile Include="Client\OleDb\OleDbFunctionProvider.cs" />
+    <Compile Include="Client\Oracle\OracleFunctionProvider.cs" />
+    <Compile Include="Client\PostgreSql\PostgreSqlFunctionProvider.cs" />
+    <Compile Include="Client\PostgreSql\PostgreSqlProvider.cs" />
+    <Compile Include="Client\PostgreSql\PostgreSqlBuilder.cs" />
+    <Compile Include="Client\SqLite\SqLiteFunctionProvider.cs" />
+    <Compile Include="Client\SqlServer\SqlServerFunctionProvider.cs" />
+    <Compile Include="Infrastructure\AbsFunctionProvider.cs" />
+    <Compile Include="Internal\DefaultDataCache.cs" />
+    <Compile Include="_\FS.Cache\ConnStringCacheManger.cs" />
+    <Compile Include="_\FS.Cache\ContextMapCacheManger.cs" />
+    <Compile Include="_\FS.Cache\ContextSetTypeCacheManger.cs" />
+    <Compile Include="_\FS.Cache\EntityCacheManger.cs" />
+    <Compile Include="_\FS.Cache\SetMapCacheManger.cs" />
+    <Compile Include="_\FS.Cache\SortDeleteCacheManger.cs" />
+    <Compile Include="Infrastructure\AbsSqlBuilder.cs" />
+    <Compile Include="Client\MySql\MySqlProvider.cs" />
+    <Compile Include="Client\MySql\MySqlBuilder.cs" />
+    <Compile Include="Client\OleDb\OleDbProvider.cs" />
+    <Compile Include="Client\OleDb\OleDbBuilder.cs" />
+    <Compile Include="Client\Oracle\OracleProvider.cs" />
+    <Compile Include="Client\Oracle\OracleBuilder.cs" />
+    <Compile Include="Client\SqLite\SqLiteProvider.cs" />
+    <Compile Include="Client\SqLite\SqLiteBuilder.cs" />
+    <Compile Include="Client\SqlServer\SqlServer2000Provider.cs" />
+    <Compile Include="Client\SqlServer\SqlServerProvider.cs" />
+    <Compile Include="Client\SqlServer\SqlServerBuilder.cs" />
+    <Compile Include="Client\SqlServer\SqlServer2000Builder.cs" />
+    <Compile Include="_\FS.Configs\SqlMapConfigs.cs" />
+    <Compile Include="Data\DbExecutor.cs" />
+    <Compile Include="Data\DbReadSet.cs" />
+    <Compile Include="Data\eumSqlDbType.cs" />
+    <Compile Include="DbContext.cs" />
+    <Compile Include="DbContext`1.cs" />
+    <Compile Include="DbFactory.cs" />
+    <Compile Include="ExpressionVisitor\AbsSqlVisitor.cs" />
+    <Compile Include="ExpressionVisitor\AssignVisitor.cs" />
+    <Compile Include="ExpressionVisitor\InsertVisitor.cs" />
+    <Compile Include="ExpressionVisitor\OrderByVisitor.cs" />
+    <Compile Include="ExpressionVisitor\SelectVisitor.cs" />
+    <Compile Include="ExpressionVisitor\WhereVisitor.cs" />
+    <Compile Include="Features\SortDelete.cs" />
+    <Compile Include="Infrastructure\AbsDbProvider.cs" />
+    <Compile Include="Infrastructure\AbsDbSet.cs" />
+    <Compile Include="Infrastructure\IContextProvider.cs" />
+    <Compile Include="Infrastructure\IExecuteSql.cs" />
+    <Compile Include="Infrastructure\IProcParam.cs" />
+    <Compile Include="Infrastructure\ISqlParam.cs" />
+    <Compile Include="Internal\ContextConnection.cs" />
+    <Compile Include="Internal\ExecuteSql.cs" />
+    <Compile Include="Internal\ExecuteSqlExceptionLogProxy.cs" />
+    <Compile Include="Internal\ExecuteSqlLogProxy.cs" />
+    <Compile Include="Internal\ExpressionBuilder.cs" />
+    <Compile Include="Internal\InternalContext.cs" />
+    <Compile Include="Internal\ProcBuilder.cs" />
+    <Compile Include="Internal\Queue.cs" />
+    <Compile Include="Internal\QueueManger.cs" />
+    <Compile Include="Internal\SetInitializer.cs" />
+    <Compile Include="Internal\SetTypesInitializersPair.cs" />
+    <Compile Include="Internal\SqlParam.cs" />
+    <Compile Include="ManualSql.cs" />
+    <Compile Include="Map\Attribute\FieldAttribute.cs" />
+    <Compile Include="Map\ContextDataMap.cs" />
+    <Compile Include="Map\ContextPhysicsMap.cs" />
+    <Compile Include="Map\SetDataMap.cs" />
+    <Compile Include="Map\SetPhysicsMap.cs" />
+    <Compile Include="Map\FieldMapState.cs" />
+    <Compile Include="ProcSet.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlSet.cs" />
+    <Compile Include="SqlSet`1.cs" />
+    <Compile Include="TableSet.cs" />
+    <Compile Include="TableSetCache.cs" />
+    <Compile Include="ViewSet.cs" />
+    <Compile Include="ViewSetCache.cs" />
+    <Compile Include="_\FS.Extends\DataRowExtend.cs" />
+    <Compile Include="_\FS.Extends\EntityExtend.cs" />
+    <Compile Include="_\FS.Extends\ExpressionExtend.cs" />
+    <Compile Include="_\FS.Extends\ICateExtend.cs" />
+    <Compile Include="_\FS.Extends\IEnumerableExtend.cs" />
+    <Compile Include="_\FS.Extends\SetExtend.cs" />
+    <Compile Include="_\FS.Extends\TypeConvertExtend.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
