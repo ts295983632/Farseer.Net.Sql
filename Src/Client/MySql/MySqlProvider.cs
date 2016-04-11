@@ -11,7 +11,7 @@ namespace FS.Sql.Client.MySql
     /// </summary>
     public class MySqlProvider : AbsDbProvider
     {
-        public override DbProviderFactory DbProviderFactory => (DbProviderFactory)InstanceCacheManger.Cache(Assembly.Load("MySql.Data.MySqlClient").GetType("MySql.Data.MySqlClient.MySqlClientFactory"));
+        public override DbProviderFactory DbProviderFactory => (DbProviderFactory)InstanceCacheManger.Cache(Assembly.Load("MySql.Data").GetType("MySql.Data.MySqlClient.MySqlClientFactory"));
         public override AbsFunctionProvider FunctionProvider => new MySqlFunctionProvider();
         public override bool IsSupportTransaction => true;
         public override string KeywordAegis(string fieldName) => $"`{fieldName}`";
