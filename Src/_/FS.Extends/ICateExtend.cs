@@ -7,7 +7,7 @@ using FS.Utils.Common;
 
 namespace FS.Extends
 {
-    public static class ICateExtend
+    public static partial class SqlExtend
     {
         /// <summary>
         ///     获取指定ParentID的ID列表

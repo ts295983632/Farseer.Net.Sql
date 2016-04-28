@@ -5,7 +5,7 @@ using FS.Sql;
 
 namespace FS.Extends
 {
-    public static class SetExtend
+    public static partial class SqlExtend
     {
         /// <summary>
         ///     获取下一条记录

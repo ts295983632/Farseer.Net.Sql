@@ -7,7 +7,7 @@ using FS.Infrastructure;
 
 namespace FS.Extends
 {
-    public static class IEnumerableSqlExtend
+    public static partial class SqlExtend
     {
         /// <summary>
         ///     对List进行分页

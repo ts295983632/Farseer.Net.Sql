@@ -40,7 +40,6 @@ namespace FS.Sql.Tests.Tests.Features
         {
             var info = new OrdersVO() {CreateAt = DateTime.Now, CreateName = "fk", OrderNo = "12345678", Price = 0};
 
-
             var allCount = Table.Data.Orders.Count();
             var newCount = Table.Data.OrdersAt.Count();
             info.ID = Guid.NewGuid();

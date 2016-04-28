@@ -6,7 +6,7 @@ using FS.Cache;
 
 namespace FS.Extends
 {
-    public static class DataRowExtend
+    public static partial class SqlExtend
     {
         /// <summary>
         ///     将DataRow转成实体类

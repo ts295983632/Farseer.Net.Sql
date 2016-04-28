@@ -10,7 +10,7 @@ using FS.Utils.Common;
 
 namespace FS.Extends
 {
-    public static class EntityExtend
+    public static partial class SqlExtend
     {
         /// <summary>
         ///     检测实体类值状况

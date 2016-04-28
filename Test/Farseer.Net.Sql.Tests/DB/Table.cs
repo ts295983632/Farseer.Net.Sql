@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FS.Sql.Client.SqlServer;
 using FS.Sql.Features;
 using FS.Sql.Map;
 using FS.Sql.Tests.DB.Members;
@@ -11,7 +12,7 @@ namespace FS.Sql.Tests.DB
     public class Table : DbContext<Table>
     {
         /// <summary>     默认为0时，可不显示填写这一项，当前只是为了演示 </summary>
-        public Table() : base(1)
+        public Table() : base(new SqlServerProvider().CreateDbConnstring(null, null, ".", "Farseer", null, null))
         {
         }
         /// <summary>

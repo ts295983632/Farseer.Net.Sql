@@ -10,7 +10,7 @@ using FS.Utils.Common;
 
 namespace FS.Extends
 {
-    public static class TypeConvertExtend
+    public static partial class SqlExtend
     {
         /// <summary>
         ///     IDataReader转换为实体类
