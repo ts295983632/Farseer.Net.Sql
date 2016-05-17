@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // 与程序集关联的信息。
 
 [assembly: AssemblyTitle("Farseer.Net.Sql")]
-[assembly: AssemblyDescription("针对关系型数据库的ORM")]
+[assembly: AssemblyDescription("支持Sqlserver/Sqlite/MySql/Oracle/PostgreSql/Oledb（Access/Execl）数据库的ORM组件")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("http://www.fsgit.com")]
 [assembly: AssemblyProduct("Farseer.Net.Sql")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
