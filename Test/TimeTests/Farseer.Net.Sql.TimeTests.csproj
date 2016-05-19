@@ -39,9 +39,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Lib\Farseer.Net.dll</HintPath>
     </Reference>
-    <Reference Include="Farseer.Net.Utils.Form">
-      <HintPath>..\..\Lib\Farseer.Net.Utils.Form.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -55,6 +52,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Farseer.Net.Utils\Src\Farseer.Net.Utils\Farseer.Net.Utils.csproj">
+      <Project>{F82573C6-360B-4795-AEB2-C57D947857D1}</Project>
+      <Name>Farseer.Net.Utils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Src\Farseer.Net.Sql.csproj">
       <Project>{0484262D-0AFC-4AB6-BAAF-E944778FF30E}</Project>
       <Name>Farseer.Net.Sql</Name>

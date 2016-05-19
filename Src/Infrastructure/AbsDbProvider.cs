@@ -79,16 +79,17 @@ namespace FS.Sql.Infrastructure
             if (valu is Enum) { valu = Convert.ToInt32(valu); }
 
             // List类型转换成字符串并以,分隔
-            if (valu.GetType().IsGenericType)
+            var valType = valu.GetType();
+            if (valType.IsArray || valType.IsGenericType)
             {
                 var sb = new StringBuilder();
                 // list类型
-                if (valu.GetType().GetGenericTypeDefinition() != typeof(Nullable<>))
+                if (valType.IsArray || valType.GetGenericTypeDefinition() != typeof(Nullable<>))
                 {
                     var enumerator = ((IEnumerable)valu).GetEnumerator();
                     while (enumerator.MoveNext()) { sb.Append(enumerator.Current + ","); }
                 }
-                else if (valu.GetType().GetGenericArguments()[0] == typeof(int))
+                else if (valType.GetGenericArguments()[0] == typeof(int))
                 {
                     var enumerator = ((IEnumerable<int?>)valu).GetEnumerator();
                     while (enumerator.MoveNext()) { sb.Append(enumerator.Current.GetValueOrDefault() + ","); }

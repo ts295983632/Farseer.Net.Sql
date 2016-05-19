@@ -67,8 +67,8 @@ namespace FS.Sql.ExpressionVisitor
                     methodObject = arguments[0];
                     arguments.RemoveAt(0);
                 }
-                // 非List类型
-                if (!methodObject.Type.IsGenericType || methodObject.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                // 非List array类型
+                if (!IsGenericOrArray(methodObject.Type))
                 {
                     fieldType = methodObject.Type;
                     if (CurrentDbParameter != null)
@@ -146,7 +146,7 @@ namespace FS.Sql.ExpressionVisitor
         protected virtual void VisitMethodContains(MethodCallExpression m, Type fieldType, string fieldName, Type paramType, string paramName)
         {
             // 非List<>形式
-            if (paramType != null && (!paramType.IsGenericType || paramType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+            if (paramType != null && !IsGenericOrArray(paramType))
             {
                 #region 搜索值串的处理
                 var param = ParamList.Find(o => o.ParameterName == paramName);
@@ -162,7 +162,7 @@ namespace FS.Sql.ExpressionVisitor
 
                 // 判断是不是字段调用Contains
                 var isFieldCall = m.Object != null && m.Object.NodeType == ExpressionType.MemberAccess && ((MemberExpression)m.Object).Expression != null && ((MemberExpression)m.Object).Expression.NodeType == ExpressionType.Parameter;
-                SqlList.Push(isFieldCall ? FunctionProvider.CharIndex(fieldName, paramName, IsNot): FunctionProvider.CharIndex(paramName, fieldName, IsNot));
+                SqlList.Push(isFieldCall ? FunctionProvider.CharIndex(fieldName, paramName, IsNot) : FunctionProvider.CharIndex(paramName, fieldName, IsNot));
             }
             else
             {
@@ -241,6 +241,15 @@ namespace FS.Sql.ExpressionVisitor
         protected virtual void VisitMethodToShortDate(Type fieldType, string fieldName)
         {
             SqlList.Push(FunctionProvider.ToShortDate(fieldName));
+        }
+
+        /// <summary>
+        /// 是否为数组或泛型类型
+        /// </summary>
+        /// <param name="type">Type</param>
+        public static bool IsGenericOrArray(Type type)
+        {
+            return type.IsArray || (type.IsGenericType && type.GetGenericTypeDefinition() != typeof(Nullable<>));
         }
     }
 }

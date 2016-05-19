@@ -234,7 +234,7 @@ namespace FS.Sql.Tests.Tests
         [TestMethod]
         public void ToList_Normal()
         {
-            Table.Data.User.Where(o => new int[] { 1, 2, 3 }.Contains(o.ID)).ToList();
+            Table.Data.User.Where(o => new List<int> { 1, 2, 3 }.Contains(o.ID) || new int[] { 1, 2, 3 }.Contains(o.ID)).ToList();
             List<int> _lstIDs = new List<int> { 1, 2, 3 };
             // 取前十条 随机 非重复的数据
             Assert.IsTrue(Table.Data.User.Desc(o => o.ID).ToList(10, true, true).Count <= 10);
