@@ -120,7 +120,7 @@ namespace FS.Extends
         }
 
         /// <summary>
-        ///     DataTable转换为实体类
+        ///     DataTable转换为List实体类
         /// </summary>
         /// <param name="dt">源DataTable</param>
         /// <typeparam name="TEntity">实体类</typeparam>
@@ -145,6 +145,34 @@ namespace FS.Extends
                 list.Add(t);
             }
             return list;
+        }
+
+        /// <summary>
+        ///     DataTable转换为数组实体类
+        /// </summary>
+        /// <param name="dt">源DataTable</param>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        public static TEntity[] ToArray<TEntity>(this DataTable dt) where TEntity : class, new()
+        {
+            var arr = new TEntity[dt.Rows.Count];
+            var map = SetMapCacheManger.Cache(typeof(TEntity));
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                // 赋值字段
+                var t = new TEntity();
+                foreach (var kic in map.MapList)
+                {
+                    if (!kic.Key.CanWrite) { continue; }
+                    var filedName = kic.Value.Field.IsFun ? kic.Key.Name : kic.Value.Field.Name;
+                    if (dt.Rows[i].Table.Columns.Contains(filedName))
+                    {
+                        var oVal = ConvertHelper.ConvertType(dt.Rows[i][filedName], kic.Key.PropertyType);
+                        PropertySetCacheManger.Cache(kic.Key, t, oVal);
+                    }
+                }
+                arr[i] = t;
+            }
+            return arr;
         }
 
         /// <summary>

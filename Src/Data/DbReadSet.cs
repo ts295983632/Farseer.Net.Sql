@@ -396,6 +396,106 @@ namespace FS.Sql.Data
 
         #endregion
 
+        #region ToSelectArray
+        /// <summary>
+        ///     返回筛选后的列表
+        /// </summary>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        /// <typeparam name="T">实体类的属性</typeparam>
+        /// <param name="select">字段选择器</param>
+        public virtual T[] ToSelectArray<T>(Expression<Func<TEntity, T>> select)
+        {
+            return ToSelectArray(0, select);
+        }
+        /// <summary>
+        ///     返回筛选后的列表
+        /// </summary>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        /// <typeparam name="T">实体类的属性</typeparam>
+        /// <param name="select">字段选择器</param>
+        public virtual Task<T[]> ToSelectArrayAsync<T>(Expression<Func<TEntity, T>> select)
+        {
+            return Task.Factory.StartNew(() => ToSelectArray(select));
+        }
+
+        /// <summary>
+        ///     返回筛选后的列表
+        /// </summary>
+        /// <param name="top">限制显示的数量</param>
+        /// <param name="select">字段选择器</param>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        /// <typeparam name="T">实体类的属性</typeparam>
+        public virtual T[] ToSelectArray<T>(int top, Expression<Func<TEntity, T>> select)
+        {
+            return Select(select).ToList(top).Select(select.Compile()).ToArray();
+        }
+        /// <summary>
+        ///     返回筛选后的列表
+        /// </summary>
+        /// <param name="top">限制显示的数量</param>
+        /// <param name="select">字段选择器</param>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        /// <typeparam name="T">实体类的属性</typeparam>
+        public virtual Task<T[]> ToSelectArrayAsync<T>(int top, Expression<Func<TEntity, T>> select)
+        {
+            return Task.Factory.StartNew(() => ToSelectArray(top, select));
+        }
+
+        /// <summary>
+        ///     返回筛选后的列表
+        /// </summary>
+        /// <param name="select">字段选择器</param>
+        /// <param name="lstIDs">o => IDs.Contains(o.ID)</param>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        /// <typeparam name="T">实体类的属性</typeparam>
+        /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
+        public virtual T[] ToSelectArray<T>(T[] lstIDs, Expression<Func<TEntity, T>> select, string memberName = null)
+        {
+            Where(lstIDs, memberName);
+            return ToSelectArray(select);
+        }
+        /// <summary>
+        ///     返回筛选后的列表
+        /// </summary>
+        /// <param name="select">字段选择器</param>
+        /// <param name="lstIDs">o => IDs.Contains(o.ID)</param>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        /// <typeparam name="T">实体类的属性</typeparam>
+        /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
+        public virtual Task<T[]> ToSelectArrayAsync<T>(T[] lstIDs, Expression<Func<TEntity, T>> select, string memberName = null)
+        {
+            return Task.Factory.StartNew(() => ToSelectArray(lstIDs, select, memberName));
+        }
+
+        /// <summary>
+        ///     返回筛选后的列表
+        /// </summary>
+        /// <param name="select">字段选择器</param>
+        /// <param name="lstIDs">o => IDs.Contains(o.ID)</param>
+        /// <param name="top">限制显示的数量</param>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        /// <typeparam name="T">实体类的属性</typeparam>
+        /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
+        public virtual T[] ToSelectArray<T>(T[] lstIDs, int top, Expression<Func<TEntity, T>> select, string memberName = null)
+        {
+            Where(lstIDs, memberName);
+            return ToSelectArray(top, select);
+        }
+        /// <summary>
+        ///     返回筛选后的列表
+        /// </summary>
+        /// <param name="select">字段选择器</param>
+        /// <param name="lstIDs">o => IDs.Contains(o.ID)</param>
+        /// <param name="top">限制显示的数量</param>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        /// <typeparam name="T">实体类的属性</typeparam>
+        /// <param name="memberName">条件字段名称，如为Null，默认为主键字段</param>
+        public virtual Task<T[]> ToSelectArrayAsync<T>(T[] lstIDs, int top, Expression<Func<TEntity, T>> select, string memberName = null)
+        {
+            return Task.Factory.StartNew(() => ToSelectArray(lstIDs, top, select, memberName));
+        }
+        #endregion
+
         #region ToEntity
         /// <summary>
         ///     查询单条记录（不支持延迟加载）
