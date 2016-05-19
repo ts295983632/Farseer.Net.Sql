@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 using FS.Extends;
@@ -55,6 +56,7 @@ namespace FS.Sql
         {
             return Context.QueueManger.Commit(null, (queue) => Context.Executeor.ToEntity<TEntity>(new SqlParam(sql, parameters)), false);
         }
+
         /// <summary>
         ///     返回单条记录
         /// </summary>
@@ -63,6 +65,25 @@ namespace FS.Sql
         public Task<TEntity> ToEntityAsync<TEntity>(string sql, params DbParameter[] parameters) where TEntity : class, new()
         {
             return Task.Factory.StartNew(() => ToEntity<TEntity>(sql, parameters));
+        }
+
+        /// <summary>
+        ///     返回DataTable
+        /// </summary>
+        /// <param name="sql">SQL语句</param>
+        /// <param name="parameters">参数</param>
+        public DataTable ToTable(string sql, params DbParameter[] parameters)
+        {
+            return Context.QueueManger.Commit(null, (queue) => Context.Executeor.ToTable(new SqlParam(sql, parameters)), false);
+        }
+        /// <summary>
+        ///     返回DataTable异步
+        /// </summary>
+        /// <param name="sql">SQL语句</param>
+        /// <param name="parameters">参数</param>
+        public Task<DataTable> ToTableAsync(string sql, params DbParameter[] parameters)
+        {
+            return Task.Factory.StartNew(() => ToTable(sql, parameters));
         }
 
         /// <summary>
