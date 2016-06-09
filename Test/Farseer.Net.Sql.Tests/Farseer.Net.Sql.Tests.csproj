@@ -88,11 +88,10 @@
       <Name>Farseer.Net</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Src\Farseer.Net.Sql.csproj">
-      <Project>{0484262D-0AFC-4AB6-BAAF-E944778FF30E}</Project>
+      <Project>{0484262d-0afc-4ab6-baaf-e944778ff30e}</Project>
       <Name>Farseer.Net.Sql</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

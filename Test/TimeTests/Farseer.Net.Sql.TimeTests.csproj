@@ -35,12 +35,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Farseer.Net, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\Farseer.Net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -52,24 +49,32 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DB\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Farseer.Net.Utils\Src\Farseer.Net.Utils.Web\Farseer.Net.Utils.Web.csproj">
+      <Project>{9fbaa409-251a-428c-b222-f7426d19c244}</Project>
+      <Name>Farseer.Net.Utils.Web</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Farseer.Net.Utils\Src\Farseer.Net.Utils\Farseer.Net.Utils.csproj">
-      <Project>{F82573C6-360B-4795-AEB2-C57D947857D1}</Project>
+      <Project>{f82573c6-360b-4795-aeb2-c57d947857d1}</Project>
       <Name>Farseer.Net.Utils</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Farseer.Net\Src\Farseer.Net.csproj">
+      <Project>{f6345d1b-c5dc-464c-a417-c02d7cd37e52}</Project>
+      <Name>Farseer.Net</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Src\Farseer.Net.Sql.csproj">
-      <Project>{0484262D-0AFC-4AB6-BAAF-E944778FF30E}</Project>
+      <Project>{0484262d-0afc-4ab6-baaf-e944778ff30e}</Project>
       <Name>Farseer.Net.Sql</Name>
     </ProjectReference>
     <ProjectReference Include="..\Farseer.Net.Sql.Tests\Farseer.Net.Sql.Tests.csproj">
       <Project>{A1F0E815-EC3D-47E1-B129-95187E9E8960}</Project>
       <Name>Farseer.Net.Sql.Tests</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DB\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

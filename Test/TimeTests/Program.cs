@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
 using FS.Cache;
-using FS.Configs;
 using FS.Extends;
 using FS.Sql;
+using FS.Utils.Common;
 using FS.Sql.Tests.DB;
 using FS.Sql.Tests.DB.Members;
-using FS.Utils;
-using FS.Utils.Common;
-using FS.Utils.Component;
 
 namespace TimeTests
 {
