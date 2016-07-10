@@ -29,7 +29,7 @@ namespace FS.Sql.Infrastructure
         /// <summary>
         ///     保存字段映射的信息
         /// </summary>
-        protected internal SetDataMap SetMap => Context.ContextMap.GetEntityMap(_pInfo);
+        public SetDataMap SetMap => Context.ContextMap.GetEntityMap(_pInfo);
 
         /// <summary>
         ///     当前队列

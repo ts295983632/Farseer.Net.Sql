@@ -11,7 +11,7 @@ namespace FS.Sql.Map
     /// </summary>
     public class SetDataMap
     {
-        public SetDataMap(KeyValuePair<PropertyInfo, SetPhysicsMap> entityPhysicsMap)
+        internal SetDataMap(KeyValuePair<PropertyInfo, SetPhysicsMap> entityPhysicsMap)
         {
             Property = entityPhysicsMap.Key;
             PhysicsMap = entityPhysicsMap.Value;
@@ -26,7 +26,7 @@ namespace FS.Sql.Map
         /// <summary>
         ///     表/视图/存储过程名称
         /// </summary>
-        internal string Name { get; set; }
+        public string Name { get; private set; }
 
         /// <summary>
         ///     属性

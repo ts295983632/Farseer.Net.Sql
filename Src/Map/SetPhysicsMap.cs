@@ -22,7 +22,7 @@ namespace FS.Sql.Map
         ///     关系映射
         /// </summary>
         /// <param name="type">实体类Type</param>
-        public SetPhysicsMap(Type type)
+        internal SetPhysicsMap(Type type)
         {
             Type = type;
             MapList = new Dictionary<PropertyInfo, FieldMapState>();
