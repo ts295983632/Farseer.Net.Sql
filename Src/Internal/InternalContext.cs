@@ -85,7 +85,7 @@ namespace FS.Sql.Internal
         public QueueManger QueueManger { get; private set; }
 
         /// <summary>
-        ///     true:启用合并执行命令、并延迟加载
+        ///     true:启用合并执行命令、并延迟加载，不需要调用SaveChange()方法 执行
         /// </summary>
         public bool IsMergeCommand { get; internal set; }
 

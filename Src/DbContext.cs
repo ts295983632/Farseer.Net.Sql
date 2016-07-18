@@ -35,7 +35,6 @@ namespace FS.Sql
         protected DbContext(string connectionString, eumDbType db = eumDbType.SqlServer, int commandTimeout = 30, string dataVer = null)
         {
             _contextConnection = new ContextConnection(connectionString, db, commandTimeout, dataVer);
-
             // 实例化子类中，所有Set属性
             ContextSetTypeCacheManger.Cache(this.GetType()).Item2(this);
         }
@@ -81,7 +80,7 @@ namespace FS.Sql
         /// <summary>
         ///     上下文数据库连接信息
         /// </summary>
-        private readonly ContextConnection _contextConnection;
+        private ContextConnection _contextConnection;
 
         /// <summary>
         ///     保存修改
@@ -102,6 +101,11 @@ namespace FS.Sql
         }
 
         /// <summary>
+        ///     取消命令合并（不需要调用SaveChange()方法）
+        /// </summary>
+        public void CancelMergeCommand() => InternalContext.IsMergeCommand = false;
+
+        /// <summary>
         ///     不以事务方式执行
         /// </summary>
         public void CancelTransaction() => InternalContext.Executeor.DataBase.CloseTran();
@@ -115,7 +119,11 @@ namespace FS.Sql
         /// <summary>
         ///     在创建模型时调用
         /// </summary>
-        protected virtual void CreateModelInit(Dictionary<string, SetDataMap> map) {}
+        protected virtual void CreateModelInit(Dictionary<string, SetDataMap> map) { }
+        /// <summary>
+        ///     实现动态链接数据库（比如：分库）
+        /// </summary>
+        protected virtual ContextConnection SplitDatabase() { return _contextConnection; }
 
         #region DbContextInitializer上下文初始化器
         /// <summary>
@@ -132,6 +140,8 @@ namespace FS.Sql
             {
                 if (_internalContext == null)
                 {
+                    // 分库方案
+                    _contextConnection = SplitDatabase();
                     // 上下文初始化器
                     _internalContext = new InternalContext(this.GetType(), _contextConnection);
                     // 初始化上下文

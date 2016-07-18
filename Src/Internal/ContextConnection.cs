@@ -5,7 +5,7 @@ namespace FS.Sql.Internal
     /// <summary>
     ///     上下文数据库连接信息
     /// </summary>
-    internal class ContextConnection
+    public class ContextConnection
     {
         /// <summary>
         ///     连接字符串
