@@ -156,7 +156,7 @@ namespace FS.Sql.Infrastructure
         public virtual ISqlParam Insert()
         {
             var strinsertAssemble = InsertVisitor.Visit(ExpBuilder.ExpAssign);
-            Sql.Append($"INSERT INTO {DbProvider.KeywordAegis(Name)} {strinsertAssemble}");
+            Sql.Append($"INSERT INTO {DbProvider.KeywordAegis(Name)} {strinsertAssemble};");
             return this;
         }
 

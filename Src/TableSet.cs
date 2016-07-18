@@ -275,29 +275,18 @@ namespace FS.Sql
         {
             Check.NotNull(lst, "插入操作时，lst参数不能为空！");
 
-            // 加入队列
-            return QueueManger.CommitLazy(SetMap, (queue) =>
+            // 如果是MSSQLSER，则启用BulkCopy
+            switch (Context.Executeor.DataBase.DataType)
             {
-                // 如果是MSSQLSER，则启用BulkCopy
-                switch (Context.Executeor.DataBase.DataType)
-                {
-                    case eumDbType.SqlServer:
-                        Context.Executeor.DataBase.ExecuteSqlBulkCopy(SetMap.Name, lst.ToTable());
-                        break;
-                    case eumDbType.OleDb:
-                        lst.ForEach(entity => QueueManger.CommitLazy(SetMap, (queueLazy) => Context.Executeor.Execute(queueLazy.SqlBuilder.Insert()), false));
-                        break;
-                    default:
-                        lst.ForEach(entity =>
-                        {
-                            // 实体类的赋值，转成表达式树
-                            queue.ExpBuilder.AssignInsert(entity);
-                            Context.Executeor.Execute(queue.SqlBuilder.Insert());
-                        });
-                        break;
-                }
-                return lst.Count;
-            }, false);
+                case eumDbType.SqlServer:
+                    QueueManger.CommitLazy(SetMap, (queue) => { Context.Executeor.DataBase.ExecuteSqlBulkCopy(SetMap.Name, lst.ToTable()); return lst.Count; }, false);
+                    break;
+                //case eumDbType.OleDb:
+                //    lst.ForEach(entity => QueueManger.CommitLazy(SetMap, (queueLazy) => Context.Executeor.Execute(queueLazy.SqlBuilder.Insert()), false));
+                //    break;
+                default: lst.ForEach(entity => Insert(entity)); break;
+            }
+            return lst.Count;
         }
         /// <summary>
         ///     插入
