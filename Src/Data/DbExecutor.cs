@@ -116,13 +116,13 @@ namespace FS.Sql.Data
         /// </summary>
         public void Close(bool dispose)
         {
-            _comm?.Parameters.Clear();
-            if ((dispose || _comm.Transaction == null) && _conn != null && _conn.State != ConnectionState.Closed)
+            _comm?.Parameters?.Clear();
+            if ((dispose || _comm?.Transaction == null) && _conn != null && _conn?.State != ConnectionState.Closed)
             {
-                _comm.Dispose();
+                _comm?.Dispose();
                 _comm = null;
-                _conn.Close();
-                _conn.Dispose();
+                _conn?.Close();
+                _conn?.Dispose();
                 _conn = null;
             }
         }

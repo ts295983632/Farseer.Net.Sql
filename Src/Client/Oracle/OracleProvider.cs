@@ -11,12 +11,12 @@ namespace FS.Sql.Client.Oracle
     /// </summary>
     public class OracleProvider : AbsDbProvider
     {
-        public override DbProviderFactory DbProviderFactory => (DbProviderFactory)InstanceCacheManger.Cache(Assembly.Load("System.Data.OracleClient").GetType("System.Data.OracleClient.OracleClientFactory"));
+        public override DbProviderFactory DbProviderFactory => (DbProviderFactory)InstanceCacheManger.Cache(Assembly.Load("Oracle.ManagedDataAccess").GetType("Oracle.ManagedDataAccess.Client.OracleClientFactory"));
         public override AbsFunctionProvider FunctionProvider => new OracleFunctionProvider();
         public override string ParamsPrefix => ":";
-        public override string KeywordAegis(string fieldName)=> fieldName;
+        public override string KeywordAegis(string fieldName) => fieldName;
         public override bool IsSupportTransaction => true;
-        internal override AbsSqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name)=> new OracleBuilder(this, expBuilder, name);
+        internal override AbsSqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name) => new OracleBuilder(this, expBuilder, name);
 
         public override string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, string additional, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "")
         {
