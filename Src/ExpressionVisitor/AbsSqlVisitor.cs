@@ -203,7 +203,7 @@ namespace FS.Sql.ExpressionVisitor
             if (cexp == null) return null;
 
             //  查找组中是否存在已有的参数，有则直接取出
-            CurrentDbParameter = DbProvider.CreateDbParam(ParamList.Count + "_" + CurrentFieldName, cexp.Value, cexp.Type);
+            CurrentDbParameter = DbProvider.CreateDbParam("p" + ParamList.Count + "_" + CurrentFieldName, cexp.Value, cexp.Type);
             ParamList.Add(CurrentDbParameter);
             SqlList.Push(CurrentDbParameter.ParameterName);
             CurrentFieldName = null;

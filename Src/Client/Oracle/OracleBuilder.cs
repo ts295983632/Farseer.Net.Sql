@@ -27,7 +27,9 @@ namespace FS.Sql.Client.Oracle
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
             if (!string.IsNullOrWhiteSpace(strOrderBySql)) { strOrderBySql = "ORDER BY " + strOrderBySql; }
 
-            Sql.Append($"SELECT {strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql} rownum <=1");
+            var strTopSql = (string.IsNullOrWhiteSpace(strWhereSql) ? "WHERE" : "AND") + " rownum <=1";
+
+            Sql.Append($"SELECT {strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strTopSql} {strOrderBySql}");
             return this;
         }
 
@@ -37,15 +39,14 @@ namespace FS.Sql.Client.Oracle
             var strWhereSql = WhereVisitor.Visit(ExpBuilder.ExpWhere);
             var strOrderBySql = OrderByVisitor.Visit(ExpBuilder.ExpOrderBy);
 
-            var strTopSql = top > 0 ? $"rownum <={top}" : string.Empty;
+            var strTopSql = string.Empty;
+            if (top > 0) { strTopSql = (string.IsNullOrWhiteSpace(strWhereSql) ? "WHERE" : "AND") + $" rownum <={top}"; }
             var strDistinctSql = isDistinct ? "Distinct " : string.Empty;
 
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
             if (!string.IsNullOrWhiteSpace(strOrderBySql)) { strOrderBySql = "ORDER BY " + strOrderBySql; }
-            if (string.IsNullOrWhiteSpace(strWhereSql) && !string.IsNullOrWhiteSpace(strTopSql)) { strTopSql = "WHERE " + strTopSql;}
 
-
-                if (!isRand) { Sql.Append($"SELECT {strDistinctSql}{strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql} {strTopSql}"); }
+            if (!isRand) { Sql.Append($"SELECT {strDistinctSql}{strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql} {strTopSql}"); }
             else if (string.IsNullOrWhiteSpace(strOrderBySql)) { Sql.Append(string.Format("SELECT {0}{1}{5} FROM {2} {3} {4} ORDER BY dbms_random.value", strDistinctSql, strSelectSql, DbProvider.KeywordAegis(Name), strWhereSql, strTopSql, isDistinct ? ",dbms_random.value as newid" : "")); }
             else
             { Sql.Append(string.Format("SELECT {1} FROM (SELECT {0}*{6} FROM {2} {3} {5} ORDER BY dbms_random.value) a {4}", strDistinctSql, strSelectSql, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, strTopSql, isDistinct ? ",dbms_random.value as newid" : "")); }
@@ -70,7 +71,7 @@ namespace FS.Sql.Client.Oracle
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
             if (!string.IsNullOrWhiteSpace(strOrderBySql)) { strOrderBySql = "ORDER BY " + strOrderBySql; }
 
-            Sql.Append(string.Format("SELECT * FROM ( SELECT A.*, ROWNUM RN FROM (SELECT {0}{1} FROM {4} {5} {6}) A WHERE ROWNUM <= {3} ) WHERE RN > {2}", strDistinctSql, strSelectSql, pageSize*(pageIndex - 1), pageSize*pageIndex, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql));
+            Sql.Append(string.Format("SELECT * FROM ( SELECT A.*, ROWNUM RN FROM (SELECT {0}{1} FROM {4} {5} {6}) A WHERE ROWNUM <= {3} ) WHERE RN > {2}", strDistinctSql, strSelectSql, pageSize * (pageIndex - 1), pageSize * pageIndex, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql));
             return this;
         }
 
@@ -82,8 +83,9 @@ namespace FS.Sql.Client.Oracle
 
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
             if (!string.IsNullOrWhiteSpace(strOrderBySql)) { strOrderBySql = "ORDER BY " + strOrderBySql; }
+            var strTopSql = (string.IsNullOrWhiteSpace(strWhereSql) ? "WHERE" : "AND") + " rownum <=1";
 
-            Sql.Append($"SELECT {strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql} rownum <=1");
+            Sql.Append($"SELECT {strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql} {strTopSql}");
             return this;
         }
 
