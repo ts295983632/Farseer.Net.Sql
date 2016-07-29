@@ -172,7 +172,7 @@ namespace FS.Sql.Infrastructure
         /// <param name="valu">参数值</param>
         /// <param name="valType">值类型</param>
         /// <param name="output">是否是输出值</param>
-        public DbParameter CreateDbParam(string name, object valu, Type valType, bool output = false)
+        public virtual DbParameter CreateDbParam(string name, object valu, Type valType, bool output = false)
         {
             int len;
             var type = GetDbType(valType, out len);
