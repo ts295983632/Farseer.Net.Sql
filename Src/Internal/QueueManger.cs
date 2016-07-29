@@ -50,7 +50,7 @@ namespace FS.Sql.Internal
         /// <param name="joinSoftDeleteCondition">是否加入逻辑删除数据过滤</param>
         internal int CommitLazy(SetDataMap map, Func<Queue, int> act, bool joinSoftDeleteCondition)
         {
-            if (!ContextProvider.IsMergeCommand || !ContextProvider.Executeor.DataBase.IsTransaction) { return Commit(map, act, joinSoftDeleteCondition); }
+            if (ContextProvider.IsUnitOfWork || !ContextProvider.Executeor.DataBase.IsTransaction) { return Commit(map, act, joinSoftDeleteCondition); }
             try
             {
                 var queue = CreateQueue(map);
@@ -81,7 +81,7 @@ namespace FS.Sql.Internal
             finally
             {
                 Clear();
-                if (!ContextProvider.IsMergeCommand) { ContextProvider.Executeor.DataBase.Close(true); }
+                if (ContextProvider.IsUnitOfWork) { ContextProvider.Executeor.DataBase.Close(true); }
             }
         }
 
@@ -90,8 +90,8 @@ namespace FS.Sql.Internal
         /// </summary>
         internal int CommitAll()
         {
-            // 非合并模式下，不需要执行当前方法
-            if (!ContextProvider.IsMergeCommand) { return 0; }
+            // 单元模式下，不需要执行当前方法
+            if (ContextProvider.IsUnitOfWork) { return 0; }
 
             var result = 0;
             try

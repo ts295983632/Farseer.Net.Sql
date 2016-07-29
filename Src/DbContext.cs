@@ -23,7 +23,8 @@ namespace FS.Sql
         ///     通过数据库配置，连接数据库
         /// </summary>
         /// <param name="dbIndex">数据库选项</param>
-        protected DbContext(int dbIndex = 0) : this(ConnStringCacheManger.Cache(dbIndex), DbConfigs.ConfigEntity.DbList[dbIndex].DataType, DbConfigs.ConfigEntity.DbList[dbIndex].CommandTimeout, DbConfigs.ConfigEntity.DbList[dbIndex].DataVer) { }
+        /// <param name="isUnitOfWork">是否工作单元模式</param>
+        protected DbContext(int dbIndex = 0, bool isUnitOfWork = false) : this(ConnStringCacheManger.Cache(dbIndex), DbConfigs.ConfigEntity.DbList[dbIndex].DataType, DbConfigs.ConfigEntity.DbList[dbIndex].CommandTimeout, DbConfigs.ConfigEntity.DbList[dbIndex].DataVer, isUnitOfWork) { }
 
         /// <summary>
         ///     通过自定义数据链接符，连接数据库
@@ -32,12 +33,27 @@ namespace FS.Sql
         /// <param name="db">数据库类型</param>
         /// <param name="commandTimeout">SQL执行超时时间</param>
         /// <param name="dataVer">数据库版本（针对不同的数据库版本的优化）</param>
-        protected DbContext(string connectionString, eumDbType db = eumDbType.SqlServer, int commandTimeout = 30, string dataVer = null)
+        /// <param name="isUnitOfWork">是否工作单元模式</param>
+        protected DbContext(string connectionString, eumDbType db = eumDbType.SqlServer, int commandTimeout = 30, string dataVer = null, bool isUnitOfWork = false) : this(isUnitOfWork)
         {
-            _contextConnection = new ContextConnection(connectionString, db, commandTimeout, dataVer);
+            _internalContext.ContextConnection = new ContextConnection(connectionString, db, commandTimeout, dataVer);
+        }
+
+        /// <summary>
+        /// 不初始化ContextConnection
+        /// </summary>
+        /// <param name="isUnitOfWork">是否工作单元模式</param>
+        protected DbContext(bool isUnitOfWork)
+        {
+            _internalContext = new InternalContext(this.GetType(), isUnitOfWork);
             // 实例化子类中，所有Set属性
             ContextSetTypeCacheManger.Cache(this.GetType()).Item2(this);
         }
+
+        /// <summary>
+        ///     实现动态链接数据库（比如：分库）
+        /// </summary>
+        protected virtual ContextConnection SplitDatabase() { return _internalContext.ContextConnection; }
 
         /// <summary>
         ///     创建来自其它上下文的共享
@@ -45,8 +61,8 @@ namespace FS.Sql
         /// <param name="masterContext">其它上下文（主上下文）</param>
         internal static TPo TransactionInstance<TPo>(DbContext masterContext) where TPo : DbContext, new()
         {
-            var newInstance = new TPo { _internalContext = new InternalContext(typeof(TPo), masterContext.InternalContext) };
-            newInstance.Init();
+            var newInstance = new TPo();
+            newInstance._internalContext.TransactionInstance(typeof(TPo), masterContext.InternalContext);
             return newInstance;
         }
 
@@ -62,8 +78,7 @@ namespace FS.Sql
 
             var newInstance = new TPo();
             // 上下文初始化器
-            newInstance._internalContext = new InternalContext(typeof(TPo), newInstance._contextConnection) { IsMergeCommand = false };
-            newInstance.Init();
+            newInstance._internalContext.IsUnitOfWork = true;
             return newInstance;
         }
 
@@ -76,11 +91,6 @@ namespace FS.Sql
         ///     手动编写SQL
         /// </summary>
         public ManualSql ManualSql => InternalContext.ManualSql;
-
-        /// <summary>
-        ///     上下文数据库连接信息
-        /// </summary>
-        private ContextConnection _contextConnection;
 
         /// <summary>
         ///     保存修改
@@ -103,7 +113,7 @@ namespace FS.Sql
         /// <summary>
         ///     取消命令合并（不需要调用SaveChange()方法）
         /// </summary>
-        public void CancelMergeCommand() => InternalContext.IsMergeCommand = false;
+        public void CancelMergeCommand() => InternalContext.IsUnitOfWork = false;
 
         /// <summary>
         ///     不以事务方式执行
@@ -120,16 +130,12 @@ namespace FS.Sql
         ///     在创建模型时调用
         /// </summary>
         protected virtual void CreateModelInit(Dictionary<string, SetDataMap> map) { }
-        /// <summary>
-        ///     实现动态链接数据库（比如：分库）
-        /// </summary>
-        protected virtual ContextConnection SplitDatabase() { return _contextConnection; }
 
         #region DbContextInitializer上下文初始化器
         /// <summary>
         ///     上下文初始化器
         /// </summary>
-        private InternalContext _internalContext;
+        private readonly InternalContext _internalContext;
 
         /// <summary>
         ///     上下文初始化器
@@ -138,30 +144,19 @@ namespace FS.Sql
         {
             get
             {
-                if (_internalContext == null)
+                if (!_internalContext.IsInitializer)
                 {
                     // 分库方案
-                    _contextConnection = SplitDatabase();
-                    // 上下文初始化器
-                    _internalContext = new InternalContext(this.GetType(), _contextConnection);
-                    // 初始化上下文
-                    Init();
+                    if (_internalContext.ContextConnection == null) { _internalContext.ContextConnection = SplitDatabase(); }
+                    _internalContext.Initializer();
+
+                    // 初始化模型映射
+                    CreateModelInit(_internalContext.ContextMap.SetDataList.ToDictionary(o => o.Name));
                 }
                 return _internalContext;
             }
         }
         #endregion
-
-        /// <summary>
-        ///     初始化上下文
-        /// </summary>
-        private void Init()
-        {
-            _internalContext.Initializer();
-
-            // 初始化模型映射
-            CreateModelInit(_internalContext.ContextMap.SetDataList.ToDictionary(o => o.Name));
-        }
 
         #region 动态查找Set类型
         /// <summary>

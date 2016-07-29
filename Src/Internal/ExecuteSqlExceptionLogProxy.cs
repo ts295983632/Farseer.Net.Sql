@@ -25,10 +25,7 @@ namespace FS.Sql.Internal
 
         private readonly IExecuteSql _dbExecutor;
 
-        public DbExecutor DataBase
-        {
-            get { return _dbExecutor.DataBase; }
-        }
+        public DbExecutor DataBase => _dbExecutor.DataBase;
 
         public int Execute(ISqlParam sqlParam)
         {

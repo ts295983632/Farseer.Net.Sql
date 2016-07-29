@@ -55,7 +55,10 @@ namespace FS.Sql.Data
         ///     是否开启事务
         /// </summary>
         internal bool IsTransaction { get; private set; }
-
+        /// <summary>
+        /// 事务级别
+        /// </summary>
+        internal IsolationLevel TranLevel { get; private set; }
         /// <summary>
         ///     Sql执行对像
         /// </summary>
@@ -72,12 +75,10 @@ namespace FS.Sql.Data
         /// <param name="tranLevel">事务方式</param>
         public void OpenTran(IsolationLevel tranLevel)
         {
-            if (tranLevel != IsolationLevel.Unspecified)
-            {
-                Open();
-                _comm.Transaction = _conn.BeginTransaction(tranLevel);
-                IsTransaction = true;
-            }
+            TranLevel = tranLevel;
+            IsTransaction = tranLevel != IsolationLevel.Unspecified;
+
+            //if (_conn != null && _comm != null) { _comm.Transaction = _conn.BeginTransaction(tranLevel); }
         }
 
         /// <summary>
@@ -108,6 +109,8 @@ namespace FS.Sql.Data
             {
                 _conn.Open();
                 _comm.Parameters.Clear();
+                // 是否开启事务
+                if (IsTransaction) { _comm.Transaction = _conn.BeginTransaction(TranLevel); }
             }
         }
 

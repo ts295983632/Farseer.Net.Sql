@@ -17,12 +17,13 @@ namespace FS.Sql.Internal
         ///     上下文初始化器（只赋值，不初始化，有可能被重复创建两次）
         /// </summary>
         /// <param name="contextType">外部上下文类型</param>
+        /// <param name="isUnitOfWork">是否启用单元工作模式</param>
         /// <param name="contextConnection">上下文数据库连接信息</param>
-        public InternalContext(Type contextType, ContextConnection contextConnection)
+        public InternalContext(Type contextType, bool isUnitOfWork, ContextConnection contextConnection = null)
         {
             this.ContextType = contextType;
-            this._contextConnection = contextConnection;
-            this.IsMergeCommand = true;
+            this.IsUnitOfWork = isUnitOfWork;
+            this.ContextConnection = contextConnection;
         }
 
         /// <summary>
@@ -30,13 +31,12 @@ namespace FS.Sql.Internal
         /// </summary>
         /// <param name="currentContextType">外部上下文类型</param>
         /// <param name="masterContext">其它上下文（主上下文）</param>
-        public InternalContext(Type currentContextType, InternalContext masterContext)
+        public void TransactionInstance(Type currentContextType, InternalContext masterContext)
         {
             this.ContextType = currentContextType;
-            this._contextConnection = masterContext._contextConnection;
-
-            // 上下文映射关系
-            ContextMap = new ContextDataMap(ContextType);
+            this.IsUnitOfWork = masterContext.IsUnitOfWork;
+            //  连接字符串
+            this.ContextConnection = masterContext.ContextConnection;
             // 手动编写SQL
             ManualSql = masterContext.ManualSql;
             // 默认SQL执行者
@@ -46,18 +46,21 @@ namespace FS.Sql.Internal
             // 队列管理者
             QueueManger = masterContext.QueueManger;
 
+
+            // 上下文映射关系
+            ContextMap = new ContextDataMap(ContextType);
+            // 不再需要初始化
             IsInitializer = true;
         }
-
+        
         /// <summary>
         ///     上下文数据库连接信息
         /// </summary>
-        private readonly ContextConnection _contextConnection;
-
+        internal ContextConnection ContextConnection { get; set; }
         /// <summary>
         ///     外部上下文类型
         /// </summary>
-        public Type ContextType { get; }
+        public Type ContextType { get; private set; }
 
         /// <summary>
         ///     是否初始化
@@ -87,7 +90,7 @@ namespace FS.Sql.Internal
         /// <summary>
         ///     true:启用合并执行命令、并延迟加载，不需要调用SaveChange()方法 执行
         /// </summary>
-        public bool IsMergeCommand { get; internal set; }
+        public bool IsUnitOfWork { get; internal set; }
 
         /// <summary>
         ///     手动编写SQL
@@ -102,9 +105,9 @@ namespace FS.Sql.Internal
             if (IsInitializer) { return; }
 
             // 数据库提供者
-            DbProvider = AbsDbProvider.CreateInstance(_contextConnection.DbType, _contextConnection.DataVer);
+            DbProvider = AbsDbProvider.CreateInstance(ContextConnection.DbType, ContextConnection.DataVer);
             // 默认SQL执行者
-            Executeor = new ExecuteSql(new DbExecutor(_contextConnection.ConnectionString, _contextConnection.DbType, _contextConnection.CommandTimeout, IsMergeCommand && DbProvider.IsSupportTransaction ? IsolationLevel.Serializable : IsolationLevel.Unspecified), this);
+            Executeor = new ExecuteSql(new DbExecutor(ContextConnection.ConnectionString, ContextConnection.DbType, ContextConnection.CommandTimeout, !IsUnitOfWork && DbProvider.IsSupportTransaction ? IsolationLevel.Serializable : IsolationLevel.Unspecified), this);
             // 代理SQL记录
             if (SystemConfigs.ConfigEntity.IsWriteDbLog) { Executeor = new ExecuteSqlLogProxy(Executeor); }
             // 代理异常记录
