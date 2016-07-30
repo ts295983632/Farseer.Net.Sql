@@ -63,5 +63,10 @@ namespace FS.Sql.Infrastructure
         /// </summary>
         /// <param name="fieldName">字段名称或值</param>
         public virtual string Len(string fieldName) => $"LEN({fieldName})";
+        /// <summary>
+        /// 将字段或值转换成短日期
+        /// </summary>
+        /// <param name="fieldName">字段名称或值</param>
+        public virtual string ToDate(string fieldName) => $"CONVERT(varchar(100), {fieldName}, 20)";
     }
 }

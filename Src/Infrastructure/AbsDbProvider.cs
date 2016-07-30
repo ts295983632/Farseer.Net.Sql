@@ -57,7 +57,6 @@ namespace FS.Sql.Infrastructure
         }
 
         #region 创建参数
-
         /// <summary>
         ///     将C#值转成数据库能存储的值
         /// </summary>
@@ -97,6 +96,18 @@ namespace FS.Sql.Infrastructure
                 valu = sb.Length > 0 ? sb.Remove(sb.Length - 1, 1).ToString() : "";
             }
             return valu;
+        }
+
+        /// <summary>
+        ///     将C#值转成数据库能存储的值
+        /// </summary>
+        /// <param name="valu"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public object ParamConvertValue(object valu, Type type)
+        {
+            int len;
+            return ParamConvertValue(valu, GetDbType(type, out len));
         }
 
         /// <summary>

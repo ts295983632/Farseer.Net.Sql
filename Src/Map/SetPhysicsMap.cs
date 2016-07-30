@@ -133,10 +133,19 @@ namespace FS.Sql.Map
         /// <summary>
         ///     获取当前属性（通过使用的fieldName）
         /// </summary>
-        /// <param name="fieldName">属性名称</param>
-        public KeyValuePair<PropertyInfo, FieldMapState> GetState(string fieldName)
+        /// <param name="propertyName">属性名称</param>
+        public KeyValuePair<PropertyInfo, FieldMapState> GetState(string propertyName)
         {
-            return string.IsNullOrEmpty(fieldName) ? MapList.FirstOrDefault(o => o.Value.Field.IsPrimaryKey) : MapList.FirstOrDefault(o => o.Key.Name == fieldName);
+            return string.IsNullOrEmpty(propertyName) ? MapList.FirstOrDefault(o => o.Value.Field.IsPrimaryKey) : MapList.FirstOrDefault(o => o.Key.Name == propertyName);
+        }
+
+        /// <summary>
+        ///     获取当前属性（通过使用的fieldName）
+        /// </summary>
+        /// <param name="fieldName">属性名称</param>
+        public KeyValuePair<PropertyInfo, FieldMapState> GetStateByFieldName(string fieldName)
+        {
+            return MapList.FirstOrDefault(o => o.Value.Field.Name == fieldName);
         }
     }
 }

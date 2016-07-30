@@ -28,11 +28,11 @@ namespace FS.Sql.Internal
         /// </summary>
         private TReturn SpeedTest<TReturn>(ISqlParam sqlParam, Func<TReturn> func)
         {
+            //Console.WriteLine($"sql:{sqlParam.Sql.ToString()}   param{sqlParam.Param}、\r\n\r\n");
             var timer = new Stopwatch();
             timer.Start();
             var val = func();
             timer.Stop();
-
             new SqlRunLogEntity(sqlParam.Name, CommandType.Text, sqlParam.Sql.ToString(), sqlParam.Param, timer.ElapsedMilliseconds).AddToQueue();
             return val;
         }
