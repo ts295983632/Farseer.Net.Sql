@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 
 namespace FS.Sql.Map.Attribute
 {
@@ -8,14 +9,6 @@ namespace FS.Sql.Map.Attribute
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class FieldAttribute : System.Attribute
     {
-        /// <summary>
-        ///     设置字段在数据库中的映射关系
-        /// </summary>
-        public FieldAttribute()
-        {
-            IsMap = true;
-        }
-
         /// <summary>
         ///     数据库字段名称（映射）
         /// </summary>
@@ -42,9 +35,14 @@ namespace FS.Sql.Map.Attribute
         public StatusType UpdateStatusType { get; set; }
 
         /// <summary>
+        ///     指定对应的数据库字段类型
+        /// </summary>
+        public DbType DbType { get; set; } = DbType.Object;
+
+        /// <summary>
         ///     是否映射到数据库字段中(默认为true)
         /// </summary>
-        public bool IsMap { get; set; }
+        public bool IsMap { get; set; } = true;
 
         /// <summary>
         ///     是字段还是组合字段或数据库函数(默认为false)
@@ -55,7 +53,7 @@ namespace FS.Sql.Map.Attribute
         ///     指示字段是否为存储过程中输出的参数
         ///     （默认为false)
         /// </summary>
-        public bool IsOutParam { get; set; }
+        public bool IsOutParam { get; set; } = false;
 
         /// <summary>
         ///     指示字段是否为存储过程中输入的参数

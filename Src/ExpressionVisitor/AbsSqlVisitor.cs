@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
@@ -24,6 +25,11 @@ namespace FS.Sql.ExpressionVisitor
         ///     当前字段名称
         /// </summary>
         protected string CurrentFieldName;
+
+        /// <summary>
+        ///     当前字段
+        /// </summary>
+        protected KeyValuePair<PropertyInfo, FieldMapState> CurrentField;
 
         /// <summary>
         ///     当前值参数
@@ -203,7 +209,16 @@ namespace FS.Sql.ExpressionVisitor
             if (cexp == null) return null;
 
             //  查找组中是否存在已有的参数，有则直接取出
-            CurrentDbParameter = DbProvider.CreateDbParam("p" + ParamList.Count + "_" + CurrentFieldName, cexp.Value, cexp.Type);
+            if (CurrentFieldName != null && CurrentField.Value.Field.DbType != DbType.Object)
+            {
+                // 手动指定字段类型
+                CurrentDbParameter = DbProvider.CreateDbParam("p" + ParamList.Count + "_" + CurrentFieldName, cexp.Value, CurrentField.Value.Field.DbType, 0);
+            }
+            else
+            {
+                CurrentDbParameter = DbProvider.CreateDbParam("p" + ParamList.Count + "_" + CurrentFieldName, cexp.Value, cexp.Type);
+            }
+
             ParamList.Add(CurrentDbParameter);
             SqlList.Push(CurrentDbParameter.ParameterName);
             CurrentFieldName = null;
@@ -218,9 +233,9 @@ namespace FS.Sql.ExpressionVisitor
             if (m == null) return null;
             //if (m.NodeType == ExpressionType.Constant) { return base.VisitMemberAccess(m); }
 
-            var keyValue = SetMap.PhysicsMap.GetState(m.Member.Name);
+            CurrentField = SetMap.PhysicsMap.GetState(m.Member.Name);
             // 解析带SQL函数的字段
-            if (keyValue.Key == null)
+            if (CurrentField.Key == null)
             {
                 switch (m.Member.Name)
                 {
@@ -245,8 +260,8 @@ namespace FS.Sql.ExpressionVisitor
             }
 
             // 加入Sql队列
-            CurrentFieldName = keyValue.Value.Field.Name;
-            VisitMemberAccess(keyValue);
+            CurrentFieldName = CurrentField.Value.Field.Name;
+            VisitMemberAccess(CurrentField);
             return m;
         }
 

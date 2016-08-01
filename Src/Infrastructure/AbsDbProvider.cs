@@ -115,7 +115,7 @@ namespace FS.Sql.Infrastructure
         /// </summary>
         /// <param name="type">参数类型</param>
         /// <param name="len">参数长度</param>
-        public DbType GetDbType(Type type, out int len)
+        public virtual DbType GetDbType(Type type, out int len)
         {
             type = type.GetNullableArguments();
             if (type.BaseType != null && type.BaseType == typeof(Enum))
@@ -125,35 +125,18 @@ namespace FS.Sql.Infrastructure
             }
             switch (type.Name)
             {
-                case "DateTime":
-                    len = 8;
-                    return DbType.DateTime;
-                case "Boolean":
-                    len = 1;
-                    return DbType.Boolean;
-                case "Int32":
-                    len = 4;
-                    return DbType.Int32;
-                case "Int16":
-                    len = 2;
-                    return DbType.Int16;
-                case "Decimal":
-                    len = 8;
-                    return DbType.Decimal;
-                case "Byte":
-                    len = 1;
-                    return DbType.Byte;
+
+                case "DateTime": len = 8; return DbType.DateTime;
+                case "Boolean": len = 1; return DbType.Int32;
+                case "Int32": len = 4; return DbType.Int32;
+                case "Int16": len = 2; return DbType.Int16;
+                case "Decimal": len = 8; return DbType.Decimal;
+                case "Byte": len = 1; return DbType.Byte;
                 case "Long":
                 case "Float":
-                case "Double":
-                    len = 8;
-                    return DbType.Decimal;
-                case "Guid":
-                    len = 16;
-                    return DbType.Guid;
-                default:
-                    len = 0;
-                    return DbType.String;
+                case "Double": len = 8; return DbType.Decimal;
+                case "Guid": len = 16; return DbType.Guid;
+                default: len = 0; return DbType.String;
             }
         }
 
