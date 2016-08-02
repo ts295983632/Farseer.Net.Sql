@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using FS.Cache;
 using FS.Configs;
 using FS.Infrastructure;
@@ -53,6 +54,7 @@ namespace FS.Sql.Infrastructure
         /// <param name="fieldName">字符名称</param>
         public virtual string KeywordAegis(string fieldName)
         {
+            if (Regex.IsMatch(fieldName, "[\\(\\)\\,\\[\\]\\+\\= ]*")) { return fieldName;}
             return $"[{fieldName}]";
         }
 
@@ -152,7 +154,7 @@ namespace FS.Sql.Infrastructure
         {
             var param = DbProviderFactory.CreateParameter();
             param.DbType = type;
-            param.ParameterName = ParamsPrefix + name;
+            param.ParameterName = ParamsPrefix + Regex.Replace(name, "[\\(\\),=\\-\\+ ]*", "");
             param.Value = ParamConvertValue(valu, type);
             if (len > 0) param.Size = len;
             if (output) param.Direction = ParameterDirection.Output;

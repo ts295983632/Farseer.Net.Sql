@@ -61,10 +61,10 @@ namespace FS.Sql.Client.Oracle
                 case "Boolean": len = 1; return DbType.Int32;
                 case "Int16":
                 case "Int32": len = 4; return DbType.Int32;
-                case "Int64": len = 2; return (DbType)OracleType.Number;
                 case "Decimal": len = 8; return DbType.Decimal;
                 case "Byte": len = 1; return DbType.Byte;
                 case "Long":
+                case "Int64": len = 2; return DbType.Int64;
                 case "Float":
                 case "Double": len = 8; return DbType.Decimal;
                 case "Guid": len = 16; return DbType.Guid;

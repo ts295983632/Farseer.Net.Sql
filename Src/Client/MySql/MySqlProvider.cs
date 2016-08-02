@@ -1,5 +1,6 @@
 ﻿using System.Data.Common;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using FS.Cache;
 using FS.Sql.Infrastructure;
 using FS.Sql.Internal;
@@ -14,7 +15,11 @@ namespace FS.Sql.Client.MySql
         public override DbProviderFactory DbProviderFactory => (DbProviderFactory)InstanceCacheManger.Cache(Assembly.Load("MySql.Data").GetType("MySql.Data.MySqlClient.MySqlClientFactory"));
         public override AbsFunctionProvider FunctionProvider => new MySqlFunctionProvider();
         public override bool IsSupportTransaction => true;
-        public override string KeywordAegis(string fieldName) => $"`{fieldName}`";
+        public override string KeywordAegis(string fieldName)
+        {
+            if (Regex.IsMatch(fieldName, "[\\(\\)\\,\\[\\]\\+\\= ]*")) { return fieldName; }
+            return $"`{fieldName}`"; }
+
         internal override AbsSqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name) => new MySqlBuilder(this, expBuilder, name);
 
         public override string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, string additional, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "")
