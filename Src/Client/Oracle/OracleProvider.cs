@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
+using System.Data.OracleClient;
 using System.Reflection;
 using FS.Cache;
 using FS.Extends;
@@ -58,8 +59,9 @@ namespace FS.Sql.Client.Oracle
             {
                 case "DateTime": len = 8; return DbType.Date;
                 case "Boolean": len = 1; return DbType.Int32;
+                case "Int16":
                 case "Int32": len = 4; return DbType.Int32;
-                case "Int16": len = 2; return DbType.Int16;
+                case "Int64": len = 2; return (DbType)OracleType.Number;
                 case "Decimal": len = 8; return DbType.Decimal;
                 case "Byte": len = 1; return DbType.Byte;
                 case "Long":
