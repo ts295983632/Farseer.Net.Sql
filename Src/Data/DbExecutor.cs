@@ -159,7 +159,7 @@ namespace FS.Sql.Data
 
                 return _comm.ExecuteScalar();
             }
-            catch (Exception exp) { LogManger.Log.Error(exp); throw exp; }
+            catch (Exception exp) { Close(true); LogManger.Log.Error(exp); throw exp; }
             finally { Close(false); }
         }
 
@@ -182,7 +182,7 @@ namespace FS.Sql.Data
 
                 return _comm.ExecuteNonQuery();
             }
-            catch (Exception exp) { LogManger.Log.Error(exp); throw exp; }
+            catch (Exception exp) { Close(true); LogManger.Log.Error(exp); throw exp; }
             finally { Close(false); }
         }
 
@@ -205,7 +205,7 @@ namespace FS.Sql.Data
 
                 return IsTransaction ? _comm.ExecuteReader() : _comm.ExecuteReader(CommandBehavior.CloseConnection);
             }
-            catch (Exception exp) { LogManger.Log.Error(exp); throw exp; }
+            catch (Exception exp) { Close(true); LogManger.Log.Error(exp); throw exp; }
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace FS.Sql.Data
                 ada.Fill(ds);
                 return ds;
             }
-            catch (Exception exp) { LogManger.Log.Error(exp); throw exp; }
+            catch (Exception exp) { Close(true); LogManger.Log.Error(exp); throw exp; }
             finally { Close(false); }
         }
 
@@ -266,7 +266,7 @@ namespace FS.Sql.Data
                     bulkCopy.WriteToServer(dt);
                 }
             }
-            catch (Exception exp) { LogManger.Log.Error(exp); throw exp; }
+            catch (Exception exp) { Close(true); LogManger.Log.Error(exp); throw exp; }
             finally { Close(false); }
         }
 
