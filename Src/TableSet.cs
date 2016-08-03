@@ -234,7 +234,7 @@ namespace FS.Sql
                 // 赋值标识字段
                 return QueueManger.Commit(SetMap, (queue) =>
                 {
-                    PropertySetCacheManger.Cache(SetMap.PhysicsMap.DbGeneratedFields.Key, entity, Context.Executeor.GetValue<int>(queue.SqlBuilder.InsertIdentity()));
+                    PropertySetCacheManger.Cache(SetMap.PhysicsMap.DbGeneratedFields.Key, entity, ConvertHelper.ConvertType(Context.Executeor.GetValue<object>(queue.SqlBuilder.InsertIdentity()), SetMap.PhysicsMap.DbGeneratedFields.Key.PropertyType));
                     return 1;
                 }, false);
             }
@@ -257,13 +257,13 @@ namespace FS.Sql
         /// </summary>
         /// <param name="entity">实体类</param>
         /// <param name="identity">返回标识字段（如果设置的话）</param>
-        public int Insert(TEntity entity, out int identity)
+        public int Insert<T>(TEntity entity, out T identity)
         {
             Check.NotNull(entity, "插入操作时，entity参数不能为空！");
 
             var result = Insert(entity, true);
             // 获取标识字段
-            identity = ConvertHelper.ConvertType(PropertyGetCacheManger.Cache(SetMap.PhysicsMap.DbGeneratedFields.Key, entity), 0);
+            identity = ConvertHelper.ConvertType(PropertyGetCacheManger.Cache(SetMap.PhysicsMap.DbGeneratedFields.Key, entity), default(T));
             return result;
         }
 
