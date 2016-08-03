@@ -39,14 +39,20 @@ namespace FS.Sql.Client.PostgreSql
 
             var strTopSql = top > 0 ? $"LIMIT {top}" : string.Empty;
             var strDistinctSql = isDistinct ? "Distinct " : string.Empty;
+            var randField = ",random() as newid";
 
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
             if (!string.IsNullOrWhiteSpace(strOrderBySql)) { strOrderBySql = "ORDER BY " + strOrderBySql; }
 
             if (!isRand) { Sql.Append($"SELECT {strDistinctSql}{strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql} {strTopSql}"); }
-            else if (string.IsNullOrWhiteSpace(strOrderBySql)) { Sql.Append(string.Format("SELECT {0}{1}{5} FROM {2} {3} ORDER BY random() {4}", strDistinctSql, strSelectSql, DbProvider.KeywordAegis(Name), strWhereSql, strTopSql, isDistinct ? ",random() as newid" : "")); }
+            else if (!isDistinct && string.IsNullOrWhiteSpace(strOrderBySql))
+            {
+                Sql.Append($"SELECT {strTopSql}{strSelectSql}{randField} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} ORDER BY random()");
+            }
             else
-            { Sql.Append(string.Format("SELECT {1} FROM (SELECT {0}*{6} FROM {2} {3} ORDER BY random() {5}) a {4}", strDistinctSql, strSelectSql, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, strTopSql, isDistinct ? ",random() as newid" : "")); }
+            {
+                Sql.Append($"SELECT {strTopSql} *{randField} FROM (SELECT {strDistinctSql} {strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql}) s ORDER BY random()");
+            }
             return this;
         }
 
@@ -68,7 +74,7 @@ namespace FS.Sql.Client.PostgreSql
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
             if (!string.IsNullOrWhiteSpace(strOrderBySql)) { strOrderBySql = "ORDER BY " + strOrderBySql; }
 
-            Sql.Append($"SELECT {strDistinctSql}{strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql} LIMIT {pageSize} OFFSET {pageSize*(pageIndex - 1)}");
+            Sql.Append($"SELECT {strDistinctSql}{strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql} LIMIT {pageSize} OFFSET {pageSize * (pageIndex - 1)}");
             return this;
         }
 

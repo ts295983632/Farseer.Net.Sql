@@ -26,14 +26,20 @@ namespace FS.Sql.Client.OleDb
 
             var strTopSql = top > 0 ? $"TOP {top}" : string.Empty;
             var strDistinctSql = isDistinct ? "Distinct " : string.Empty;
+            var randField = ",Rnd(-(TestID+\" & Rnd() & \")) as newid";
 
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
             if (!string.IsNullOrWhiteSpace(strOrderBySql)) { strOrderBySql = "ORDER BY " + strOrderBySql; }
 
             if (!isRand) { Sql.Append($"SELECT {strDistinctSql}{strTopSql} {strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql}"); }
-            else if (string.IsNullOrWhiteSpace(strOrderBySql)) { Sql.Append(string.Format("SELECT {0}{1} {2}{5} FROM {3} {4} BY Rnd(-(TestID+\" & Rnd() & \"))", strDistinctSql, strTopSql, strSelectSql, DbProvider.KeywordAegis(Name), strWhereSql, isDistinct ? ",Rnd(-(TestID+\" & Rnd() & \")) as newid" : "")); }
+            else if (!isDistinct && string.IsNullOrWhiteSpace(strOrderBySql))
+            {
+                Sql.Append($"SELECT {strSelectSql}{randField} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} BY Rnd(-(TestID+\" & Rnd() & \")) {strTopSql}");
+            }
             else
-            { Sql.Append(string.Format("SELECT {2} FROM (SELECT {0}{1} *{6} FROM {3} {4} BY Rnd(-(TestID+\" & Rnd() & \"))) a {5}", strDistinctSql, strTopSql, strSelectSql, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, isDistinct ? ",Rnd(-(TestID+\" & Rnd() & \")) as newid" : "")); }
+            {
+                Sql.Append($"SELECT *{randField} FROM (SELECT {strDistinctSql} {strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql}) s BY Rnd(-(TestID+\" & Rnd() & \")) {strTopSql}");
+            }
             return this;
         }
 

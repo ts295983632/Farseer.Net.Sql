@@ -108,14 +108,20 @@ namespace FS.Sql.Infrastructure
             var strOrderBySql = OrderByVisitor.Visit(ExpBuilder.ExpOrderBy);
             var strTopSql = top > 0 ? $"TOP {top} " : string.Empty;
             var strDistinctSql = isDistinct ? "Distinct " : string.Empty;
+            var randField = "NEWID() as newid";
 
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
             if (!string.IsNullOrWhiteSpace(strOrderBySql)) { strOrderBySql = "ORDER BY " + strOrderBySql; }
 
             if (!isRand) { Sql.Append($"SELECT {strDistinctSql}{strTopSql}{strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql}"); }
-            else if (string.IsNullOrWhiteSpace(strOrderBySql)) { Sql.Append(string.Format("SELECT {0}{1}{2}{5} FROM {3} {4} ORDER BY NEWID()", strDistinctSql, strTopSql, strSelectSql, DbProvider.KeywordAegis(Name), strWhereSql, isDistinct ? ",NEWID() as newid" : "")); }
+            else if (!isDistinct && string.IsNullOrWhiteSpace(strOrderBySql))
+            {
+                Sql.Append($"SELECT {strTopSql}{strSelectSql}{randField} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} ORDER BY NEWID()");
+            }
             else
-            { Sql.Append(string.Format("SELECT {2} FROM (SELECT {0} {1} *{6} FROM {3} {4} ORDER BY NEWID()) a {5}", strDistinctSql, strTopSql, strSelectSql, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, isDistinct ? ",NEWID() as newid" : "")); }
+            {
+                Sql.Append($"SELECT {strTopSql} *{randField} FROM (SELECT {strDistinctSql} {strSelectSql} FROM {DbProvider.KeywordAegis(Name)} {strWhereSql} {strOrderBySql}) s ORDER BY NEWID()");
+            }
             return this;
         }
 
