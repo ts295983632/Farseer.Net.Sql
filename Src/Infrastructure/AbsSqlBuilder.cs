@@ -108,7 +108,7 @@ namespace FS.Sql.Infrastructure
             var strOrderBySql = OrderByVisitor.Visit(ExpBuilder.ExpOrderBy);
             var strTopSql = top > 0 ? $"TOP {top} " : string.Empty;
             var strDistinctSql = isDistinct ? "Distinct " : string.Empty;
-            var randField = "NEWID() as newid";
+            var randField = ",NEWID() as newid";
 
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
             if (!string.IsNullOrWhiteSpace(strOrderBySql)) { strOrderBySql = "ORDER BY " + strOrderBySql; }
