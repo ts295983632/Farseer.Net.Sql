@@ -54,7 +54,7 @@ namespace FS.Sql.Infrastructure
         /// <param name="fieldName">字符名称</param>
         public virtual string KeywordAegis(string fieldName)
         {
-            if (Regex.IsMatch(fieldName, "[\\(\\)\\,\\[\\]\\+\\= ]*")) { return fieldName;}
+            if (Regex.IsMatch(fieldName, "[\\(\\)\\,\\[\\]\\+\\= ]+")) { return fieldName; }
             return $"[{fieldName}]";
         }
 
