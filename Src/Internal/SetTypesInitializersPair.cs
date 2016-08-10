@@ -20,17 +20,11 @@ namespace FS.Sql.Internal
         // Key：Set类型
         // Value：PropertyName：一个Set<Entity>被多个类属性调用
         // </summary>
-        public Dictionary<Type, List<string>> SetTypeList
-        {
-            get { return Item1; }
-        }
+        public Dictionary<Type, List<string>> SetTypeList => Item1;
 
         // <summary>
         // 实体化所有Set属性
         // </summary>
-        public Action<DbContext> SetsInitializer
-        {
-            get { return Item2; }
-        }
+        public Action<DbContext> SetsInitializer => Item2;
     }
 }
