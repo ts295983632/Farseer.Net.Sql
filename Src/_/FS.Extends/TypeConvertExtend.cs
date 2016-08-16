@@ -29,12 +29,11 @@ namespace FS.Extends
                 //赋值字段
                 foreach (var kic in map.MapList)
                 {
-                    if (HaveName(reader, kic.Value.Field.Name))
-                    {
-                        if (!kic.Key.CanWrite) { continue; }
-                        var oVal = ConvertHelper.ConvertType(reader[kic.Value.Field.Name], kic.Key.PropertyType);
-                        PropertySetCacheManger.Cache(kic.Key, t, oVal);
-                    }
+                    if (!HaveName(reader, kic.Value.Field.Name)) { continue; }
+                    if (!kic.Key.CanWrite) { continue; }
+                    var oVal = ConvertHelper.ConvertType(reader[kic.Value.Field.Name], kic.Key.PropertyType);
+                    if (oVal == null) { continue; }
+                    PropertySetCacheManger.Cache(kic.Key, t, oVal);
                 }
 
                 list.Add(t);
@@ -65,7 +64,8 @@ namespace FS.Extends
                         if (!kic.Key.CanWrite) { continue; }
                         var oVal = ConvertHelper.ConvertType(reader[kic.Value.Field.Name], kic.Key.PropertyType);
                         //  当值类型，目标值为null时，需要做默认值处理
-                        if (oVal == null && !kic.Key.PropertyType.IsGenericType && !kic.Key.PropertyType.IsClass) { oVal = 0; }
+                        //if (oVal == null && !kic.Key.PropertyType.IsGenericType && !kic.Key.PropertyType.IsClass) { oVal = 0; }
+                        if (oVal == null) { continue; }
                         PropertySetCacheManger.Cache(kic.Key, t, oVal);
 
                         isHaveValue = true;
@@ -141,6 +141,7 @@ namespace FS.Extends
                     if (dr.Table.Columns.Contains(filedName))
                     {
                         var oVal = ConvertHelper.ConvertType(dr[filedName], kic.Key.PropertyType);
+                        if (oVal == null) { continue; }
                         PropertySetCacheManger.Cache(kic.Key, t, oVal);
                     }
                 }
@@ -169,6 +170,7 @@ namespace FS.Extends
                     if (dt.Rows[i].Table.Columns.Contains(filedName))
                     {
                         var oVal = ConvertHelper.ConvertType(dt.Rows[i][filedName], kic.Key.PropertyType);
+                        if (oVal == null) { continue; }
                         PropertySetCacheManger.Cache(kic.Key, t, oVal);
                     }
                 }
