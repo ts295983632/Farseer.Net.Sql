@@ -55,29 +55,29 @@ namespace FS.Sql.Infrastructure
         public string Name { get; }
 
         /// <summary>
-        ///     提供ExpressionBinary表达式树的解析
+        ///     Where条件表达式树的解析
         /// </summary>
-        protected WhereVisitor WhereVisitor => DbProvider.CreateWhereVisitor(ExpBuilder.SetMap, Param);
+        protected WhereVisitor WhereVisitor => new WhereVisitor(DbProvider, ExpBuilder.SetMap, Param);
+
+        /// <summary>
+        ///     提供字段赋值时表达式树的解析
+        /// </summary>
+        private AssignVisitor AssignVisitor => new AssignVisitor(DbProvider, ExpBuilder.SetMap, Param);
+
+        /// <summary>
+        ///     提供字段排序时表达式树的解析
+        /// </summary>
+        protected OrderByVisitor OrderByVisitor => new OrderByVisitor(DbProvider, ExpBuilder.SetMap, Param);
 
         /// <summary>
         ///     提供ExpressionBinary表达式树的解析
         /// </summary>
-        protected AssignVisitor AssignVisitor => DbProvider.CreateAssignVisitor(ExpBuilder.SetMap, Param);
+        protected SelectVisitor SelectVisitor => new SelectVisitor(DbProvider, ExpBuilder.SetMap, Param);
 
         /// <summary>
-        ///     提供ExpressionBinary表达式树的解析
+        ///     提供字段插入表达式树的解析
         /// </summary>
-        protected OrderByVisitor OrderByVisitor => DbProvider.CreateOrderByVisitor(ExpBuilder.SetMap, Param);
-
-        /// <summary>
-        ///     提供ExpressionBinary表达式树的解析
-        /// </summary>
-        protected SelectVisitor SelectVisitor => DbProvider.CreateSelectVisitor(ExpBuilder.SetMap, Param);
-
-        /// <summary>
-        ///     提供ExpressionBinary表达式树的解析
-        /// </summary>
-        private InsertVisitor InsertVisitor => DbProvider.CreateInsertVisitor(ExpBuilder.SetMap, Param);
+        private InsertVisitor InsertVisitor => new InsertVisitor(DbProvider, ExpBuilder.SetMap, Param);
 
         /// <summary>
         ///     查询单条记录

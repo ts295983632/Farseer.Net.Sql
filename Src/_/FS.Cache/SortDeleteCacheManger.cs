@@ -17,7 +17,7 @@ namespace FS.Cache
 
         private readonly eumSortDeleteType _field;
         private readonly object _value;
-        private readonly Type _defineType;
+        private readonly Type _entityType;
         private readonly string _name;
 
         /// <summary>
@@ -26,19 +26,17 @@ namespace FS.Cache
         /// <param name="name">软删除标记字段名称</param>
         /// <param name="field">数据库字段类型</param>
         /// <param name="value">标记值</param>
-        /// <param name="defineType">实体类型</param>
-        private SortDeleteCacheManger(string name, eumSortDeleteType field, object value, Type defineType)
+        /// <param name="entityType">实体类型</param>
+        private SortDeleteCacheManger(string name, eumSortDeleteType field, object value, Type entityType)
         {
             this._field = field;
             this._value = value;
-            _defineType = defineType;
+            _entityType = entityType;
             _name = name;
 
-            Key = 0;
-            Key += name.GetHashCode();
-            Key += field.GetHashCode();
+            Key = name.GetHashCode() + field.GetHashCode();
             if (value != null) { Key += value.GetHashCode(); }
-            Key += defineType.GetHashCode();
+            Key += entityType.GetHashCode();
         }
 
         protected override SortDelete SetCacheLock()
@@ -48,8 +46,8 @@ namespace FS.Cache
                 if (CacheList.ContainsKey(Key)) { return CacheList[Key]; }
 
                 //缓存中没有找到，新建一个实例
-                var sortDelete = new SortDelete() {Name = _name, FieldType = _field, Value = _value};
-                sortDelete.Init(_defineType);
+                var sortDelete = new SortDelete { Name = _name, FieldType = _field, Value = _value };
+                sortDelete.Init(_entityType);
 
                 return (CacheList[Key] = sortDelete);
             }
@@ -61,10 +59,10 @@ namespace FS.Cache
         /// <param name="name">软删除标记字段名称</param>
         /// <param name="field">数据库字段类型</param>
         /// <param name="value">标记值</param>
-        /// <param name="defineType">实体类型</param>
-        public static SortDelete Cache(string name, eumSortDeleteType field, object value, Type defineType)
+        /// <param name="entityType">实体类型</param>
+        public static SortDelete Cache(string name, eumSortDeleteType field, object value, Type entityType)
         {
-            return new SortDeleteCacheManger(name, field, value, defineType).GetValue();
+            return new SortDeleteCacheManger(name, field, value, entityType).GetValue();
         }
     }
 }

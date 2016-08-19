@@ -28,8 +28,8 @@ namespace FS.Sql.Features
         /// <summary>
         ///     初始化逻辑删除
         /// </summary>
-        /// <param name="defineType">实体类型</param>
-        public void Init(Type defineType)
+        /// <param name="entityType">实体类型</param>
+        public void Init(Type entityType)
         {
             Type fieldType;
             switch (FieldType)
@@ -38,18 +38,18 @@ namespace FS.Sql.Features
                     fieldType = Value.GetType();
                     break;
                 case eumSortDeleteType.DateTime:
-                    fieldType = typeof (DateTime);
+                    fieldType = typeof(DateTime);
                     Value = DateTime.Now;
                     break;
                 default:
-                    fieldType = typeof (bool);
+                    fieldType = typeof(bool);
                     break;
             }
-            var dic = new Dictionary<string, Type>();
-            dic[Name] = fieldType;
+
+            var dic = new Dictionary<string, Type> { [Name] = fieldType };
 
             // 如果当前类已包含该字段，则不创新派生类
-            var sortDeleteClassType = defineType.GetProperty(Name) != null ? defineType : DynamicsClassTypeCacheManger.Cache(dic, defineType);
+            var sortDeleteClassType = entityType.GetProperty(Name) != null ? entityType : DynamicsClassTypeCacheManger.Cache(dic, entityType);
             var param = Expression.Parameter(sortDeleteClassType, "o");
             var member = Expression.MakeMemberAccess(param, sortDeleteClassType.GetMember(Name)[0]);
 

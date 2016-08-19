@@ -40,7 +40,7 @@ namespace FS.Sql.Map
         /// <returns></returns>
         public SetDataMap GetEntityMap(PropertyInfo setPropertyInfo)
         {
-            return SetDataList.FirstOrDefault(o => o.Property == setPropertyInfo);
+            return SetDataList.FirstOrDefault(o => o.ClassProperty == setPropertyInfo);
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace FS.Sql.Map
         /// <param name="propertyName">属性名称</param>
         public SetDataMap GetEntityMap(Type setType, string propertyName)
         {
-            return SetDataList.FirstOrDefault(o => o.Property.PropertyType == setType && o.Property.Name == propertyName);
+            return SetDataList.FirstOrDefault(o => o.ClassProperty.PropertyType == setType && o.ClassProperty.Name == propertyName);
         }
     }
 }

@@ -15,7 +15,6 @@ using FS.Sql.Client.Oracle;
 using FS.Sql.Client.PostgreSql;
 using FS.Sql.Client.SqlServer;
 using FS.Sql.Client.SqLite;
-using FS.Sql.ExpressionVisitor;
 using FS.Sql.Internal;
 using FS.Sql.Map;
 using FS.Utils.Common;
@@ -31,7 +30,7 @@ namespace FS.Sql.Infrastructure
         /// <summary>
         ///     参数前缀
         /// </summary>
-        public virtual string ParamsPrefix => "@";
+        protected virtual string ParamsPrefix => "@";
 
         /// <summary>
         ///     创建提供程序对数据源类的实现的实例
@@ -65,7 +64,7 @@ namespace FS.Sql.Infrastructure
         /// <param name="valu"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public object ParamConvertValue(object valu, DbType type)
+        private object ParamConvertValue(object valu, DbType type)
         {
             if (valu == null) { return null; }
 
@@ -101,23 +100,11 @@ namespace FS.Sql.Infrastructure
         }
 
         /// <summary>
-        ///     将C#值转成数据库能存储的值
-        /// </summary>
-        /// <param name="valu"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public object ParamConvertValue(object valu, Type type)
-        {
-            int len;
-            return ParamConvertValue(valu, GetDbType(type, out len));
-        }
-
-        /// <summary>
         ///     根据值，返回类型
         /// </summary>
         /// <param name="type">参数类型</param>
         /// <param name="len">参数长度</param>
-        public virtual DbType GetDbType(Type type, out int len)
+        protected virtual DbType GetDbType(Type type, out int len)
         {
             type = type.GetNullableArguments();
             if (type.BaseType != null && type.BaseType == typeof(Enum))
@@ -127,7 +114,6 @@ namespace FS.Sql.Infrastructure
             }
             switch (type.Name)
             {
-
                 case "DateTime": len = 8; return DbType.DateTime;
                 case "Boolean": len = 1; return DbType.Int32;
                 case "Int32": len = 4; return DbType.Int32;
@@ -138,7 +124,7 @@ namespace FS.Sql.Infrastructure
                 case "Float":
                 case "Double": len = 8; return DbType.Decimal;
                 case "Guid": len = 16; return DbType.Guid;
-                default: len = 0; return DbType.String;
+                default: len = 8000; return DbType.String;
             }
         }
 
@@ -173,17 +159,6 @@ namespace FS.Sql.Infrastructure
             int len;
             var type = GetDbType(valType, out len);
             return CreateDbParam(name, valu, type, len, output);
-        }
-
-        /// <summary>
-        ///     创建一个数据库参数对象
-        /// </summary>
-        /// <param name="name">参数名称</param>
-        /// <param name="valu">参数值</param>
-        /// <param name="output">是否是输出值</param>
-        public DbParameter CreateDbParam(string name, object valu, bool output = false)
-        {
-            return CreateDbParam(name, valu, valu.GetType(), output);
         }
 
         #endregion
@@ -299,38 +274,5 @@ namespace FS.Sql.Infrastructure
                 PropertySetCacheManger.Cache(kic.Key, entity, oVal);
             }
         }
-
-        #region 表达式树的解释器
-        /// <summary>
-        ///     提供字段赋值时表达式树的解析
-        /// </summary>
-        /// <param name="map">字段映射</param>
-        /// <param name="paramList">SQL参数列表</param>
-        public virtual AssignVisitor CreateAssignVisitor(SetDataMap map, List<DbParameter> paramList) => new AssignVisitor(this, map, paramList);
-        /// <summary>
-        ///     提供字段插入表达式树的解析
-        /// </summary>
-        /// <param name="map">字段映射</param>
-        /// <param name="paramList">SQL参数列表</param>
-        public virtual InsertVisitor CreateInsertVisitor(SetDataMap map, List<DbParameter> paramList) => new InsertVisitor(this, map, paramList);
-        /// <summary>
-        ///     提供字段排序时表达式树的解析
-        /// </summary>
-        /// <param name="map">字段映射</param>
-        /// <param name="paramList">SQL参数列表</param>
-        public virtual OrderByVisitor CreateOrderByVisitor(SetDataMap map, List<DbParameter> paramList) => new OrderByVisitor(this, map, paramList);
-        /// <summary>
-        ///     Select筛选字段时表达式树的解析
-        /// </summary>
-        /// <param name="map">字段映射</param>
-        /// <param name="paramList">SQL参数列表</param>
-        public virtual SelectVisitor CreateSelectVisitor(SetDataMap map, List<DbParameter> paramList) => new SelectVisitor(this, map, paramList);
-        /// <summary>
-        ///     Select筛选字段时表达式树的解析
-        /// </summary>
-        /// <param name="map">字段映射</param>
-        /// <param name="paramList">SQL参数列表</param>
-        public virtual WhereVisitor CreateWhereVisitor(SetDataMap map, List<DbParameter> paramList) => new WhereVisitor(this, map, paramList);
-        #endregion
     }
 }

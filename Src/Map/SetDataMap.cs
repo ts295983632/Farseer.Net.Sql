@@ -13,9 +13,9 @@ namespace FS.Sql.Map
     {
         internal SetDataMap(KeyValuePair<PropertyInfo, SetPhysicsMap> entityPhysicsMap)
         {
-            Property = entityPhysicsMap.Key;
+            ClassProperty = entityPhysicsMap.Key;
             PhysicsMap = entityPhysicsMap.Value;
-            Name = Property.Name;
+            Name = ClassProperty.Name;
         }
 
         /// <summary>
@@ -29,9 +29,9 @@ namespace FS.Sql.Map
         public string Name { get; private set; }
 
         /// <summary>
-        ///     属性
+        ///     类属性
         /// </summary>
-        internal PropertyInfo Property { get; }
+        internal PropertyInfo ClassProperty { get; }
 
         /// <summary>
         ///     逻辑删除
@@ -63,14 +63,14 @@ namespace FS.Sql.Map
         ///     设置逻辑删除方案
         /// </summary>
         /// <param name="name">软删除标记字段名称</param>
-        /// <param name="field">数据库字段类型</param>
+        /// <param name="sortDeleteType">数据库字段类型</param>
         /// <param name="value">标记值</param>
-        public SetDataMap SetSortDelete(string name, eumSortDeleteType field, object value)
+        public SetDataMap SetSortDelete(string name, eumSortDeleteType sortDeleteType, object value)
         {
             Check.NotEmpty(name, "字段名称不能为空");
-            Check.IsTure(field != eumSortDeleteType.DateTime && value == null, "非时间类型时，value不能为空");
+            Check.IsTure(sortDeleteType != eumSortDeleteType.DateTime && value == null, "非时间类型时，value不能为空");
 
-            SortDelete = SortDeleteCacheManger.Cache(name, field, value, Property.PropertyType.GetGenericArguments()[0]);
+            SortDelete = SortDeleteCacheManger.Cache(name, sortDeleteType, value, ClassProperty.PropertyType.GetGenericArguments()[0]);
             return this;
         }
     }
