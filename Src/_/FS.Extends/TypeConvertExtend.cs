@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml.Linq;
 using FS.Cache;
 using FS.Utils.Common;
+using System.Reflection;
 
 // ReSharper disable once CheckNamespace
 
@@ -12,36 +13,6 @@ namespace FS.Extends
 {
     public static partial class SqlExtend
     {
-        /// <summary>
-        ///     IDataReader转换为实体类
-        /// </summary>
-        /// <param name="reader">源IDataReader</param>
-        /// <typeparam name="TEntity">实体类</typeparam>
-        public static List<TEntity> ToList<TEntity>(this IDataReader reader) where TEntity : class, new()
-        {
-            var list = new List<TEntity>();
-            var map = SetMapCacheManger.Cache(typeof(TEntity));
-
-            while (reader.Read())
-            {
-                var t = (TEntity)Activator.CreateInstance(typeof(TEntity));
-
-                //赋值字段
-                foreach (var kic in map.MapList)
-                {
-                    if (!HaveName(reader, kic.Value.Field.Name)) { continue; }
-                    if (!kic.Key.CanWrite) { continue; }
-                    var oVal = ConvertHelper.ConvertType(reader[kic.Value.Field.Name], kic.Key.PropertyType);
-                    if (oVal == null) { continue; }
-                    PropertySetCacheManger.Cache(kic.Key, t, oVal);
-                }
-
-                list.Add(t);
-            }
-            reader.Close();
-            return list;
-        }
-
         /// <summary>
         ///     数据填充
         /// </summary>
@@ -51,7 +22,7 @@ namespace FS.Extends
         {
             var map = SetMapCacheManger.Cache(typeof(TEntity));
 
-            var t = (TEntity)Activator.CreateInstance(typeof(TEntity));
+            var t = new TEntity();
             var isHaveValue = false;
 
             if (reader.Read())
@@ -63,11 +34,8 @@ namespace FS.Extends
                     {
                         if (!kic.Key.CanWrite) { continue; }
                         var oVal = ConvertHelper.ConvertType(reader[kic.Value.Field.Name], kic.Key.PropertyType);
-                        //  当值类型，目标值为null时，需要做默认值处理
-                        //if (oVal == null && !kic.Key.PropertyType.IsGenericType && !kic.Key.PropertyType.IsClass) { oVal = 0; }
-                        if (oVal == null) { continue; }
+                        if (oVal == null) { continue; } //  当值类型，目标值为null时，需要做默认值处理
                         PropertySetCacheManger.Cache(kic.Key, t, oVal);
-
                         isHaveValue = true;
                     }
                 }
@@ -112,9 +80,6 @@ namespace FS.Extends
         /// <summary>
         ///     判断IDataReader是否存在某列
         /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="name"></param>
-        /// <returns></returns>
         public static bool HaveName(this IDataReader reader, string name)
         {
             for (var i = 0; i < reader.FieldCount; i++) { if (ConvertHelper.IsEquals(reader.GetName(i), name)) { return true; } }
@@ -128,24 +93,28 @@ namespace FS.Extends
         /// <typeparam name="TEntity">实体类</typeparam>
         public static List<TEntity> ToList<TEntity>(this DataTable dt) where TEntity : class, new()
         {
-            var list = new List<TEntity>();
-            var map = SetMapCacheManger.Cache(typeof(TEntity));
+            var list = new List<TEntity>(dt.Rows.Count);
             foreach (DataRow dr in dt.Rows)
             {
-                // 赋值字段
-                var t = new TEntity();
-                foreach (var kic in map.MapList)
-                {
-                    if (!kic.Key.CanWrite) { continue; }
-                    var filedName = kic.Value.Field.IsFun ? kic.Key.Name : kic.Value.Field.Name;
-                    if (dr.Table.Columns.Contains(filedName))
-                    {
-                        var oVal = ConvertHelper.ConvertType(dr[filedName], kic.Key.PropertyType);
-                        if (oVal == null) { continue; }
-                        PropertySetCacheManger.Cache(kic.Key, t, oVal);
-                    }
-                }
-                list.Add(t);
+                list.Add(dr.ToInfo<TEntity>());
+            }
+            return list;
+        }
+
+        /// <summary>
+        ///     DataTable转换为List实体类
+        /// </summary>
+        /// <param name="dt">源DataTable</param>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        public static List<TEntity> ToListForCodeDom<TEntity>(this DataTable dt) where TEntity : class, new()
+        {
+            var list = new List<TEntity>(dt.Rows.Count);
+            // 找到TEntity的派生类
+            // 生成TEntity的派生类
+            // 实例化并传入dr
+            foreach (DataRow dr in dt.Rows)
+            {
+                list.Add(dr.ToInfo<TEntity>());
             }
             return list;
         }
@@ -161,20 +130,7 @@ namespace FS.Extends
             var map = SetMapCacheManger.Cache(typeof(TEntity));
             for (int i = 0; i < dt.Rows.Count; i++)
             {
-                // 赋值字段
-                var t = new TEntity();
-                foreach (var kic in map.MapList)
-                {
-                    if (!kic.Key.CanWrite) { continue; }
-                    var filedName = kic.Value.Field.IsFun ? kic.Key.Name : kic.Value.Field.Name;
-                    if (dt.Rows[i].Table.Columns.Contains(filedName))
-                    {
-                        var oVal = ConvertHelper.ConvertType(dt.Rows[i][filedName], kic.Key.PropertyType);
-                        if (oVal == null) { continue; }
-                        PropertySetCacheManger.Cache(kic.Key, t, oVal);
-                    }
-                }
-                arr[i] = t;
+                arr[i] = dt.Rows[i].ToInfo<TEntity>();
             }
             return arr;
         }
