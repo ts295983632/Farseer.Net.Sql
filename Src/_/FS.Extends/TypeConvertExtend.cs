@@ -30,10 +30,11 @@ namespace FS.Extends
                 //赋值字段
                 foreach (var kic in map.MapList)
                 {
-                    if (HaveName(reader, kic.Value.Field.Name))
+                    var filedName = kic.Value.Field.IsFun ? kic.Key.Name : kic.Value.Field.Name;
+                    if (HaveName(reader, filedName))
                     {
                         if (!kic.Key.CanWrite) { continue; }
-                        var oVal = ConvertHelper.ConvertType(reader[kic.Value.Field.Name], kic.Key.PropertyType);
+                        var oVal = ConvertHelper.ConvertType(reader[filedName], kic.Key.PropertyType);
                         if (oVal == null) { continue; } //  当值类型，目标值为null时，需要做默认值处理
                         PropertySetCacheManger.Cache(kic.Key, t, oVal);
                         isHaveValue = true;
@@ -99,6 +100,31 @@ namespace FS.Extends
                 list.Add(dr.ToInfo<TEntity>());
             }
             return list;
+        }
+
+        /// <summary>
+        ///     将DataRow转成实体类
+        /// </summary>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        /// <param name="dr">源DataRow</param>
+        public static TEntity ToInfo<TEntity>(this DataRow dr) where TEntity : class, new()
+        {
+            var map = SetMapCacheManger.Cache(typeof(TEntity));
+            var t = new TEntity();
+
+            //赋值字段
+            foreach (var kic in map.MapList)
+            {
+                if (!kic.Key.CanWrite) { continue; }
+                var filedName = kic.Value.Field.IsFun ? kic.Key.Name : kic.Value.Field.Name;
+                if (dr.Table.Columns.Contains(filedName))
+                {
+                    var oVal = dr[filedName].ConvertType(kic.Key.PropertyType);
+                    if (oVal == null) { continue; }
+                    PropertySetCacheManger.Cache(kic.Key, t, oVal);
+                }
+            }
+            return t;
         }
 
         /// <summary>
