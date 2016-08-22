@@ -1,32 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using FS.Infrastructure;
-using FS.Sql.Map.Attribute;
 using System.Data;
-using FS.Extends;
+using FS.Sql.Tests.DB;
+using FS.Sql.Tests.DB.Members;
+using FS.Utils.Common;
 
-namespace FS.Sql.Tests.DB.Members
+namespace TimeTests.DB
 {
     public class UserDataVO : UserVO
     {
         public UserDataVO() { }
         public UserDataVO(DataRow dr)
         {
-            //base.CreateAt = dr[nameof(CreateAt)].ConvertType(DateTime.Now);
-            //base.GenderType = dr[nameof(GenderType)].ConvertType(eumGenderType.Man);
-            //base.ID = dr[nameof(ID)].ConvertType(0);
-            //base.LogCount = dr[nameof(LogCount)].ConvertType(0);
-            //base.LoginIP = dr[nameof(LoginIP)].ConvertType("");
-            //base.PassWord = dr[nameof(PassWord)].ConvertType("");
-            //base.UserName = dr[nameof(UserName)].ConvertType("");
+            if (dr.Table.Columns.Contains("SiteIDs") && dr["SiteIDs"] != null) { base.SiteIDs = ConvertHelper.ConvertType(dr["SiteIDs"], typeof(List<System.Int32>)) as List<System.Int32>; }
 
+            DateTime createAtOut;
+            if (dr[nameof(CreateAt)] != null && DateTime.TryParse(dr[nameof(CreateAt)].ToString(), out createAtOut)) { base.CreateAt = createAtOut; }
 
-            base.CreateAt = dr[nameof(CreateAt)] as DateTime?;
-            base.GenderType = dr[nameof(GenderType)] as eumGenderType?;
-            base.ID = dr[nameof(ID)] as int?;
-            base.LogCount = dr[nameof(LogCount)] as int?;
-            base.LoginIP = dr[nameof(LoginIP)] as string;
-            base.PassWord = dr[nameof(PassWord)] as string;
+            eumGenderType genderTypeOut;
+            if (dr[nameof(GenderType)] != null && Enum.TryParse(dr[nameof(GenderType)].ToString(), out genderTypeOut)) { base.GenderType = genderTypeOut; }
+
+            Int32 idOut;
+            if (dr[nameof(ID)] != null && Int32.TryParse(dr[nameof(ID)].ToString(), out idOut)) { base.ID = idOut; }
+
+            Int32 logCountOut;
+            if (dr[nameof(LogCount)] != null && Int32.TryParse(dr[nameof(LogCount)].ToString(), out logCountOut)) { base.LogCount = logCountOut; }
+
+            base.LoginIP = dr["LoginIP"] as string;
+            base.PassWord = dr["PassWord"] as string;
             base.UserName = dr[nameof(UserName)] as string;
         }
     }

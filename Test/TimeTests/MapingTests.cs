@@ -8,6 +8,9 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using FS.Cache;
+using FS.Sql.Internal;
+using TimeTests.DB;
 
 namespace TimeTests
 {
@@ -16,43 +19,43 @@ namespace TimeTests
         static DataTable dt;
         public static void Tests()
         {
-            Console.WriteLine(typeof(UserDataVO).Namespace);
-            new AssemblyName()
-            System.Reflection.Assembly.LoadFrom("Farseer.Net.CodeDom");
             Init();
             AddData();
-            SpeedTest.ConsoleTime("硬编码转换", 1, () =>
+            new UserDataVO(dt.Rows[0]);
+            SpeedTest.ConsoleTime("硬编码DataTable转实体", 1, () =>
             {
-                var lst = new List<UserDataVO>();
+                var lst = new List<UserVO>(dt.Rows.Count);
                 foreach (DataRow item in dt.Rows)
                 {
                     lst.Add(new UserDataVO(item));
                 }
             });
-
-            SpeedTest.ConsoleTime("表达式树委托转换", 1, () =>
+            dt.ToList<UserVO>();
+            SpeedTest.ConsoleTime("表达式树委托DataTable转实体", 1, () =>
             {
-                dt.ToList<UserDataVO>();
+                var lst = dt.ToList<UserVO>();
             });
         }
 
         private static void Init()
         {
             dt = new DataTable();
-            dt.Columns.Add(nameof(UserDataVO.CreateAt));
-            dt.Columns.Add(nameof(UserDataVO.GenderType));
-            dt.Columns.Add(nameof(UserDataVO.ID));
-            dt.Columns.Add(nameof(UserDataVO.LogCount));
-            dt.Columns.Add(nameof(UserDataVO.LoginIP));
-            dt.Columns.Add(nameof(UserDataVO.PassWord));
-            dt.Columns.Add(nameof(UserDataVO.UserName));
+            dt.Columns.Add(nameof(UserVO.CreateAt));
+            dt.Columns.Add(nameof(UserVO.GenderType));
+            dt.Columns.Add(nameof(UserVO.ID));
+            dt.Columns.Add(nameof(UserVO.LogCount));
+            dt.Columns.Add(nameof(UserVO.LoginIP));
+            dt.Columns.Add(nameof(UserVO.PassWord));
+            dt.Columns.Add(nameof(UserVO.UserName));
+            dt.Columns.Add(nameof(UserVO.SiteIDs));
         }
 
         private static void AddData(int count = 10000)
         {
             for (int i = 0; i < count; i++)
             {
-                dt.Rows.Add(DateTime.Now, eumGenderType.Man, i, Rand.GetRandom(), Rand.CreateRandomString(15), Rand.CreateRandomString(32), Rand.CreateRandomString(12));
+                var lst = new List<int> {Rand.GetRandom(), Rand.GetRandom(), Rand.GetRandom()};
+                dt.Rows.Add(DateTime.Now, eumGenderType.Man, i, Rand.GetRandom(), Rand.CreateRandomString(15), Rand.CreateRandomString(32), Rand.CreateRandomString(12), lst.ToString(","));
             }
         }
     }

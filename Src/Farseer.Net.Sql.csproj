@@ -51,6 +51,7 @@
     <Compile Include="Client\SqlServer\SqlServerFunctionProvider.cs" />
     <Compile Include="Infrastructure\AbsFunctionProvider.cs" />
     <Compile Include="Internal\DefaultDataCache.cs" />
+    <Compile Include="Internal\EntityDynamics.cs" />
     <Compile Include="_\FS.Cache\ConnStringCacheManger.cs" />
     <Compile Include="_\FS.Cache\ContextMapCacheManger.cs" />
     <Compile Include="_\FS.Cache\ContextSetTypeCacheManger.cs" />
@@ -116,7 +117,6 @@
     <Compile Include="TableSetCache.cs" />
     <Compile Include="ViewSet.cs" />
     <Compile Include="ViewSetCache.cs" />
-    <Compile Include="_\FS.Extends\DataRowExtend.cs" />
     <Compile Include="_\FS.Extends\EntityExtend.cs" />
     <Compile Include="_\FS.Extends\ExpressionExtend.cs" />
     <Compile Include="_\FS.Extends\ICateExtend.cs" />

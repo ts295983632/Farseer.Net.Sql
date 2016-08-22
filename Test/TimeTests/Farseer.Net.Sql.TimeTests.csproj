@@ -50,9 +50,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\..\Farseer.Net.Utils\Src\Farseer.Net.Utils.Web\Farseer.Net.Utils.Web.csproj">

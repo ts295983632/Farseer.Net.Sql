@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using FS.Cache;
 using FS.Extends;
 using FS.Sql;
+using FS.Sql.Internal;
 using FS.Utils.Common;
 using FS.Sql.Tests.DB;
 using FS.Sql.Tests.DB.Members;

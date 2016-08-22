@@ -25,6 +25,9 @@ namespace FS.Sql.Tests.DB.Members
         [Field(Name = "LoginCount")]
         public int? LogCount { get; set; }
 
+        /// <summary> 登陆次数 </summary>
+        public List<int> SiteIDs { get; set; }
+
         /// <summary> 登陆IP </summary>
         public string LoginIP { get; set; }
 
