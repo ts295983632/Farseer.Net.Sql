@@ -13,7 +13,7 @@ namespace FS.Sql.Data
     /// <summary>
     ///     数据库操作
     /// </summary>
-    public sealed class DbExecutor : IDisposable
+    internal sealed class DbExecutor : IDisposable
     {
         /// <summary>
         ///     构造函数

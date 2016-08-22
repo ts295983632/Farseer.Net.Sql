@@ -24,7 +24,7 @@ namespace FS.Sql
         /// </summary>
         /// <param name="dbIndex">数据库选项</param>
         /// <param name="isUnitOfWork">是否工作单元模式</param>
-        protected DbContext(int dbIndex = 0, bool isUnitOfWork = false) : this(ConnStringCacheManger.Cache(dbIndex), DbConfigs.ConfigEntity.DbList[dbIndex].DataType, DbConfigs.ConfigEntity.DbList[dbIndex].CommandTimeout, DbConfigs.ConfigEntity.DbList[dbIndex].DataVer, isUnitOfWork) { }
+        public DbContext(int dbIndex = 0, bool isUnitOfWork = false) : this(ConnStringCacheManger.Cache(dbIndex), DbConfigs.ConfigEntity.DbList[dbIndex].DataType, DbConfigs.ConfigEntity.DbList[dbIndex].CommandTimeout, DbConfigs.ConfigEntity.DbList[dbIndex].DataVer, isUnitOfWork) { }
 
         /// <summary>
         ///     通过自定义数据链接符，连接数据库
@@ -34,13 +34,13 @@ namespace FS.Sql
         /// <param name="commandTimeout">SQL执行超时时间</param>
         /// <param name="dataVer">数据库版本（针对不同的数据库版本的优化）</param>
         /// <param name="isUnitOfWork">是否工作单元模式</param>
-        protected DbContext(string connectionString, eumDbType db = eumDbType.SqlServer, int commandTimeout = 30, string dataVer = null, bool isUnitOfWork = false) : this(isUnitOfWork)
+        public DbContext(string connectionString, eumDbType db = eumDbType.SqlServer, int commandTimeout = 30, string dataVer = null, bool isUnitOfWork = false) : this(isUnitOfWork)
         {
             _internalContext.ContextConnection = new ContextConnection(connectionString, db, commandTimeout, dataVer);
         }
 
         /// <summary>
-        /// 不初始化ContextConnection
+        /// 不初始化ContextConnection（用于动态改变数据库连接方式）
         /// </summary>
         /// <param name="isUnitOfWork">是否工作单元模式</param>
         protected DbContext(bool isUnitOfWork)

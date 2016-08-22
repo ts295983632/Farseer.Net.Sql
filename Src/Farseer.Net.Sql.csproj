@@ -76,7 +76,6 @@
     <Compile Include="Data\eumSqlDbType.cs" />
     <Compile Include="DbContext.cs" />
     <Compile Include="DbContext`1.cs" />
-    <Compile Include="DbFactory.cs" />
     <Compile Include="ExpressionVisitor\AbsSqlVisitor.cs" />
     <Compile Include="ExpressionVisitor\AssignVisitor.cs" />
     <Compile Include="ExpressionVisitor\InsertVisitor.cs" />
