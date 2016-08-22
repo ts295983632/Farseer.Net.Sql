@@ -17,8 +17,9 @@ namespace FS.Sql.Client.MySql
         public override bool IsSupportTransaction => true;
         public override string KeywordAegis(string fieldName)
         {
-            if (Regex.IsMatch(fieldName, "[\\(\\)\\,\\[\\]\\+\\= ]+")) { return fieldName; }
-            return $"`{fieldName}`"; }
+            //if (Regex.IsMatch(fieldName, "[\\(\\)\\,\\[\\]\\+\\= ]+")) { return fieldName; }
+            return $"`{fieldName}`";
+        }
 
         internal override AbsSqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name) => new MySqlBuilder(this, expBuilder, name);
 

@@ -53,7 +53,7 @@ namespace FS.Sql.Infrastructure
         /// <param name="fieldName">字符名称</param>
         public virtual string KeywordAegis(string fieldName)
         {
-            if (Regex.IsMatch(fieldName, "[\\(\\)\\,\\[\\]\\+\\= ]+")) { return fieldName; }
+            //if (Regex.IsMatch(fieldName, "[\\(\\)\\,\\[\\]\\+\\= ]+")) { return fieldName; }
             return $"[{fieldName}]";
         }
 
@@ -161,6 +161,16 @@ namespace FS.Sql.Infrastructure
             return CreateDbParam(name, valu, type, len, output);
         }
 
+        /// <summary>
+        ///     创建一个数据库参数对象
+        /// </summary>
+        /// <param name="name">参数名称</param>
+        /// <param name="valu">参数值</param>
+        /// <param name="output">是否是输出值</param>
+        public DbParameter CreateDbParam(string name, object valu, bool output = false)
+        {
+            return CreateDbParam(name, valu, valu.GetType(), output);
+        }
         #endregion
 
         #region 返回数据库连接字符串

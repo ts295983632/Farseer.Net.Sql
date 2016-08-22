@@ -19,8 +19,9 @@ namespace FS.Sql.Client.PostgreSql
         public override bool IsSupportTransaction => true;
         public override string KeywordAegis(string fieldName)
         {
-            if (Regex.IsMatch(fieldName, "[\\(\\)\\,\\[\\]\\+\\= ]+")) { return fieldName; }
-            return $"\"{fieldName}\""; }
+            //if (Regex.IsMatch(fieldName, "[\\(\\)\\,\\[\\]\\+\\= ]+")) { return fieldName; }
+            return $"\"{fieldName}\"";
+        }
 
         internal override AbsSqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name) => new PostgreSqlBuilder(this, expBuilder, name);
 
