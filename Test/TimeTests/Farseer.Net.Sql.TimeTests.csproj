@@ -45,15 +45,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DB\UserDataVO.cs" />
+    <Compile Include="MapingTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DB\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\..\..\Farseer.Net.Utils\Src\Farseer.Net.Utils.Web\Farseer.Net.Utils.Web.csproj">
       <Project>{9fbaa409-251a-428c-b222-f7426d19c244}</Project>

@@ -15,10 +15,12 @@ namespace TimeTests
     {
         static void Main(string[] args)
         {
-            Table.Data.Orders.Delete();
-            TestInsert2(1000);
-            Console.ReadKey();
-            Console.WriteLine(Table.Data.Orders.Count());
+            MapingTests.Tests();
+
+            //Table.Data.Orders.Delete();
+            //TestInsert2(1000);
+            //Console.ReadKey();
+            //Console.WriteLine(Table.Data.Orders.Count());
         }
         static void TestTableInstance(int count = 10000)
         {
