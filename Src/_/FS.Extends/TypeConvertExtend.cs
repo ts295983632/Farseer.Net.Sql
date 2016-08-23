@@ -21,29 +21,8 @@ namespace FS.Extends
         /// <typeparam name="TEntity">实体类</typeparam>
         public static TEntity ToEntity<TEntity>(this IDataReader reader) where TEntity : class, new()
         {
-            var map = SetMapCacheManger.Cache(typeof(TEntity));
-
-            var t = new TEntity();
-            var isHaveValue = false;
-
-            if (reader.Read())
-            {
-                //赋值字段
-                foreach (var kic in map.MapList)
-                {
-                    var filedName = kic.Value.Field.IsFun ? kic.Key.Name : kic.Value.Field.Name;
-                    if (reader.HaveName(filedName))
-                    {
-                        if (!kic.Key.CanWrite) { continue; }
-                        var oVal = ConvertHelper.ConvertType(reader[filedName], kic.Key.PropertyType);
-                        if (oVal == null) { continue; } //  当值类型，目标值为null时，需要做默认值处理
-                        PropertySetCacheManger.Cache(kic.Key, t, oVal);
-                        isHaveValue = true;
-                    }
-                }
-            }
-            reader.Close();
-            return isHaveValue ? t : null;
+            var type = new EntityDynamics().GetEntityType<TEntity>();
+            return (TEntity)InstanceStaticCacheManger.Cache(type, "ConvertDataReader", reader);
         }
 
         /// <summary>
@@ -64,13 +43,8 @@ namespace FS.Extends
         /// <typeparam name="TEntity">实体类</typeparam>
         public static TEntity[] ToArray<TEntity>(this DataTable dt) where TEntity : class, new()
         {
-            var arr = new TEntity[dt.Rows.Count];
             var type = new EntityDynamics().GetEntityType<TEntity>();
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
-                arr[i] = (TEntity)InstanceStaticCacheManger.Cache(type, "ConvertDataRow", dt.Rows[i]);
-            }
-            return arr;
+            return ((List<TEntity>)InstanceStaticCacheManger.Cache(type, "ConvertDataTable", dt)).ToArray();
         }
 
         /// <summary>

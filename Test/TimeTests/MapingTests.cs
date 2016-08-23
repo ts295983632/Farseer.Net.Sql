@@ -31,7 +31,7 @@ namespace TimeTests
                 }
             });
             dt.ToList<UserVO>();
-            SpeedTest.ConsoleTime("表达式树委托DataTable转实体", 1, () =>
+            SpeedTest.ConsoleTime("动态编译派生类DataTable转实体", 1, () =>
             {
                 var lst = dt.ToList<UserVO>();
             });
