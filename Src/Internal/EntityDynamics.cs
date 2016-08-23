@@ -6,6 +6,7 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using FS.Extends;
@@ -86,6 +87,19 @@ namespace FS.Sql.Internal
             return results.CompiledAssembly.GetExportedTypes()[0];
         }
 
+        /// <summary> 生成DataTable转换方法 </summary>
+        private string CreateDataTableMethod(Type entityType, SetPhysicsMap setPhysicsMap)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"\t public static List<{entityType.FullName}> ConvertDataTable (DataTable dt)\r\n{{");
+            sb.AppendLine($"var lst = new List<{entityType.FullName}>(dt.Rows.Count);");
+            sb.AppendLine($"foreach (DataRow dr in dt.Rows)\r\n{{");
+            sb.AppendLine($"lst.Add(ConvertDataRow(dr));");
+            sb.AppendLine("}");
+            sb.AppendLine($"return lst;");
+            sb.AppendLine("}");
+            return sb.ToString();
+        }
         /// <summary> 生成DataRow转换方法 </summary>
         private string CreateDataRowMethod(Type entityType, SetPhysicsMap setPhysicsMap)
         {
@@ -97,45 +111,11 @@ namespace FS.Sql.Internal
                 var filedName = map.Value.Field.IsFun ? map.Key.Name : map.Value.Field.Name;
                 // DataRow是否包含字段
                 sb.Append($"\t\t if (dr.Table.Columns.Contains(\"{filedName}\") && dr[\"{filedName}\"]!=null) {{ ");
-                // 字段赋值
-                var propertyAssign = $"entity.{map.Key.Name} = ";
-                // 类型转换
-                var propertyType = map.Key.PropertyType.GetNullableArguments();
-                // 如果是List类型，则使用ConvertType
-                if (propertyType.IsGenericType)
-                {
-                    // 使用FS的ConvertHelper 进行类型转换
-                    var asType = propertyType.IsArray ? $"{propertyType.GetGenericArguments()[0].FullName}[]" : $"List<{propertyType.GetGenericArguments()[0].FullName}>";
-                    var convertType = $"ConvertHelper.ConvertType(dr[\"{filedName}\"],typeof({asType}))";
-                    sb.Append(propertyAssign + convertType + " as " + asType + "; ");
-                }
-                else
-                {
-                    // 字符串不需要处理
-                    if (propertyType == typeof(string)) { sb.Append($"{propertyAssign}dr[\"{filedName}\"].ToString();"); }
-                    else if (!propertyType.IsClass)
-                    {
-                        sb.Append($"{propertyType.FullName} {filedName}_Out;");  // 定义用于out输出的类型
-                        string tryParseCls = propertyType.BaseType != null && propertyType.BaseType == typeof(Enum) ? "Enum" : propertyType.FullName;
-                        sb.Append($"if ({tryParseCls}.TryParse(dr[\"{filedName}\"].ToString(), out {filedName}_Out)) {{ {propertyAssign}{filedName}_Out; }}");
-                    }
-                }
+                // 创建赋值
+                sb.AppendLine(CreateAssign(map, filedName, "dr"));
                 sb.AppendLine("}");
             }
             sb.AppendLine($"return entity;");
-            sb.AppendLine("}");
-            return sb.ToString();
-        }
-        /// <summary> 生成DataTable转换方法 </summary>
-        private string CreateDataTableMethod(Type entityType, SetPhysicsMap setPhysicsMap)
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine($"\t public static List<{entityType.FullName}> ConvertDataTable (DataTable dt)\r\n{{");
-            sb.AppendLine($"var lst = new List<{entityType.FullName}>(dt.Rows.Count);");
-            sb.AppendLine($"foreach (DataRow dr in dt.Rows)\r\n{{");
-            sb.AppendLine($"lst.Add(ConvertDataRow(dr));");
-            sb.AppendLine("}");
-            sb.AppendLine($"return lst;");
             sb.AppendLine("}");
             return sb.ToString();
         }
@@ -151,32 +131,10 @@ namespace FS.Sql.Internal
             foreach (var map in setPhysicsMap.MapList)
             {
                 var filedName = map.Value.Field.IsFun ? map.Key.Name : map.Value.Field.Name;
-
                 // DataReader是否包含字段
                 sb.AppendLine($"if (reader.HaveName(\"{filedName}\"))\r\n{{");
-                // 字段赋值
-                var propertyAssign = $"entity.{map.Key.Name} = ";
-                // 类型转换
-                var propertyType = map.Key.PropertyType.GetNullableArguments();
-                // 如果是List类型，则使用ConvertType
-                if (propertyType.IsGenericType)
-                {
-                    // 使用FS的ConvertHelper 进行类型转换
-                    var asType = propertyType.IsArray ? $"{propertyType.GetGenericArguments()[0].FullName}[]" : $"List<{propertyType.GetGenericArguments()[0].FullName}>";
-                    var convertType = $"ConvertHelper.ConvertType(reader[\"{filedName}\"],typeof({asType}))";
-                    sb.Append(propertyAssign + convertType + " as " + asType + "; ");
-                }
-                else
-                {
-                    // 字符串不需要处理
-                    if (propertyType == typeof(string)) { sb.Append($"{propertyAssign}reader[\"{filedName}\"].ToString();"); }
-                    else if (!propertyType.IsClass)
-                    {
-                        sb.Append($"{propertyType.FullName} {filedName}_Out;");  // 定义用于out输出的类型
-                        string tryParseCls = propertyType.BaseType != null && propertyType.BaseType == typeof(Enum) ? "Enum" : propertyType.FullName;
-                        sb.Append($"if ({tryParseCls}.TryParse(reader[\"{filedName}\"].ToString(), out {filedName}_Out)) {{ {propertyAssign}{filedName}_Out; }}");
-                    }
-                }
+                // 创建赋值
+                sb.AppendLine(CreateAssign(map, filedName, "reader"));
                 sb.AppendLine("}");
             }
             sb.AppendLine("}");
@@ -184,5 +142,38 @@ namespace FS.Sql.Internal
             sb.AppendLine("}");
             return sb.ToString();
         }
+
+        private static string CreateAssign(KeyValuePair<PropertyInfo, FieldMapState> map, string filedName, string dataRowOrDataReader)
+        {
+            var sb = new StringBuilder();
+            // 字段赋值
+            var propertyAssign = $"entity.{map.Key.Name} = ";
+            var rowsVal = $"{dataRowOrDataReader}[\"{filedName}\"]";
+            // 类型转换
+            var propertyType = map.Key.PropertyType.GetNullableArguments();
+
+            // 如果是List类型，则使用ConvertType
+            if (propertyType.IsGenericType)
+            {
+                // 使用FS的ConvertHelper 进行类型转换
+                var asType = propertyType.IsArray ? $"{propertyType.GetGenericArguments()[0].FullName}[]" : $"List<{propertyType.GetGenericArguments()[0].FullName}>";
+                var convertType = $"ConvertHelper.ConvertType({rowsVal},typeof({asType}))";
+                sb.Append(propertyAssign + convertType + " as " + asType + "; ");
+            }
+            else
+            {
+                // 字符串不需要处理
+                if (propertyType == typeof(string)) { sb.Append($"{propertyAssign}{rowsVal}.ToString();"); }
+                else if (propertyType == typeof(bool)) { sb.Append($"{propertyAssign}{rowsVal}.ConvertType(false);"); }
+                else if (propertyType.IsEnum) { sb.Append($"{propertyAssign}({propertyType}){rowsVal}.ConvertType(typeof({propertyType}));"); }
+                else if (!propertyType.IsClass)
+                {
+                    sb.Append($"{propertyType.FullName} {filedName}_Out;"); // 定义用于out输出的类型
+                    sb.Append($"if ({propertyType.FullName}.TryParse({rowsVal}.ToString(), out {filedName}_Out)) {{ {propertyAssign}{filedName}_Out; }}");
+                }
+            }
+            return sb.ToString();
+        }
+
     }
 }
