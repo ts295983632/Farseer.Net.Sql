@@ -7,6 +7,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using FS.Extends;
@@ -71,20 +72,35 @@ namespace FS.Sql.Internal
             compilerParams.ReferencedAssemblies.Add("System.dll");
             compilerParams.ReferencedAssemblies.Add("System.Data.dll");
             compilerParams.ReferencedAssemblies.Add("System.Xml.dll");
-            compilerParams.ReferencedAssemblies.Add("Farseer.Net.dll");
-            compilerParams.ReferencedAssemblies.Add("Farseer.Net.Sql.dll");
+            var ass = AppDomain.CurrentDomain.GetAssemblies();  //  得到当前所有程序集
+            compilerParams.ReferencedAssemblies.Add(ass.FirstOrDefault(o => o.ManifestModule.Name == "Farseer.Net.dll")?.Location);
+            compilerParams.ReferencedAssemblies.Add(ass.FirstOrDefault(o => o.ManifestModule.Name == "Farseer.Net.Sql.dll")?.Location);
+            
             // 需要把基类型的dll，也载进来
             var baseType = entityType;
             while (baseType != null)
             {
-                compilerParams.ReferencedAssemblies.Add(baseType.Assembly.ManifestModule.Name);
+                compilerParams.ReferencedAssemblies.Add(baseType.Assembly.Location);
                 baseType = baseType.BaseType;
             }
 
             var compiler = CodeDomProvider.CreateProvider("CSharp");
-            //编译
-            var results = compiler.CompileAssemblyFromSource(compilerParams, sb.ToString());
-            return results.CompiledAssembly.GetExportedTypes()[0];
+            CompilerResults results = null;
+            try
+            {
+                //编译
+                results = compiler.CompileAssemblyFromSource(compilerParams, sb.ToString());
+                return results.CompiledAssembly.GetExportedTypes()[0];
+            }
+            catch (Exception exp)
+            {
+                FS.Log.LogManger.Log.Error(exp);
+                foreach (CompilerError compilerError in results.Errors)
+                {
+                    FS.Log.LogManger.Log.Error(compilerError.ErrorText);
+                }
+                throw exp;
+            }
         }
 
         /// <summary> 生成DataTable转换方法 </summary>
@@ -142,7 +158,7 @@ namespace FS.Sql.Internal
             sb.AppendLine("}");
             return sb.ToString();
         }
-
+        /// <summary> 生成赋值操作 </summary>
         private static string CreateAssign(KeyValuePair<PropertyInfo, FieldMapState> map, string filedName, string dataRowOrDataReader)
         {
             var sb = new StringBuilder();
@@ -174,6 +190,5 @@ namespace FS.Sql.Internal
             }
             return sb.ToString();
         }
-
     }
 }
