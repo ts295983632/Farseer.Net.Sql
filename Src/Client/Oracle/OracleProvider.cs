@@ -21,10 +21,10 @@ namespace FS.Sql.Client.Oracle
         public override string KeywordAegis(string fieldName) => fieldName;
         public override bool IsSupportTransaction => true;
         internal override AbsSqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name) => new OracleBuilder(this, expBuilder, name);
-        public override string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, string additional, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "")
+        public override string CreateDbConnstring(string server, string port, string userID, string passWord = null, string catalog = null, string dataVer = null, string additional = null, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100)
         {
             if (string.IsNullOrWhiteSpace(port)) { port = "1521"; }
-            return string.Format("Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST={0})(PORT={3})))(CONNECT_DATA=(SERVER=DEDICATED)(SID={4})));User Id={1};Password={2};{5}", server, userID, passWord, port, catalog, additional);
+            return $"Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST={server})(PORT={port})))(CONNECT_DATA=(SERVER=DEDICATED)(SID={catalog})));User Id={userID};Password={passWord};{additional}";
         }
 
         /// <summary>

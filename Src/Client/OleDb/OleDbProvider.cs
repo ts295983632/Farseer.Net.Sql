@@ -14,9 +14,9 @@ namespace FS.Sql.Client.OleDb
         public override AbsFunctionProvider FunctionProvider => new OleDbFunctionProvider();
         internal override AbsSqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name)=> new OleDbBuilder(this, expBuilder, name);
         public override bool IsSupportTransaction => false;
-        public override string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, string additional, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "")
+        public override string CreateDbConnstring(string server, string port, string userID, string passWord = null, string catalog = null, string dataVer = null, string additional = null, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100)
         {
-            var sb = new StringBuilder();
+            var sb = new StringBuilder($"Data Source={GetFilePath(server)};");
             switch (dataVer)
             {
                 case "3.0":
@@ -56,9 +56,14 @@ namespace FS.Sql.Client.OleDb
                     break;
                 } //Extended Properties=Excel 12.0;
             }
-            sb.Append($"Data Source={GetFilePath(server)};");
-            if (!string.IsNullOrWhiteSpace(userID)) { sb.Append($"User ID={userID};"); }
-            if (!string.IsNullOrWhiteSpace(passWord)) { sb.Append($"Password={passWord};"); }
+
+            if (!string.IsNullOrWhiteSpace(userID)) { sb.Append($"User ID='{userID}';"); }
+            if (!string.IsNullOrWhiteSpace(passWord)) { sb.Append($"Password='{passWord}';"); }
+
+            if (poolMinSize > 0) { sb.Append($"Min Pool Size='{poolMinSize}';"); }
+            if (poolMaxSize > 0) { sb.Append($"Max Pool Size='{poolMaxSize}';"); }
+            if (connectTimeout > 0) { sb.Append($"Connect Timeout='{connectTimeout}';"); }
+
             sb.Append(additional);
             return sb.ToString();
         }

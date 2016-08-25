@@ -182,7 +182,7 @@ namespace FS.Sql.Infrastructure
         public string CreateDbConnstring(int dbIndex = 0)
         {
             DbInfo dbInfo = dbIndex;
-            return CreateDbConnstring(dbInfo.UserID, dbInfo.PassWord, dbInfo.Server, dbInfo.Catalog, dbInfo.DataVer, dbInfo.Additional, dbInfo.ConnectTimeout, dbInfo.PoolMinSize, dbInfo.PoolMaxSize, dbInfo.Port);
+            return CreateDbConnstring(dbInfo.Server, dbInfo.Port, dbInfo.UserID, dbInfo.PassWord, dbInfo.Catalog, dbInfo.DataVer, dbInfo.Additional, dbInfo.ConnectTimeout, dbInfo.PoolMinSize, dbInfo.PoolMaxSize);
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace FS.Sql.Infrastructure
         /// <param name="poolMinSize">连接池最小数量</param>
         /// <param name="poolMaxSize">连接池最大数量</param>
         /// <param name="port">端口</param>
-        public abstract string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, string additional, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "");
+        public abstract string CreateDbConnstring(string server, string port, string userID, string passWord = null, string catalog = null, string dataVer = null, string additional = null, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100);
 
         /// <summary>
         ///     获取数据库文件的路径

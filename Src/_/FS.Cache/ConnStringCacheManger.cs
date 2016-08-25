@@ -27,7 +27,7 @@ namespace FS.Cache
 
                 DbInfo dbInfo = Key;
                 if (dbInfo == null) { Log.LogManger.Log.Error("未设置数据库配置文件"); return null; }
-                CacheList.Add(Key, AbsDbProvider.CreateInstance(dbInfo.DataType, dbInfo.DataVer).CreateDbConnstring(dbInfo.UserID, dbInfo.PassWord, dbInfo.Server, dbInfo.Catalog, dbInfo.DataVer, dbInfo.Additional, dbInfo.ConnectTimeout, dbInfo.PoolMinSize, dbInfo.PoolMaxSize, dbInfo.Port));
+                CacheList.Add(Key, AbsDbProvider.CreateInstance(dbInfo.DataType, dbInfo.DataVer).CreateDbConnstring(dbInfo.Server, dbInfo.Port, dbInfo.UserID, dbInfo.PassWord, dbInfo.Catalog, dbInfo.DataVer, dbInfo.Additional, dbInfo.ConnectTimeout, dbInfo.PoolMinSize, dbInfo.PoolMaxSize));
             }
 
             return CacheList[Key];

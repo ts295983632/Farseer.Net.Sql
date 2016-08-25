@@ -1,9 +1,11 @@
 ﻿using System.Data.Common;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using FS.Cache;
 using FS.Sql.Infrastructure;
 using FS.Sql.Internal;
+using FS.Extends;
 
 namespace FS.Sql.Client.MySql
 {
@@ -23,13 +25,23 @@ namespace FS.Sql.Client.MySql
 
         internal override AbsSqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name) => new MySqlBuilder(this, expBuilder, name);
 
-        public override string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, string additional, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "")
+        public override string CreateDbConnstring(string server, string port, string userID, string passWord = null, string catalog = null, string dataVer = null, string additional = null, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100)
         {
             // 2016年1月13日
             // 感谢：QQ21995346 ★Master★ 同学，发现了BUG
             // 场景：连接连字符串，被强制指定了：charset='gbk'
             // 解决：移除charset='gbk'，并在DbConfig配置中增加自定义连接方式
-            return $"Data Source='{server}';User Id='{userID}';Password='{passWord}';Database='{catalog}';{additional}";
+            var sb = new StringBuilder($"Data Source='{server}';User Id='{userID}';");
+            if (!string.IsNullOrWhiteSpace(port)) { sb.Append($"Port='{port}';"); }
+            if (!string.IsNullOrWhiteSpace(passWord)) { sb.Append($"Password='{passWord}';"); }
+            if (!string.IsNullOrWhiteSpace(catalog)) { sb.Append($"Database='{catalog}';"); }
+
+            if (poolMinSize > 0) { sb.Append($"Min Pool Size='{poolMinSize}';"); }
+            if (poolMaxSize > 0) { sb.Append($"Max Pool Size='{poolMaxSize}';"); }
+            if (connectTimeout > 0) { sb.Append($"Connect Timeout='{connectTimeout}';"); }
+
+            sb.Append(additional);
+            return sb.ToString();
         }
     }
 }

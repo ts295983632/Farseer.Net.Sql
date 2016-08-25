@@ -25,11 +25,16 @@ namespace FS.Sql.Client.PostgreSql
 
         internal override AbsSqlBuilder CreateSqlBuilder(ExpressionBuilder expBuilder, string name) => new PostgreSqlBuilder(this, expBuilder, name);
 
-        public override string CreateDbConnstring(string userID, string passWord, string server, string catalog, string dataVer, string additional, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100, string port = "")
+        public override string CreateDbConnstring(string server, string port, string userID, string passWord = null, string catalog = null, string dataVer = null, string additional = null, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100)
         {
-            var sb = new StringBuilder();
-            sb.Append($"Server={server};User id={userID};password={passWord};Database={catalog};");
-            if (!string.IsNullOrWhiteSpace(port)) { sb.Append($"Port={port};"); }
+            var sb = new StringBuilder($"Data Source='{server}';User ID='{userID}';");
+            if (!string.IsNullOrWhiteSpace(port)) { sb.Append($"Port='{port}';"); }
+            if (!string.IsNullOrWhiteSpace(passWord)) { sb.Append($"Password='{passWord}';"); }
+            if (!string.IsNullOrWhiteSpace(catalog)) { sb.Append($"Database='{catalog}';"); }
+
+            if (poolMinSize > 0) { sb.Append($"Min Pool Size='{poolMinSize}';"); }
+            if (poolMaxSize > 0) { sb.Append($"Max Pool Size='{poolMaxSize}';"); }
+            if (connectTimeout > 0) { sb.Append($"Connect Timeout='{connectTimeout}';"); }
             sb.Append(additional);
             return sb.ToString();
         }
