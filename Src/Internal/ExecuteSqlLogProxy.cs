@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using FS.Log;
@@ -51,44 +52,19 @@ namespace FS.Sql.Internal
             return val;
         }
 
-        public int Execute(ISqlParam sqlParam)
-        {
-            return SpeedTest(sqlParam, () => _dbExecutor.Execute(sqlParam));
-        }
+        public int Execute(ISqlParam sqlParam) => SpeedTest(sqlParam, () => _dbExecutor.Execute(sqlParam));
+        public int Execute<TEntity>(ProcBuilder procBuilder, TEntity entity) where TEntity : class, new() => SpeedTest(procBuilder, () => _dbExecutor.Execute(procBuilder, entity));
 
-        public int Execute<TEntity>(ProcBuilder procBuilder, TEntity entity) where TEntity : class, new()
-        {
-            return SpeedTest(procBuilder, () => _dbExecutor.Execute(procBuilder, entity));
-        }
+        public DataTable ToTable(ISqlParam sqlParam) => SpeedTest(sqlParam, () => _dbExecutor.ToTable(sqlParam));
+        public DataTable ToTable<TEntity>(ProcBuilder procBuilder, TEntity entity) where TEntity : class, new() => SpeedTest(procBuilder, () => _dbExecutor.ToTable(procBuilder, entity));
 
-        public DataTable ToTable(ISqlParam sqlParam)
-        {
-            return SpeedTest(sqlParam, () => _dbExecutor.ToTable(sqlParam));
-        }
+        public List<TEntity> ToList<TEntity>(ISqlParam sqlParam) where TEntity : class, new() => SpeedTest(sqlParam, () => _dbExecutor.ToList<TEntity>(sqlParam));
+        public List<TEntity> ToList<TEntity>(ProcBuilder procBuilder, TEntity entity) where TEntity : class, new() => SpeedTest(procBuilder, () => _dbExecutor.ToList(procBuilder, entity));
 
-        public DataTable ToTable<TEntity>(ProcBuilder procBuilder, TEntity entity) where TEntity : class, new()
-        {
-            return SpeedTest(procBuilder, () => _dbExecutor.ToTable(procBuilder, entity));
-        }
+        TEntity IExecuteSql.ToEntity<TEntity>(ISqlParam sqlParam) => SpeedTest(sqlParam, () => _dbExecutor.ToEntity<TEntity>(sqlParam));
+        public TEntity ToEntity<TEntity>(ProcBuilder procBuilder, TEntity entity) where TEntity : class, new() => SpeedTest(procBuilder, () => _dbExecutor.ToEntity(procBuilder, entity));
 
-        TEntity IExecuteSql.ToEntity<TEntity>(ISqlParam sqlParam)
-        {
-            return SpeedTest(sqlParam, () => _dbExecutor.ToEntity<TEntity>(sqlParam));
-        }
-
-        public TEntity ToEntity<TEntity>(ProcBuilder procBuilder, TEntity entity) where TEntity : class, new()
-        {
-            return SpeedTest(procBuilder, () => _dbExecutor.ToEntity(procBuilder, entity));
-        }
-
-        public T GetValue<T>(ISqlParam sqlParam, T defValue = default(T))
-        {
-            return SpeedTest(sqlParam, () => _dbExecutor.GetValue(sqlParam, defValue));
-        }
-
-        public T GetValue<TEntity, T>(ProcBuilder procBuilder, TEntity entity, T defValue = default(T)) where TEntity : class, new()
-        {
-            return SpeedTest(procBuilder, () => _dbExecutor.GetValue(procBuilder, entity, defValue));
-        }
+        public T GetValue<T>(ISqlParam sqlParam, T defValue = default(T)) => SpeedTest(sqlParam, () => _dbExecutor.GetValue(sqlParam, defValue));
+        public T GetValue<TEntity, T>(ProcBuilder procBuilder, TEntity entity, T defValue = default(T)) where TEntity : class, new() => SpeedTest(procBuilder, () => _dbExecutor.GetValue(procBuilder, entity, defValue));
     }
 }

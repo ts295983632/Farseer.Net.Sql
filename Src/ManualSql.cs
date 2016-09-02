@@ -75,7 +75,7 @@ namespace FS.Sql
         /// </summary>
         /// <param name="sql">SQL语句</param>
         /// <param name="parameters">参数</param>
-        public List<TEntity> ToList<TEntity>(string sql, params DbParameter[] parameters) where TEntity : class, new() => Context.QueueManger.Commit(null, (queue) => Context.Executeor.ToTable(new SqlParam(sql, parameters)).ToList<TEntity>(), false);
+        public List<TEntity> ToList<TEntity>(string sql, params DbParameter[] parameters) where TEntity : class, new() => Context.QueueManger.Commit(null, (queue) => Context.Executeor.ToList<TEntity>(new SqlParam(sql, parameters)), false);
 
         /// <summary>
         ///     返回多条记录

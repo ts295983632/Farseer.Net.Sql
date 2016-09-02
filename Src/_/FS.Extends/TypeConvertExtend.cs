@@ -19,10 +19,23 @@ namespace FS.Extends
         /// </summary>
         /// <param name="reader">源IDataReader</param>
         /// <typeparam name="TEntity">实体类</typeparam>
-        public static TEntity ToEntity<TEntity>(this IDataReader reader) where TEntity : class, new()
+        public static List<TEntity> ToList<TEntity>(this IDataReader reader)
         {
+            var mapData = (object)ConvertHelper.DataReaderToDictionary(reader);
             var type = new EntityDynamics().GetEntityType<TEntity>();
-            return (TEntity)InstanceStaticCacheManger.Cache(type, "ConvertDataReader", reader);
+            return (List<TEntity>)InstanceStaticCacheManger.Cache(type, "ToList", mapData);
+        }
+
+        /// <summary>
+        ///     数据填充
+        /// </summary>
+        /// <param name="reader">源IDataReader</param>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        public static TEntity ToEntity<TEntity>(this IDataReader reader)
+        {
+            var mapData = (object)ConvertHelper.DataReaderToDictionary(reader);
+            var type = new EntityDynamics().GetEntityType<TEntity>();
+            return (TEntity)InstanceStaticCacheManger.Cache(type, "ToEntity", mapData);
         }
 
         /// <summary>
@@ -30,10 +43,11 @@ namespace FS.Extends
         /// </summary>
         /// <param name="dt">源DataTable</param>
         /// <typeparam name="TEntity">实体类</typeparam>
-        public static List<TEntity> ToList<TEntity>(this DataTable dt) where TEntity : class, new()
+        public static List<TEntity> ToList<TEntity>(this DataTable dt)
         {
+            var mapData = (object)ConvertHelper.DataTableToDictionary(dt);
             var type = new EntityDynamics().GetEntityType<TEntity>();
-            return (List<TEntity>)InstanceStaticCacheManger.Cache(type, "ConvertDataTable", dt);
+            return (List<TEntity>)InstanceStaticCacheManger.Cache(type, "ToList", mapData);
         }
 
         /// <summary>
@@ -41,21 +55,11 @@ namespace FS.Extends
         /// </summary>
         /// <param name="dt">源DataTable</param>
         /// <typeparam name="TEntity">实体类</typeparam>
-        public static TEntity[] ToArray<TEntity>(this DataTable dt) where TEntity : class, new()
+        public static TEntity[] ToArray<TEntity>(this DataTable dt)
         {
+            var mapData = (object)ConvertHelper.DataTableToDictionary(dt);
             var type = new EntityDynamics().GetEntityType<TEntity>();
-            return ((List<TEntity>)InstanceStaticCacheManger.Cache(type, "ConvertDataTable", dt)).ToArray();
-        }
-
-        /// <summary>
-        ///     将DataRow转成实体类
-        /// </summary>
-        /// <typeparam name="TEntity">实体类</typeparam>
-        /// <param name="dr">源DataRow</param>
-        public static TEntity ToEntity<TEntity>(this DataRow dr) where TEntity : class, new()
-        {
-            var type = new EntityDynamics().GetEntityType<TEntity>();
-            return (TEntity)InstanceStaticCacheManger.Cache(type, "ConvertDataRow", dr);
+            return ((List<TEntity>)InstanceStaticCacheManger.Cache(type, "ToList", (object)mapData)).ToArray();
         }
 
         /// <summary>

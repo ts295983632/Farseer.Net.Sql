@@ -67,6 +67,25 @@ namespace FS.Sql.Internal
             }
         }
 
+        public List<TEntity> ToList<TEntity>(ISqlParam sqlParam) where TEntity : class, new()
+        {
+            try { return _dbExecutor.ToList<TEntity>(sqlParam); }
+            catch (Exception ex)
+            {
+                WriteException(ex, sqlParam);
+                throw;
+            }
+        }
+        public List<TEntity> ToList<TEntity>(ProcBuilder procBuilder, TEntity entity) where TEntity : class, new()
+        {
+            try { return _dbExecutor.ToList(procBuilder, entity); }
+            catch (Exception ex)
+            {
+                WriteException(ex, procBuilder);
+                throw;
+            }
+        }
+
         public TEntity ToEntity<TEntity>(ISqlParam sqlParam) where TEntity : class, new()
         {
             try { return _dbExecutor.ToEntity<TEntity>(sqlParam); }
@@ -76,7 +95,6 @@ namespace FS.Sql.Internal
                 throw;
             }
         }
-
         public TEntity ToEntity<TEntity>(ProcBuilder procBuilder, TEntity entity) where TEntity : class, new()
         {
             try { return _dbExecutor.ToEntity<TEntity>(procBuilder, entity); }
@@ -96,7 +114,6 @@ namespace FS.Sql.Internal
                 throw;
             }
         }
-
         public T GetValue<TEntity, T>(ProcBuilder procBuilder, TEntity entity, T defValue = default(T)) where TEntity : class, new()
         {
             try { return _dbExecutor.GetValue(procBuilder, entity, defValue); }
