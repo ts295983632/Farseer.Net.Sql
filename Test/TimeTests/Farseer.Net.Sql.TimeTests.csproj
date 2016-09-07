@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DB\Context.cs" />
+    <Compile Include="DB\QuoteExpressionPO.cs" />
     <Compile Include="DB\UserDataVO.cs" />
     <Compile Include="MapingTests.cs" />
     <Compile Include="Program.cs" />

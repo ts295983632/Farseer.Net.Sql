@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using FS.Cache;
 using FS.Sql.Internal;
+using TimeTests.DB;
 
 namespace TimeTests
 {
@@ -25,18 +26,25 @@ namespace TimeTests
 
             for (int i = 0; i < 5; i++)
             {
-                ConvertDataTable();
-                SpeedTest.ConsoleTime("手动实现转换：DataTable转实体", 1, ConvertDataTable);
-                ExpressionConvertDataTable();
-                SpeedTest.ConsoleTime("表达式树委托：DataTable转实体", 1, ExpressionConvertDataTable);
-                AutoConvertDataTable();
-                SpeedTest.ConsoleTime("动态编译转换：DataTable转实体", 1, AutoConvertDataTable);
+                //ConvertDataTable();
+                //SpeedTest.ConsoleTime("手动实现转换：DataTable转实体", 1, ConvertDataTable);
+                //ExpressionConvertDataTable();
+                //SpeedTest.ConsoleTime("表达式树委托：DataTable转实体", 1, ExpressionConvertDataTable);
+                //AutoConvertDataTable();
+                //SpeedTest.ConsoleTime("动态编译转换：DataTable转实体", 1, AutoConvertDataTable);
+                //Context.Data.QuoteExpression.ToList(50000);
+                //SpeedTest.ConsoleTime("动态编译转换：DataTable转实体", 50000, () => Context.Data.QuoteExpression.ToList(50000));
+
+                ConvertHelper.ConvertType(0, 0);
+                SpeedTest.ConsoleTime("动态编译转换：DataTable转实体", 1000000, () =>
+                                      { ConvertHelper.ConvertType(0, 0); });
             }
         }
 
 
         private static void ConvertDataTable()
         {
+
             var mapData = ConvertHelper.DataTableToDictionary(dt);
             var lst = UserVOByDataRow.ToList(mapData);
         }
