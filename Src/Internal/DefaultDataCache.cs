@@ -28,7 +28,7 @@ namespace FS.Sql.Internal
             {
                 var expBuilder = new ExpressionBuilder(_set.SetMap);
                 expBuilder.DeleteSortCondition();
-                return _set.Context.Executeor.ToTable(_set.Context.DbProvider.CreateSqlBuilder(expBuilder, _set.SetMap.Name).ToList()).ToList<TEntity>();
+                return _set.Context.Executeor.ToList<TEntity>(_set.Context.DbProvider.CreateSqlBuilder(expBuilder, _set.SetMap.Name).ToList());
             });
         }
 

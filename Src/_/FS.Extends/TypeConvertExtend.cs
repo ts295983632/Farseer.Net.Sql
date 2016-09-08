@@ -21,9 +21,9 @@ namespace FS.Extends
         /// <typeparam name="TEntity">实体类</typeparam>
         public static List<TEntity> ToList<TEntity>(this IDataReader reader)
         {
-            var mapData = (object)ConvertHelper.DataReaderToDictionary(reader);
+            var mapData = ConvertHelper.DataReaderToDictionary(reader);
             var type = new EntityDynamics().GetEntityType<TEntity>();
-            return (List<TEntity>)InstanceStaticCacheManger.Cache(type, "ToList", mapData);
+            return (List<TEntity>)InstanceStaticCacheManger.Cache(type, "ToList", (object)mapData);
         }
 
         /// <summary>
@@ -33,9 +33,9 @@ namespace FS.Extends
         /// <typeparam name="TEntity">实体类</typeparam>
         public static TEntity ToEntity<TEntity>(this IDataReader reader)
         {
-            var mapData = (object)ConvertHelper.DataReaderToDictionary(reader);
+            var mapData = ConvertHelper.DataReaderToDictionary(reader);
             var type = new EntityDynamics().GetEntityType<TEntity>();
-            return (TEntity)InstanceStaticCacheManger.Cache(type, "ToEntity", mapData);
+            return (TEntity)InstanceStaticCacheManger.Cache(type, "ToEntity", (object)mapData, 0);
         }
 
         /// <summary>
@@ -45,9 +45,9 @@ namespace FS.Extends
         /// <typeparam name="TEntity">实体类</typeparam>
         public static List<TEntity> ToList<TEntity>(this DataTable dt)
         {
-            var mapData = (object)ConvertHelper.DataTableToDictionary(dt);
+            var mapData = ConvertHelper.DataTableToDictionary(dt);
             var type = new EntityDynamics().GetEntityType<TEntity>();
-            return (List<TEntity>)InstanceStaticCacheManger.Cache(type, "ToList", mapData);
+            return (List<TEntity>)InstanceStaticCacheManger.Cache(type, "ToList", (object)mapData);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace FS.Extends
         /// <typeparam name="TEntity">实体类</typeparam>
         public static TEntity[] ToArray<TEntity>(this DataTable dt)
         {
-            var mapData = (object)ConvertHelper.DataTableToDictionary(dt);
+            var mapData = ConvertHelper.DataTableToDictionary(dt);
             var type = new EntityDynamics().GetEntityType<TEntity>();
             return ((List<TEntity>)InstanceStaticCacheManger.Cache(type, "ToList", (object)mapData)).ToArray();
         }

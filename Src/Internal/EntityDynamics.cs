@@ -6,13 +6,10 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using FS.Extends;
 using FS.Log;
-using FS.Map;
 using FS.Sql.Map;
 
 namespace FS.Sql.Internal
@@ -121,6 +118,7 @@ namespace FS.Sql.Internal
             sb.AppendFormat(@"    
             public static {0} ToEntity(MapingData[] mapData, int rowsIndex = 0)
             {{
+                if ( mapData == null || mapData.Length == 0 || mapData[0].DataList.Count == 0) {{ return null; }}
                 var entity = new {0}();
                 foreach (var map in mapData)
                 {{
@@ -168,7 +166,7 @@ namespace FS.Sql.Internal
                     // 字符串不需要处理
                     if (propertyType == typeof(string)) { sb.Append($"{propertyAssign} = col.ToString();"); }
                     else if (propertyType.IsEnum) { sb.Append($"if (typeof({propertyType.FullName}).GetEnumUnderlyingType() == col.GetType()) {{ {propertyAssign} = ({propertyType.FullName})col; }} else {{ {propertyType.FullName} {filedName}_Out; if (Enum.TryParse(col.ToString(), out {filedName}_Out)) {{ {propertyAssign} = {filedName}_Out; }} }}"); }
-                    //else if (propertyType == typeof(bool)) { sb.Append($"{propertyAssign} = col.ConvertType(false);"); }
+                    else if (propertyType == typeof(bool)) { sb.Append($"{propertyAssign} = ConvertHelper.ConvertType(col,false);"); }
                     else if (!propertyType.IsClass) { sb.Append($"if (col is {propertyType.FullName}) {{ {propertyAssign} = ({propertyType.FullName})col; }} else {{ {propertyType.FullName} {filedName}_Out; if ({propertyType.FullName}.TryParse(col.ToString(), out {filedName}_Out)) {{ {propertyAssign} = {filedName}_Out; }} }}"); }
                 }
 
