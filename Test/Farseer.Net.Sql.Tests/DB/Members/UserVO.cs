@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using FS.Infrastructure;
 using FS.Sql.Map.Attribute;
 
 namespace FS.Sql.Tests.DB.Members
 {
-    public class UserVO : IEntity<int?>
+    public class UserVO : IEntity<int?>,IEnumerable
     {
         /// <summary> 用户ID </summary>
         [Field(IsPrimaryKey = true, IsDbGenerated = true)]
@@ -47,5 +48,6 @@ namespace FS.Sql.Tests.DB.Members
         [Field(Name = "OrderID")]
         //[ForeignKey(ForeignName = "OrderID", PrimaryTableName = "Members_Orders", PrimaryFieldName = "ID")]
         public List<OrdersVO> Orders { get; set; }
+        public IEnumerator GetEnumerator() { throw new NotImplementedException(); }
     }
 }
