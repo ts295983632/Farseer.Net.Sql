@@ -216,12 +216,13 @@ namespace FS.Sql
         {
             Check.NotNull(entity, "插入操作时，参数不能为空！");
 
+            // 更新本地缓存
+            var lst = Cache.ToList();
+
             // 标识字段是否有值
             var indexHaveValue = _set.SetMap.PhysicsMap.DbGeneratedFields.Key != null && PropertyGetCacheManger.Cache(_set.SetMap.PhysicsMap.DbGeneratedFields.Key, entity) != null;
             _set.Insert(entity, !indexHaveValue);
 
-            // 更新本地缓存
-            var lst = Cache.ToList();
             lst.Add(entity);
             _dataCache.Update(lst);
             return 1;
