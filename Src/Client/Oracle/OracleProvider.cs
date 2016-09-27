@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.OracleClient;
 using System.Reflection;
+using System.Text;
 using FS.Cache;
 using FS.Extends;
 using FS.Sql.Infrastructure;
@@ -24,9 +25,15 @@ namespace FS.Sql.Client.Oracle
         public override string CreateDbConnstring(string server, string port, string userID, string passWord = null, string catalog = null, string dataVer = null, string additional = null, int connectTimeout = 60, int poolMinSize = 16, int poolMaxSize = 100)
         {
             if (string.IsNullOrWhiteSpace(port)) { port = "1521"; }
-            return $"Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST={server})(PORT={port})))(CONNECT_DATA=(SERVER=DEDICATED)(SID={catalog})));User Id={userID};Password={passWord};{additional}";
-        }
+            var sb = new StringBuilder($"Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST={server})(PORT={port})))(CONNECT_DATA=(SERVER=DEDICATED)(SID={catalog})));User Id={userID};Password={passWord};{additional}");
 
+            if (poolMinSize > 0) { sb.Append($"Min Pool Size='{poolMinSize}';"); }
+            if (poolMaxSize > 0) { sb.Append($"Max Pool Size='{poolMaxSize}';"); }
+            if (connectTimeout > 0) { sb.Append($"Connect Timeout='{connectTimeout}';"); }
+            sb.Append(additional);
+            return sb.ToString();
+        }
+        //Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=192.168.0.131)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME = jkdb)));User Id=usercenter;Password=usercenter2013;Pooling=true;MAX Pool Size=10;Min Pool Size=1;Connection Lifetime=60;Connect Timeout=60;
         /// <summary>
         ///     根据值，返回类型
         /// </summary>
