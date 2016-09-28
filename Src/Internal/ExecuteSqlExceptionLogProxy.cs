@@ -127,13 +127,13 @@ namespace FS.Sql.Internal
         /// <summary> 写入日志 </summary>
         private void WriteException(Exception ex, ISqlParam sqlParam)
         {
-            new SqlErrorLogEntity(ex, sqlParam.Name, CommandType.Text, sqlParam.Sql.ToString(), sqlParam.Param ?? new List<DbParameter>()).AddToQueue();
+            new SqlErrorLog(ex, sqlParam.Name, CommandType.Text, sqlParam.Sql.ToString(), sqlParam.Param ?? new List<DbParameter>()).AddToQueue();
         }
         
         /// <summary> 写入日志 </summary>
         private void WriteException(Exception ex, ProcBuilder procBuilder)
         {
-            new SqlErrorLogEntity(ex, procBuilder.Name, CommandType.StoredProcedure, "", procBuilder.Param ?? new List<DbParameter>()).AddToQueue();
+            new SqlErrorLog(ex, procBuilder.Name, CommandType.StoredProcedure, "", procBuilder.Param ?? new List<DbParameter>()).AddToQueue();
         }
     }
 }

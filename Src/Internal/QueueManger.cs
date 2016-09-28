@@ -113,6 +113,25 @@ namespace FS.Sql.Internal
         }
 
         /// <summary>
+        ///     清除所有Queue
+        /// </summary>
+        internal void ClearAll()
+        {
+            // 单元模式下，不需要执行当前方法
+            if (ContextProvider.IsUnitOfWork) { return ; }
+            try
+            {
+                // 清除队列
+                _groupQueueList.ForEach(o => o.Dispose());
+            }
+            finally
+            {
+                // 清除队列
+                _groupQueueList.Clear();
+            }
+        }
+
+        /// <summary>
         ///     清除当前队列
         /// </summary>
         private void Clear()

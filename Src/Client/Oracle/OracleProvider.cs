@@ -42,9 +42,13 @@ namespace FS.Sql.Client.Oracle
         protected override DbType GetDbType(Type type, out int len)
         {
             type = type.GetNullableArguments();
-            if (type.Name != "DateTime") { return base.GetDbType(type, out len); }
-            len = 8;
-            return DbType.Date;
+            switch (type.Name)
+            {
+                case "DateTime": len = 8; return DbType.Date;
+                case "Long":
+                case "Int64": len = 8; return DbType.VarNumeric;
+            }
+            return base.GetDbType(type, out len);
         }
     }
 }

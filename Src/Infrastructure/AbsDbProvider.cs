@@ -118,11 +118,12 @@ namespace FS.Sql.Infrastructure
                 case "Boolean": len = 1; return DbType.Int32;
                 case "Int32": len = 4; return DbType.Int32;
                 case "Int16": len = 2; return DbType.Int16;
-                case "Decimal": len = 8; return DbType.Decimal;
                 case "Byte": len = 1; return DbType.Byte;
                 case "Long":
+                case "Int64":
                 case "Float":
-                case "Double": len = 8; return DbType.Decimal;
+                case "Double": 
+                case "Decimal": len = 8; return DbType.Decimal;
                 case "Guid": len = 16; return DbType.Guid;
                 default: len = 8000; return DbType.String;
             }
