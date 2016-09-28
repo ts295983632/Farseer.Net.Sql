@@ -45,8 +45,7 @@ namespace FS.Sql.Client.Oracle
             switch (type.Name)
             {
                 case "DateTime": len = 8; return DbType.Date;
-                case "Long":
-                case "Int64": len = 8; return DbType.VarNumeric;
+                //case "Int64": len = 8; return DbType.VarNumeric;
             }
             return base.GetDbType(type, out len);
         }
