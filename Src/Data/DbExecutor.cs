@@ -141,6 +141,16 @@ namespace FS.Sql.Data
         }
 
         /// <summary>
+        ///     回滚事务
+        ///     如果未开启事务则会引发异常
+        /// </summary>
+        public void Rollback()
+        {
+            if (_comm.Transaction == null) { throw new Exception("未开启事务"); }
+            _comm.Transaction.Rollback();
+        }
+
+        /// <summary>
         ///     返回第一行第一列数据
         /// </summary>
         /// <param name="cmdType">执行方式</param>
