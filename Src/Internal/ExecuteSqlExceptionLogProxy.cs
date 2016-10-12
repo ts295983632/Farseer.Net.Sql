@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using FS.Log;
+using FS.Log.Default;
 using FS.Log.Default.Entity;
 using FS.Sql.Data;
 using FS.Sql.Infrastructure;
