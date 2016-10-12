@@ -60,6 +60,11 @@ namespace FS.Sql.Map.Attribute
         ///     （默认为false)
         /// </summary>
         public bool IsInParam { get; set; }
+
+        /// <summary>
+        /// 字段在数据库的位置（SqlBulkCopy时用到）
+        /// </summary>
+        public int FieldIndex { get; set; }
     }
 
     /// <summary> 字段状态 </summary>

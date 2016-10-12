@@ -288,6 +288,7 @@ namespace FS.Sql
             }
             return lst.Count;
         }
+
         /// <summary>
         ///     插入
         /// </summary>
