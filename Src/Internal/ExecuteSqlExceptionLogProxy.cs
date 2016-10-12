@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using FS.Log;
-using FS.Log.Entity;
+using FS.Log.Default.Entity;
 using FS.Sql.Data;
 using FS.Sql.Infrastructure;
 
@@ -15,7 +15,7 @@ namespace FS.Sql.Internal
     internal sealed class ExecuteSqlExceptionLogProxy : IExecuteSql
     {
         /// <summary>
-        ///     构造函数
+        ///     数据库操作（支持异常SQL日志记录）
         /// </summary>
         /// <param name="db">数据库执行者</param>
         internal ExecuteSqlExceptionLogProxy(IExecuteSql db)
@@ -127,13 +127,13 @@ namespace FS.Sql.Internal
         /// <summary> 写入日志 </summary>
         private void WriteException(Exception ex, ISqlParam sqlParam)
         {
-            new SqlErrorLog(ex, sqlParam.Name, CommandType.Text, sqlParam.Sql.ToString(), sqlParam.Param ?? new List<DbParameter>()).AddToQueue();
+            new SqlErrorLog(ex, sqlParam.Name, CommandType.Text, sqlParam.Sql.ToString(), sqlParam.Param ?? new List<DbParameter>()).Write();
         }
         
         /// <summary> 写入日志 </summary>
         private void WriteException(Exception ex, ProcBuilder procBuilder)
         {
-            new SqlErrorLog(ex, procBuilder.Name, CommandType.StoredProcedure, "", procBuilder.Param ?? new List<DbParameter>()).AddToQueue();
+            new SqlErrorLog(ex, procBuilder.Name, CommandType.StoredProcedure, "", procBuilder.Param ?? new List<DbParameter>()).Write();
         }
     }
 }

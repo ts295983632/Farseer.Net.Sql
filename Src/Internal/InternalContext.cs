@@ -109,9 +109,9 @@ namespace FS.Sql.Internal
             // 默认SQL执行者
             Executeor = new ExecuteSql(new DbExecutor(ContextConnection.ConnectionString, ContextConnection.DbType, ContextConnection.CommandTimeout, !IsUnitOfWork && DbProvider.IsSupportTransaction ? IsolationLevel.Serializable : IsolationLevel.Unspecified), this);
             // 代理SQL记录
-            if (SystemConfigs.ConfigEntity.IsWriteDbLog) { Executeor = new ExecuteSqlLogProxy(Executeor); }
+            if (SystemConfigs.ConfigEntity.IsWriteSqlRunLog) { Executeor = new ExecuteSqlLogProxy(Executeor); }
             // 代理异常记录
-            if (SystemConfigs.ConfigEntity.IsWriteDbExceptionLog) { Executeor = new ExecuteSqlExceptionLogProxy(Executeor); }
+            if (SystemConfigs.ConfigEntity.IsWriteSqlErrorLog) { Executeor = new ExecuteSqlExceptionLogProxy(Executeor); }
 
             // 队列管理者
             QueueManger = new QueueManger(this);

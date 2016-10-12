@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using FS.Log;
-using FS.Log.Entity;
+using FS.Log.Default.Entity;
 using FS.Sql.Data;
 using FS.Sql.Infrastructure;
 
@@ -13,7 +13,7 @@ namespace FS.Sql.Internal
     internal sealed class ExecuteSqlLogProxy : IExecuteSql
     {
         /// <summary>
-        ///     构造函数
+        ///     将SQL发送到数据库（代理类、记录SQL、执行时间）
         /// </summary>
         /// <param name="db">数据库执行者</param>
         internal ExecuteSqlLogProxy(IExecuteSql db)
@@ -34,7 +34,7 @@ namespace FS.Sql.Internal
             timer.Start();
             var val = func();
             timer.Stop();
-            new SqlRunLog(sqlParam.Name, CommandType.Text, sqlParam.Sql.ToString(), sqlParam.Param, timer.ElapsedMilliseconds).AddToQueue();
+            new SqlRunLog(sqlParam.Name, CommandType.Text, sqlParam.Sql.ToString(), sqlParam.Param, timer.ElapsedMilliseconds).Write();
             return val;
         }
 
@@ -48,7 +48,7 @@ namespace FS.Sql.Internal
             var val = func();
             timer.Stop();
 
-            new SqlRunLog(procBuilder.Name, CommandType.StoredProcedure, "", procBuilder.Param, timer.ElapsedMilliseconds).AddToQueue();
+            new SqlRunLog(procBuilder.Name, CommandType.StoredProcedure, "", procBuilder.Param, timer.ElapsedMilliseconds).Write();
             return val;
         }
 
