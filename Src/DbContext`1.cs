@@ -12,7 +12,8 @@ namespace FS.Sql
         ///     通过数据库配置，连接数据库
         /// </summary>
         /// <param name="dbIndex">数据库选项</param>
-        protected DbContext(int dbIndex = 0) : base(dbIndex) { }
+        /// <param name="isUnitOfWork">是否工作单元模式</param>
+        protected DbContext(int dbIndex = 0, bool isUnitOfWork = false) : base(dbIndex, isUnitOfWork) { }
 
         /// <summary>
         ///     通过自定义数据链接符，连接数据库

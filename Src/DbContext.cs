@@ -129,7 +129,7 @@ namespace FS.Sql
         /// <summary>
         ///     取消命令合并（不需要调用SaveChange()方法）
         /// </summary>
-        public void CancelMergeCommand() => InternalContext.IsUnitOfWork = false;
+        public void CancelMergeCommand() => InternalContext.IsUnitOfWork = true;
 
         /// <summary>
         ///     不以事务方式执行
