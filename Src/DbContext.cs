@@ -165,9 +165,12 @@ namespace FS.Sql
                     // 分库方案
                     if (_internalContext.ContextConnection == null) { _internalContext.ContextConnection = SplitDatabase(); }
                     _internalContext.Initializer();
-
+                }
+                if (!_internalContext.IsInitModelName)
+                {
                     // 初始化模型映射
                     CreateModelInit(_internalContext.ContextMap.SetDataList.ToDictionary(o => o.Name));
+                    _internalContext.IsInitModelName = true;
                 }
                 return _internalContext;
             }

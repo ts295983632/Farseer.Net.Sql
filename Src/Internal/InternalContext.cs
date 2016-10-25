@@ -68,6 +68,11 @@ namespace FS.Sql.Internal
         public bool IsInitializer { get; private set; }
 
         /// <summary>
+        ///     是否初始化实体类名（表名、视图、存储过程）
+        /// </summary>
+        public bool IsInitModelName { get; internal set; }
+
+        /// <summary>
         ///     数据库提供者（不同数据库的特性）
         /// </summary>
         public AbsDbProvider DbProvider { get; private set; }
