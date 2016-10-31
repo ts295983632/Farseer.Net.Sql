@@ -17,8 +17,9 @@ namespace FS.Sql.Data
     /// <typeparam name="TEntity"></typeparam>
     public abstract class ReadDbSet<TSet, TEntity> : AbsDbSet, FS.Infrastructure.IDbSet<TEntity> where TSet : ReadDbSet<TSet, TEntity> where TEntity : class, new()
     {
-        #region 条件筛选器
+        public TSet SetName(string name) { SetMap.SetName(name); return (TSet)this; }
 
+        #region 条件筛选器
         /// <summary>
         ///     字段选择器
         /// </summary>
