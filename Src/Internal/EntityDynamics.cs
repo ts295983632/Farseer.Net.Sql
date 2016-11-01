@@ -87,14 +87,14 @@ namespace FS.Sql.Internal
                 results = compiler.CompileAssemblyFromSource(compilerParams, sb.ToString());
                 return results.CompiledAssembly.GetExportedTypes()[0];
             }
-            catch (Exception exp)
+            catch (Exception)
             {
-                LogManger.Log.Error(exp);
+                var error = new string[results.Errors.Count];
                 foreach (CompilerError compilerError in results.Errors)
                 {
                     LogManger.Log.Error(compilerError.ErrorText);
                 }
-                throw exp;
+                throw new Exception(error.ToString(","));
             }
         }
 
@@ -124,7 +124,7 @@ namespace FS.Sql.Internal
                 {{
                     var col = map.DataList[rowsIndex];
                     if (col == null) {{ continue; }}
-                    switch (map.ColumnName)
+                    switch (map.ColumnName.ToUpper())
                     {{
 {1}
                     }}
@@ -147,7 +147,7 @@ namespace FS.Sql.Internal
                 var propertyAssign = $"entity.{map.Key.Name}";
 
                 // case 字段名
-                sb.Append($"\t\t\tcase \"{filedName}\":\r\n\t\t\t\t");
+                sb.Append($"\t\t\tcase \"{filedName.ToUpper()}\":\r\n\t\t\t\t");
                 // 使用FS的ConvertHelper 进行类型转换泛型类型
                 if (propertyType.IsGenericType)
                 {
