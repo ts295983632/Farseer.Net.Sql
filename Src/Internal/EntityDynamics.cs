@@ -51,7 +51,7 @@ namespace FS.Sql.Internal
             sb.AppendLine($"namespace {entityType.Namespace}\r\n{{");
             sb.AppendLine($"public class {clsName} : {entityType.FullName}\r\n{{");
             // DataRow构造
-            sb.AppendLine(CreateToList(entityType, setPhysicsMap));
+            sb.AppendLine(CreateToList(entityType));
             // DataTable构造
             sb.AppendLine(CreateToEntity(entityType, setPhysicsMap));
 
@@ -90,16 +90,17 @@ namespace FS.Sql.Internal
             catch (Exception)
             {
                 var error = new string[results.Errors.Count];
-                foreach (CompilerError compilerError in results.Errors)
+                for (int i = 0; i < results.Errors.Count; i++)
                 {
-                    LogManger.Log.Error(compilerError.ErrorText);
+                    error[i] = results.Errors[i].ErrorText;
+                    LogManger.Log.Error(error[i]);
                 }
                 throw new Exception(error.ToString(","));
             }
         }
 
         /// <summary> 生成ToList转换方法 </summary>
-        private string CreateToList(Type entityType, SetPhysicsMap setPhysicsMap)
+        private string CreateToList(Type entityType)
         {
             var sb = new StringBuilder();
             sb.AppendFormat(@"    
@@ -130,11 +131,11 @@ namespace FS.Sql.Internal
                     }}
                 }}
                 return entity;
-            }}", entityType.FullName, CreateSwitchCase(entityType, setPhysicsMap));
+            }}", entityType.FullName, CreateSwitchCase(setPhysicsMap));
             return sb.ToString();
         }
         /// <summary> 生成赋值操作 </summary>
-        private static string CreateSwitchCase(Type entityType, SetPhysicsMap setPhysicsMap)
+        private static string CreateSwitchCase(SetPhysicsMap setPhysicsMap)
         {
             var sb = new StringBuilder();
             foreach (var map in setPhysicsMap.MapList)

@@ -64,7 +64,7 @@ namespace FS.Sql.Infrastructure
         /// <param name="valu"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        protected object ParamConvertValue(object valu, DbType type)
+        protected virtual object ParamConvertValue(object valu, DbType type)
         {
             if (valu == null) { return null; }
 
@@ -96,12 +96,6 @@ namespace FS.Sql.Infrastructure
                 }
                 valu = sb.Length > 0 ? sb.Remove(sb.Length - 1, 1).ToString() : "";
             }
-
-            //// bool 值转换
-            //if (valu is bool && type == DbType.Int32)
-            //{
-            //    valu = ((bool)valu) ? 1 : 0;
-            //}
             return valu;
         }
 
@@ -124,7 +118,7 @@ namespace FS.Sql.Infrastructure
                 case "Boolean": len = 1; return DbType.Int32;
                 case "Int16": len = 2; return DbType.Int16;
                 case "Int32": len = 4; return DbType.Int32;
-                case "Int64": len = 2; return DbType.Int64;
+                case "Int64": len = 8; return DbType.Int64;
                 case "Byte": len = 1; return DbType.Byte;
                 case "Long":
                 case "Float":

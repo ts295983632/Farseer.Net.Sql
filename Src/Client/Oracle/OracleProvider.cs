@@ -48,5 +48,12 @@ namespace FS.Sql.Client.Oracle
             }
             return base.GetDbType(type, out len);
         }
+
+        protected override object ParamConvertValue(object valu, DbType type)
+        {
+            // bool 值转换
+            //if (valu is bool && type == DbType.Int32) { return ((bool)valu) ? 1 : 0; }
+            return base.ParamConvertValue(valu, type);
+        }
     }
 }
