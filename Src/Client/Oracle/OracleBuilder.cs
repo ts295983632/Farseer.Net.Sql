@@ -98,7 +98,7 @@ namespace FS.Sql.Client.Oracle
         public override ISqlParam InsertIdentity()
         {
             base.InsertIdentity();
-            Sql.Append("SELECT @@IDENTITY ");
+            Sql.Append(";SELECT @@IDENTITY ");
             return this;
         }
     }

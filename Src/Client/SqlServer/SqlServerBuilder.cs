@@ -43,7 +43,7 @@ namespace FS.Sql.Client.SqlServer
 
             strOrderBySql = "ORDER BY " + (string.IsNullOrWhiteSpace(strOrderBySql) ? $"{ConvertHelper.ToString(ExpBuilder.SetMap.PhysicsMap.PrimaryFields.Select(o => o.Value.Name), ",")} ASC" : strOrderBySql);
 
-            Sql.Append(string.Format("SELECT {1} FROM (SELECT {0} {1},ROW_NUMBER() OVER({2}) as Row FROM {3} {4}) a WHERE Row BETWEEN {5} AND {6};", strDistinctSql, strSelectSql, strOrderBySql, DbProvider.KeywordAegis(Name), strWhereSql, (pageIndex - 1)*pageSize + 1, pageIndex*pageSize));
+            Sql.Append(string.Format("SELECT {1} FROM (SELECT {0} {1},ROW_NUMBER() OVER({2}) as Row FROM {3} {4}) a WHERE Row BETWEEN {5} AND {6}", strDistinctSql, strSelectSql, strOrderBySql, DbProvider.KeywordAegis(Name), strWhereSql, (pageIndex - 1)*pageSize + 1, pageIndex*pageSize));
             return this;
         }
 
@@ -59,7 +59,7 @@ namespace FS.Sql.Client.SqlServer
                 {
                     var sql = Sql.ToString();
                     Sql.Clear();
-                    Sql.Append(string.Format("SET IDENTITY_INSERT {0} ON ; {1} ; SET IDENTITY_INSERT {0} OFF;", DbProvider.KeywordAegis(Name), sql));
+                    Sql.Append(string.Format(";SET IDENTITY_INSERT {0} ON ; {1} ; SET IDENTITY_INSERT {0} OFF;", DbProvider.KeywordAegis(Name), sql));
                 }
             }
             return this;
@@ -68,7 +68,7 @@ namespace FS.Sql.Client.SqlServer
         public override ISqlParam InsertIdentity()
         {
             Insert();
-            Sql.Append("SELECT @@IDENTITY;");
+            Sql.Append(";SELECT @@IDENTITY;");
             return this;
         }
     }

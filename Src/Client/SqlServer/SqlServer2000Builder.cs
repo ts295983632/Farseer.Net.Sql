@@ -42,7 +42,7 @@ namespace FS.Sql.Client.SqlServer
 
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
 
-            Sql.Append(string.Format("SELECT {0} TOP {2} {1} FROM (SELECT TOP {3} {1} FROM {4} {5} {6}) a  {7};", strDistinctSql, strSelectSql, pageSize, pageSize*pageIndex, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, strOrderBySqlReverse));
+            Sql.Append(string.Format("SELECT {0} TOP {2} {1} FROM (SELECT TOP {3} {1} FROM {4} {5} {6}) a  {7}", strDistinctSql, strSelectSql, pageSize, pageSize*pageIndex, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, strOrderBySqlReverse));
             return this;
         }
     }

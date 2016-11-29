@@ -152,7 +152,7 @@ namespace FS.Sql.Infrastructure
 
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
 
-            Sql.Append(string.Format("SELECT {0}TOP {2} {1} FROM (SELECT TOP {3} * FROM {4} {5} {6}) a  {7};", strDistinctSql, strSelectSql, pageSize, pageSize * pageIndex, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, strOrderBySqlReverse));
+            Sql.Append(string.Format("SELECT {0}TOP {2} {1} FROM (SELECT TOP {3} * FROM {4} {5} {6}) a  {7}", strDistinctSql, strSelectSql, pageSize, pageSize * pageIndex, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, strOrderBySqlReverse));
             return this;
         }
 
@@ -162,7 +162,7 @@ namespace FS.Sql.Infrastructure
         public virtual ISqlParam Insert()
         {
             var strinsertAssemble = InsertVisitor.Visit(ExpBuilder.ExpAssign);
-            Sql.Append($"INSERT INTO {DbProvider.KeywordAegis(Name)} {strinsertAssemble};");
+            Sql.Append($"INSERT INTO {DbProvider.KeywordAegis(Name)} {strinsertAssemble}");
             return this;
         }
 
