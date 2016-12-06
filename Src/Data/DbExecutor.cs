@@ -146,7 +146,7 @@ namespace FS.Sql.Data
         /// </summary>
         public void Rollback()
         {
-            if (_comm.Transaction == null) { throw new Exception("未开启事务"); }
+            if (_comm?.Transaction == null) { throw new Exception("未开启事务"); }
             _comm.Transaction.Rollback();
         }
 
