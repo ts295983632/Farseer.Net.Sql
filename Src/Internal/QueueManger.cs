@@ -50,7 +50,7 @@ namespace FS.Sql.Internal
         /// <param name="joinSoftDeleteCondition">是否加入逻辑删除数据过滤</param>
         internal int CommitLazy(SetDataMap map, Func<Queue, int> act, bool joinSoftDeleteCondition)
         {
-            if (ContextProvider.IsUnitOfWork || !ContextProvider.Executeor.DataBase.IsTransaction) { return Commit(map, act, joinSoftDeleteCondition); }
+            if (ContextProvider.IsUnitOfWork || ContextProvider.Executeor.DataBase.IsTransaction) { return Commit(map, act, joinSoftDeleteCondition); }
             try
             {
                 var queue = CreateQueue(map);
