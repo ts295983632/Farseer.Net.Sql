@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 using FS.Sql.Data;
 using FS.Sql.Internal;
 
@@ -39,6 +40,20 @@ namespace FS.Sql.Infrastructure
         /// <param name="procBuilder">SQL语句与参数</param>
         /// <param name="entity">实体类</param>
         DataTable ToTable<TEntity>(ProcBuilder procBuilder, TEntity entity) where TEntity : class, new();
+
+        /// <summary>
+        ///     返回泛型集合
+        /// </summary>
+        /// <param name="sqlParam">SQL语句与参数</param>
+        List<TEntity> ToList<TEntity>(ISqlParam sqlParam) where TEntity : class, new();
+
+        /// <summary>
+        ///     返回返回泛型集合
+        /// </summary>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        /// <param name="procBuilder">SQL语句与参数</param>
+        /// <param name="entity">实体类</param>
+        List<TEntity> ToList<TEntity>(ProcBuilder procBuilder, TEntity entity) where TEntity : class, new();
 
         /// <summary>
         ///     返回单条数据

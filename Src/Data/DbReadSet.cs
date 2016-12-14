@@ -17,8 +17,9 @@ namespace FS.Sql.Data
     /// <typeparam name="TEntity"></typeparam>
     public abstract class ReadDbSet<TSet, TEntity> : AbsDbSet, FS.Infrastructure.IDbSet<TEntity> where TSet : ReadDbSet<TSet, TEntity> where TEntity : class, new()
     {
-        #region 条件筛选器
+        public TSet SetName(string name) { SetMap.SetName(name); return (TSet)this; }
 
+        #region 条件筛选器
         /// <summary>
         ///     字段选择器
         /// </summary>
@@ -217,7 +218,7 @@ namespace FS.Sql.Data
         /// <param name="isRand">返回当前条件下随机的数据</param>
         public virtual List<TEntity> ToList(int top = 0, bool isDistinct = false, bool isRand = false)
         {
-            return ToTable(top, isDistinct, isRand).ToList<TEntity>();
+            return QueueManger.Commit(SetMap, (queue) => Context.Executeor.ToList<TEntity>(queue.SqlBuilder.ToList(top, isDistinct, isRand)), true);
         }
         /// <summary> 查询多条记录（不支持延迟加载） </summary>
         /// <param name="top">限制显示的数量</param>
@@ -237,7 +238,15 @@ namespace FS.Sql.Data
         /// <returns></returns>
         public virtual List<TEntity> ToList(int pageSize, int pageIndex, bool isDistinct = false)
         {
-            return ToTable(pageSize, pageIndex, isDistinct).ToList<TEntity>();
+            #region 计算总页数
+
+            if (pageIndex < 1) { pageIndex = 1; }
+            if (pageSize < 0) { pageSize = 20; }
+
+            #endregion
+
+            return QueueManger.Commit(SetMap, (queue) => Context.Executeor.ToList<TEntity>(queue.SqlBuilder.ToList(pageSize, pageIndex, isDistinct)), true);
+
         }
         /// <summary>
         ///     查询多条记录（不支持延迟加载）
@@ -260,7 +269,27 @@ namespace FS.Sql.Data
         /// <param name="isDistinct">返回当前条件下非重复数据</param>
         public virtual List<TEntity> ToList(int pageSize, int pageIndex, out int recordCount, bool isDistinct = false)
         {
-            return ToTable(pageSize, pageIndex, out recordCount, isDistinct).ToList<TEntity>();
+            var queue = Queue;
+            recordCount = Count();
+            Queue.Copy(queue);
+
+            #region 计算总页数
+
+            var allCurrentPage = 1;
+
+            if (pageIndex < 1) { pageIndex = 1; }
+            if (pageSize < 0) { pageSize = 0; }
+            if (pageSize != 0)
+            {
+                allCurrentPage = (recordCount / pageSize);
+                allCurrentPage = ((recordCount % pageSize) != 0 ? allCurrentPage + 1 : allCurrentPage);
+                allCurrentPage = (allCurrentPage == 0 ? 1 : allCurrentPage);
+            }
+            if (pageIndex > allCurrentPage) { pageIndex = allCurrentPage; }
+
+            #endregion
+
+            return ToList(pageSize, pageIndex, isDistinct);
         }
         /// <summary>
         ///     查询多条记录（不支持延迟加载）
@@ -353,6 +382,7 @@ namespace FS.Sql.Data
             Where(lstIDs, memberName);
             return ToSelectList(select);
         }
+
         /// <summary>
         ///     返回筛选后的列表
         /// </summary>

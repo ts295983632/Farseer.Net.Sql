@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using FS.Cache;
 using FS.Sql.Internal;
+using TimeTests.DB;
 
 namespace TimeTests
 {
@@ -21,45 +22,61 @@ namespace TimeTests
             Init();
             AddData();
 
-            UserVOByDataRow.ConvertDataRow(dt.Rows[0]);
-            SpeedTest.ConsoleTime("手动实现转换：DataTable转实体", 100, () =>
+            var mapData = ConvertHelper.DataTableToDictionary(dt);
+
+            for (int i = 0; i < 5; i++)
             {
-                var lst = UserVOByDataRow.ConvertDataTable(dt);
-            });
-            SpeedTest.ConsoleTime("表达式树委托：DataTable转实体", 100, () =>
-            {
-                var lst = new List<UserVO>(dt.Rows.Count);
-                foreach (DataRow item in dt.Rows)
-                {
-                    lst.Add(ToInfo<UserVO>(item));
-                }
-            });
-            dt.ToList<UserVO>();
-            SpeedTest.ConsoleTime("动态编译转换：DataTable转实体", 100, () =>
-            {
-                var lst = dt.ToList<UserVO>();
-            });
+                //ConvertDataTable();
+                //SpeedTest.ConsoleTime("手动实现转换：DataTable转实体", 1, ConvertDataTable);
+                //ExpressionConvertDataTable();
+                //SpeedTest.ConsoleTime("表达式树委托：DataTable转实体", 1, ExpressionConvertDataTable);
+                //AutoConvertDataTable();
+                //SpeedTest.ConsoleTime("动态编译转换：DataTable转实体", 1, AutoConvertDataTable);
+                //Context.Data.QuoteExpression.ToList(50000);
+                //SpeedTest.ConsoleTime("动态编译转换：DataTable转实体", 50000, () => Context.Data.QuoteExpression.ToList(50000));
+
+                ConvertHelper.ConvertType(0, 0);
+                SpeedTest.ConsoleTime("动态编译转换：DataTable转实体", 1000000, () =>
+                                      { ConvertHelper.ConvertType(0, 0); });
+            }
+        }
+
+
+        private static void ConvertDataTable()
+        {
+
+            var mapData = ConvertHelper.DataTableToDictionary(dt);
+            var lst = UserVOByDataRow.ToList(mapData);
+        }
+        private static void ExpressionConvertDataTable()
+        {
+            var lst = new List<UserVO>(dt.Rows.Count);
+            foreach (DataRow item in dt.Rows) { lst.Add(ToInfo<UserVO>(item)); }
+        }
+        private static void AutoConvertDataTable()
+        {
+            var lst = dt.ToList<UserVO>();
         }
 
         private static void Init()
         {
             dt = new DataTable();
-            dt.Columns.Add(nameof(UserVO.CreateAt));
-            dt.Columns.Add(nameof(UserVO.GenderType));
-            dt.Columns.Add(nameof(UserVO.ID));
-            dt.Columns.Add(nameof(UserVO.LogCount));
-            dt.Columns.Add(nameof(UserVO.LoginIP));
-            dt.Columns.Add(nameof(UserVO.PassWord));
-            dt.Columns.Add(nameof(UserVO.UserName));
-            dt.Columns.Add(nameof(UserVO.SiteIDs));
+            dt.Columns.Add(new DataColumn(nameof(UserVO.CreateAt), typeof(DateTime)));
+            dt.Columns.Add(new DataColumn(nameof(UserVO.GenderType), typeof(byte)));
+            dt.Columns.Add(new DataColumn(nameof(UserVO.ID), typeof(int)));
+            dt.Columns.Add(new DataColumn("LoginCount", typeof(int)));
+            dt.Columns.Add(new DataColumn(nameof(UserVO.LoginIP), typeof(string)));
+            dt.Columns.Add(new DataColumn(nameof(UserVO.PassWord), typeof(string)));
+            dt.Columns.Add(new DataColumn(nameof(UserVO.UserName), typeof(string)));
+            //dt.Columns.Add(new DataColumn(nameof(UserVO.SiteIDs), typeof(string)));
         }
 
-        private static void AddData(int count = 100)
+        private static void AddData(int count = 50000)
         {
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var lst = new List<int> { Rand.GetRandom(), Rand.GetRandom(), Rand.GetRandom() };
-                dt.Rows.Add(DateTime.Now, eumGenderType.Man, i, Rand.GetRandom(), Rand.CreateRandomString(15), Rand.CreateRandomString(32), Rand.CreateRandomString(12), lst.ToString(","));
+                dt.Rows.Add(DateTime.Now, i % 2 == 0 ? eumGenderType.Man : eumGenderType.Woman, i, Rand.GetRandom(), Rand.CreateRandomString(15), Rand.CreateRandomString(32), Rand.CreateRandomString(12)/*, lst.ToString(",")*/);
             }
         }
 

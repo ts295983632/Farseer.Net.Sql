@@ -68,6 +68,11 @@ namespace FS.Sql.Internal
         public bool IsInitializer { get; private set; }
 
         /// <summary>
+        ///     是否初始化实体类名（表名、视图、存储过程）
+        /// </summary>
+        public bool IsInitModelName { get; internal set; }
+
+        /// <summary>
         ///     数据库提供者（不同数据库的特性）
         /// </summary>
         public AbsDbProvider DbProvider { get; private set; }
@@ -88,7 +93,8 @@ namespace FS.Sql.Internal
         public QueueManger QueueManger { get; private set; }
 
         /// <summary>
-        ///     true:启用合并执行命令、并延迟加载，不需要调用SaveChange()方法 执行
+        ///     true:立即执行，不需要调用SaveChange()方法 执行
+        ///     false:启用合并执行命令、并延迟加载，执行完后，需要调用SaveChange()方法
         /// </summary>
         public bool IsUnitOfWork { get; internal set; }
 
@@ -107,11 +113,11 @@ namespace FS.Sql.Internal
             // 数据库提供者
             DbProvider = AbsDbProvider.CreateInstance(ContextConnection.DbType, ContextConnection.DataVer);
             // 默认SQL执行者
-            Executeor = new ExecuteSql(new DbExecutor(ContextConnection.ConnectionString, ContextConnection.DbType, ContextConnection.CommandTimeout, !IsUnitOfWork && DbProvider.IsSupportTransaction ? IsolationLevel.Serializable : IsolationLevel.Unspecified), this);
+            Executeor = new ExecuteSql(new DbExecutor(ContextConnection.ConnectionString, ContextConnection.DbType, ContextConnection.CommandTimeout, !IsUnitOfWork && DbProvider.IsSupportTransaction ? IsolationLevel.RepeatableRead : IsolationLevel.Unspecified), this);
             // 代理SQL记录
-            if (SystemConfigs.ConfigEntity.IsWriteDbLog) { Executeor = new ExecuteSqlLogProxy(Executeor); }
+            if (SystemConfigs.ConfigEntity.IsWriteSqlRunLog) { Executeor = new ExecuteSqlLogProxy(Executeor); }
             // 代理异常记录
-            if (SystemConfigs.ConfigEntity.IsWriteDbExceptionLog) { Executeor = new ExecuteSqlExceptionLogProxy(Executeor); }
+            if (SystemConfigs.ConfigEntity.IsWriteSqlErrorLog) { Executeor = new ExecuteSqlExceptionLogProxy(Executeor); }
 
             // 队列管理者
             QueueManger = new QueueManger(this);

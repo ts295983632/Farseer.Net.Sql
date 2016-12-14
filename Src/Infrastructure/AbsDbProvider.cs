@@ -64,7 +64,7 @@ namespace FS.Sql.Infrastructure
         /// <param name="valu"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        private object ParamConvertValue(object valu, DbType type)
+        protected virtual object ParamConvertValue(object valu, DbType type)
         {
             if (valu == null) { return null; }
 
@@ -116,13 +116,14 @@ namespace FS.Sql.Infrastructure
             {
                 case "DateTime": len = 8; return DbType.DateTime;
                 case "Boolean": len = 1; return DbType.Int32;
-                case "Int32": len = 4; return DbType.Int32;
                 case "Int16": len = 2; return DbType.Int16;
-                case "Decimal": len = 8; return DbType.Decimal;
+                case "Int32": len = 4; return DbType.Int32;
+                case "Int64": len = 8; return DbType.Int64;
                 case "Byte": len = 1; return DbType.Byte;
                 case "Long":
                 case "Float":
-                case "Double": len = 8; return DbType.Decimal;
+                case "Double":
+                case "Decimal": len = 8; return DbType.Decimal;
                 case "Guid": len = 16; return DbType.Guid;
                 default: len = 8000; return DbType.String;
             }
@@ -138,12 +139,21 @@ namespace FS.Sql.Infrastructure
         /// <param name="output">是否是输出值</param>
         public DbParameter CreateDbParam(string name, object valu, DbType type, int len, bool output = false)
         {
-            var param = DbProviderFactory.CreateParameter();
-            param.DbType = type;
+            var param = CreateDbParam(type);
             param.ParameterName = ParamsPrefix + Regex.Replace(name, "[\\(\\),=\\-\\+ ]*", "");
             param.Value = ParamConvertValue(valu, type);
             if (len > 0) param.Size = len;
             if (output) param.Direction = ParameterDirection.Output;
+            return param;
+        }
+        /// <summary>
+        ///     创建一个数据库参数对象（不同数据库，重写实现）
+        /// </summary>
+        /// <param name="type">参数类型</param>
+        protected virtual DbParameter CreateDbParam(DbType type)
+        {
+            var param = DbProviderFactory.CreateParameter();
+            param.DbType = type;
             return param;
         }
 
@@ -154,11 +164,11 @@ namespace FS.Sql.Infrastructure
         /// <param name="valu">参数值</param>
         /// <param name="valType">值类型</param>
         /// <param name="output">是否是输出值</param>
-        public virtual DbParameter CreateDbParam(string name, object valu, Type valType, bool output = false)
+        public DbParameter CreateDbParam(string name, object valu, Type valType, bool output = false)
         {
             int len;
-            var type = GetDbType(valType, out len);
-            return CreateDbParam(name, valu, type, len, output);
+            var dbType = GetDbType(valType, out len);
+            return CreateDbParam(name, valu, dbType, len, output);
         }
 
         /// <summary>

@@ -109,11 +109,27 @@ namespace FS.Sql
             InternalContext.Executeor.DataBase.Close(true);
             return result;
         }
+        /// <summary>
+        ///     回滚事务
+        /// </summary>
+        public void Rollback()
+        {
+            // 执行数据库操作
+            InternalContext.QueueManger.ClearAll();
+
+            // 如果开启了事务，则关闭
+            if (InternalContext.Executeor.DataBase.IsTransaction)
+            {
+                InternalContext.Executeor.DataBase.Rollback();
+                InternalContext.Executeor.DataBase.CloseTran();
+            }
+            InternalContext.Executeor.DataBase.Close(true);
+        }
 
         /// <summary>
         ///     取消命令合并（不需要调用SaveChange()方法）
         /// </summary>
-        public void CancelMergeCommand() => InternalContext.IsUnitOfWork = false;
+        public void CancelMergeCommand() => InternalContext.IsUnitOfWork = true;
 
         /// <summary>
         ///     不以事务方式执行
@@ -149,9 +165,12 @@ namespace FS.Sql
                     // 分库方案
                     if (_internalContext.ContextConnection == null) { _internalContext.ContextConnection = SplitDatabase(); }
                     _internalContext.Initializer();
-
+                }
+                if (!_internalContext.IsInitModelName)
+                {
                     // 初始化模型映射
                     CreateModelInit(_internalContext.ContextMap.SetDataList.ToDictionary(o => o.Name));
+                    _internalContext.IsInitModelName = true;
                 }
                 return _internalContext;
             }

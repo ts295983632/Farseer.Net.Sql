@@ -71,7 +71,7 @@ namespace FS.Sql
         public List<TEntity> ToList(TEntity entity = null)
         {
             // 加入委托
-            return QueueManger.Commit(SetMap, (queue) => Context.Executeor.ToTable(Queue.ProcBuilder, entity).ToList<TEntity>(), false);
+            return QueueManger.Commit(SetMap, (queue) => Context.Executeor.ToList<TEntity>(Queue.ProcBuilder, entity), false);
         }
         /// <summary>
         ///     返回多条记录

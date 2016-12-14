@@ -86,7 +86,6 @@
     <Compile Include="Features\SortDelete.cs" />
     <Compile Include="Infrastructure\AbsDbProvider.cs" />
     <Compile Include="Infrastructure\AbsDbSet.cs" />
-    <Compile Include="Infrastructure\IContextProvider.cs" />
     <Compile Include="Infrastructure\IExecuteSql.cs" />
     <Compile Include="Infrastructure\IProcParam.cs" />
     <Compile Include="Infrastructure\ISqlParam.cs" />
@@ -132,8 +131,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if Exist $(ProjectDir)bin\Release\$(ProjectName).dll copy /V $(ProjectDir)bin\Release\$(ProjectName).dll  $(ProjectDir)..\lib\$(ProjectName).dll
-if Exist $(ProjectDir)bin\Release\$(ProjectName).pdb copy /V $(ProjectDir)bin\Release\$(ProjectName).pdb  $(ProjectDir)..\lib\$(ProjectName).pdb</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

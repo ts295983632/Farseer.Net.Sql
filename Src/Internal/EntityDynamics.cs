@@ -6,12 +6,10 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using FS.Extends;
-using FS.Map;
+using FS.Log;
 using FS.Sql.Map;
 
 namespace FS.Sql.Internal
@@ -46,19 +44,16 @@ namespace FS.Sql.Internal
 
             var sb = new StringBuilder();
             sb.AppendLine("using System;");
-            sb.AppendLine("using System.Data;");
             sb.AppendLine("using System.Collections.Generic;");
             sb.AppendLine("using FS.Utils.Common;");
-            sb.AppendLine("using FS.Extends;");
+            sb.AppendLine("using FS.Infrastructure;");
 
             sb.AppendLine($"namespace {entityType.Namespace}\r\n{{");
             sb.AppendLine($"public class {clsName} : {entityType.FullName}\r\n{{");
             // DataRow构造
-            sb.AppendLine(CreateDataRowMethod(entityType, setPhysicsMap));
+            sb.AppendLine(CreateToList(entityType));
             // DataTable构造
-            sb.AppendLine(CreateDataTableMethod(entityType, setPhysicsMap));
-            // IDataReader构造
-            sb.AppendLine(CreateDataReaderMethod(entityType, setPhysicsMap));
+            sb.AppendLine(CreateToEntity(entityType, setPhysicsMap));
 
             sb.AppendLine("}}");
             var compilerParams = new CompilerParameters
@@ -75,7 +70,7 @@ namespace FS.Sql.Internal
             var ass = AppDomain.CurrentDomain.GetAssemblies();  //  得到当前所有程序集
             compilerParams.ReferencedAssemblies.Add(ass.FirstOrDefault(o => o.ManifestModule.Name == "Farseer.Net.dll")?.Location);
             compilerParams.ReferencedAssemblies.Add(ass.FirstOrDefault(o => o.ManifestModule.Name == "Farseer.Net.Sql.dll")?.Location);
-            
+
             // 需要把基类型的dll，也载进来
             var baseType = entityType;
             while (baseType != null)
@@ -92,101 +87,92 @@ namespace FS.Sql.Internal
                 results = compiler.CompileAssemblyFromSource(compilerParams, sb.ToString());
                 return results.CompiledAssembly.GetExportedTypes()[0];
             }
-            catch (Exception exp)
+            catch (Exception)
             {
-                FS.Log.LogManger.Log.Error(exp);
-                foreach (CompilerError compilerError in results.Errors)
+                var error = new string[results.Errors.Count];
+                for (int i = 0; i < results.Errors.Count; i++)
                 {
-                    FS.Log.LogManger.Log.Error(compilerError.ErrorText);
+                    error[i] = results.Errors[i].ErrorText;
+                    LogManger.Log.Error(error[i]);
                 }
-                throw exp;
+                throw new Exception(error.ToString(","));
             }
         }
 
-        /// <summary> 生成DataTable转换方法 </summary>
-        private string CreateDataTableMethod(Type entityType, SetPhysicsMap setPhysicsMap)
+        /// <summary> 生成ToList转换方法 </summary>
+        private string CreateToList(Type entityType)
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"\t public static List<{entityType.FullName}> ConvertDataTable (DataTable dt)\r\n{{");
-            sb.AppendLine($"var lst = new List<{entityType.FullName}>(dt.Rows.Count);");
-            sb.AppendLine($"foreach (DataRow dr in dt.Rows)\r\n{{");
-            sb.AppendLine($"lst.Add(ConvertDataRow(dr));");
-            sb.AppendLine("}");
-            sb.AppendLine($"return lst;");
-            sb.AppendLine("}");
+            sb.AppendFormat(@"    
+                            public static List<{0}> ToList(MapingData[] mapData)
+                            {{
+                                var lst = new List<{0}>(mapData[0].DataList.Count);
+                                for (int i = 0; i < mapData[0].DataList.Count; i++) {{ lst.Add(ToEntity(mapData, i));}}
+                                return lst;
+                            }}", entityType.FullName);
             return sb.ToString();
         }
-        /// <summary> 生成DataRow转换方法 </summary>
-        private string CreateDataRowMethod(Type entityType, SetPhysicsMap setPhysicsMap)
+        /// <summary> 生成CreateToEntity转换方法 </summary>
+        private string CreateToEntity(Type entityType, SetPhysicsMap setPhysicsMap)
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"\t public static {entityType.FullName} ConvertDataRow (DataRow dr)\r\n{{");
-            sb.AppendLine($"var entity = new {entityType.FullName}();");
-            foreach (var map in setPhysicsMap.MapList)
-            {
-                var filedName = map.Value.Field.IsFun ? map.Key.Name : map.Value.Field.Name;
-                // DataRow是否包含字段
-                sb.Append($"\t\t if (dr.Table.Columns.Contains(\"{filedName}\") && dr[\"{filedName}\"]!=null) {{ ");
-                // 创建赋值
-                sb.AppendLine(CreateAssign(map, filedName, "dr"));
-                sb.AppendLine("}");
-            }
-            sb.AppendLine($"return entity;");
-            sb.AppendLine("}");
-            return sb.ToString();
-        }
-        /// <summary> 生成DataReader转换方法 </summary>
-        private string CreateDataReaderMethod(Type entityType, SetPhysicsMap setPhysicsMap)
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine($"\t public static {entityType.FullName} ConvertDataReader (IDataReader reader)\r\n{{");
-            sb.AppendLine($"var entity = new {entityType.FullName}();");
-            sb.AppendLine($"var isHaveValue = false;");
-            sb.AppendLine($"if (reader.Read())\r\n{{");
-            sb.AppendLine($"isHaveValue = true;");
-            foreach (var map in setPhysicsMap.MapList)
-            {
-                var filedName = map.Value.Field.IsFun ? map.Key.Name : map.Value.Field.Name;
-                // DataReader是否包含字段
-                sb.AppendLine($"if (reader.HaveName(\"{filedName}\"))\r\n{{");
-                // 创建赋值
-                sb.AppendLine(CreateAssign(map, filedName, "reader"));
-                sb.AppendLine("}");
-            }
-            sb.AppendLine("}");
-            sb.AppendLine($"return isHaveValue ? entity : null;");
-            sb.AppendLine("}");
+            sb.AppendFormat(@"    
+            public static {0} ToEntity(MapingData[] mapData, int rowsIndex = 0)
+            {{
+                if ( mapData == null || mapData.Length == 0 || mapData[0].DataList.Count == 0) {{ return null; }}
+                var entity = new {0}();
+                foreach (var map in mapData)
+                {{
+                    var col = map.DataList[rowsIndex];
+                    if (col == null) {{ continue; }}
+                    switch (map.ColumnName.ToUpper())
+                    {{
+{1}
+                    }}
+                }}
+                return entity;
+            }}", entityType.FullName, CreateSwitchCase(setPhysicsMap));
             return sb.ToString();
         }
         /// <summary> 生成赋值操作 </summary>
-        private static string CreateAssign(KeyValuePair<PropertyInfo, FieldMapState> map, string filedName, string dataRowOrDataReader)
+        private static string CreateSwitchCase(SetPhysicsMap setPhysicsMap)
         {
             var sb = new StringBuilder();
-            // 字段赋值
-            var propertyAssign = $"entity.{map.Key.Name} = ";
-            var rowsVal = $"{dataRowOrDataReader}[\"{filedName}\"]";
-            // 类型转换
-            var propertyType = map.Key.PropertyType.GetNullableArguments();
+            foreach (var map in setPhysicsMap.MapList)
+            {
+                // 字段名
+                var filedName = map.Value.Field.IsFun ? map.Key.Name : map.Value.Field.Name;
+                // 类型转换
+                var propertyType = map.Key.PropertyType.GetNullableArguments();
+                // 字段赋值
+                var propertyAssign = $"entity.{map.Key.Name}";
 
-            // 如果是List类型，则使用ConvertType
-            if (propertyType.IsGenericType)
-            {
-                // 使用FS的ConvertHelper 进行类型转换
-                var asType = propertyType.IsArray ? $"{propertyType.GetGenericArguments()[0].FullName}[]" : $"List<{propertyType.GetGenericArguments()[0].FullName}>";
-                var convertType = $"ConvertHelper.ConvertType({rowsVal},typeof({asType}))";
-                sb.Append(propertyAssign + convertType + " as " + asType + "; ");
-            }
-            else
-            {
-                // 字符串不需要处理
-                if (propertyType == typeof(string)) { sb.Append($"{propertyAssign}{rowsVal}.ToString();"); }
-                else if (propertyType == typeof(bool)) { sb.Append($"{propertyAssign}{rowsVal}.ConvertType(false);"); }
-                else if (propertyType.IsEnum) { sb.Append($"{propertyAssign}({propertyType}){rowsVal}.ConvertType(typeof({propertyType}));"); }
-                else if (!propertyType.IsClass)
+                // case 字段名
+                sb.Append($"\t\t\tcase \"{filedName.ToUpper()}\":\r\n\t\t\t\t");
+                // 使用FS的ConvertHelper 进行类型转换泛型类型
+                if (propertyType.IsGenericType)
                 {
-                    sb.Append($"{propertyType.FullName} {filedName}_Out;"); // 定义用于out输出的类型
-                    sb.Append($"if ({propertyType.FullName}.TryParse({rowsVal}.ToString(), out {filedName}_Out)) {{ {propertyAssign}{filedName}_Out; }}");
+                    if (propertyType.IsArray)   // 数组类型
+                    {
+                        var asType = $"{propertyType.GetGenericArguments()[0].FullName}[]";
+                        sb.Append($"{propertyAssign} = ConvertHelper.ConvertType(col,typeof({asType})) as {asType}; ");
+                    }
+                    else   // List集合
+                    {
+                        sb.Append($"{propertyAssign} = ConvertHelper.ToList<{propertyType.GetGenericArguments()[0].FullName}>(col.ToString()); ");
+                    }
                 }
+                else
+                {
+                    // 字符串不需要处理
+                    if (propertyType == typeof(string)) { sb.Append($"{propertyAssign} = col.ToString();"); }
+                    else if (propertyType.IsEnum) { sb.Append($"if (typeof({propertyType.FullName}).GetEnumUnderlyingType() == col.GetType()) {{ {propertyAssign} = ({propertyType.FullName})col; }} else {{ {propertyType.FullName} {filedName}_Out; if (Enum.TryParse(col.ToString(), out {filedName}_Out)) {{ {propertyAssign} = {filedName}_Out; }} }}"); }
+                    else if (propertyType == typeof(bool)) { sb.Append($"{propertyAssign} = ConvertHelper.ConvertType(col,false);"); }
+                    else if (!propertyType.IsClass) { sb.Append($"if (col is {propertyType.FullName}) {{ {propertyAssign} = ({propertyType.FullName})col; }} else {{ {propertyType.FullName} {filedName}_Out; if ({propertyType.FullName}.TryParse(col.ToString(), out {filedName}_Out)) {{ {propertyAssign} = {filedName}_Out; }} }}"); }
+                }
+
+                // 退出case
+                sb.AppendLine("break;");
             }
             return sb.ToString();
         }

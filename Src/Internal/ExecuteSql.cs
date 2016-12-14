@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 using FS.Extends;
 using FS.Sql.Data;
 using FS.Sql.Infrastructure;
@@ -56,7 +57,6 @@ namespace FS.Sql.Internal
             return value;
         }
 
-
         /// <summary>
         ///     返回DataTable
         /// </summary>
@@ -83,6 +83,20 @@ namespace FS.Sql.Internal
             return value;
         }
 
+        public List<TEntity> ToList<TEntity>(ISqlParam sqlParam) where TEntity : class, new()
+        {
+            var param = sqlParam.Param?.ToArray();
+            return SqlExtend.ToList<TEntity>(DataBase.GetReader(CommandType.Text, sqlParam.Sql.ToString(), param));
+        }
+        public List<TEntity> ToList<TEntity>(ProcBuilder procBuilder, TEntity entity) where TEntity : class, new()
+        {
+            // 生成SQL 输入、输出参数化
+            var sqlParam = procBuilder.InitParam(entity);
+            var param = sqlParam.Param?.ToArray();
+            var value = SqlExtend.ToList<TEntity>(DataBase.GetReader(CommandType.StoredProcedure, sqlParam.Name, param));
+            procBuilder.SetParamToEntity(entity);
+            return value;
+        }
 
         /// <summary>
         ///     返回单条数据

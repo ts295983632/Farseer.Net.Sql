@@ -209,14 +209,14 @@ namespace FS.Sql.ExpressionVisitor
             if (cexp == null) return null;
 
             //  查找组中是否存在已有的参数，有则直接取出
-            if (CurrentFieldName != null && CurrentField.Value.Field.DbType != DbType.Object)
+            if (CurrentFieldName != null && CurrentField.Value != null && CurrentField.Value.Field.DbType != DbType.Object)
             {
                 // 手动指定字段类型
-                CurrentDbParameter = DbProvider.CreateDbParam("p" + ParamList.Count + "_" + CurrentFieldName, cexp.Value, CurrentField.Value.Field.DbType, 0);
+                CurrentDbParameter = DbProvider.CreateDbParam($"p{ParamList.Count}_{CurrentField.Key.Name}", cexp.Value, CurrentField.Value.Field.DbType, 0);
             }
             else
             {
-                CurrentDbParameter = DbProvider.CreateDbParam("p" + ParamList.Count + "_" + CurrentFieldName, cexp.Value, cexp.Type);
+                CurrentDbParameter = DbProvider.CreateDbParam($"p{ParamList.Count}_{ (CurrentField.Key != null ? CurrentField.Key.Name : CurrentFieldName)}", cexp.Value, cexp.Type);
             }
 
             ParamList.Add(CurrentDbParameter);

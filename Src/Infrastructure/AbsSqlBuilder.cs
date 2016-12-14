@@ -152,7 +152,7 @@ namespace FS.Sql.Infrastructure
 
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
 
-            Sql.Append(string.Format("SELECT {0}TOP {2} {1} FROM (SELECT TOP {3} * FROM {4} {5} {6}) a  {7};", strDistinctSql, strSelectSql, pageSize, pageSize * pageIndex, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, strOrderBySqlReverse));
+            Sql.Append(string.Format("SELECT {0}TOP {2} {1} FROM (SELECT TOP {3} * FROM {4} {5} {6}) a  {7}", strDistinctSql, strSelectSql, pageSize, pageSize * pageIndex, DbProvider.KeywordAegis(Name), strWhereSql, strOrderBySql, strOrderBySqlReverse));
             return this;
         }
 
@@ -162,7 +162,7 @@ namespace FS.Sql.Infrastructure
         public virtual ISqlParam Insert()
         {
             var strinsertAssemble = InsertVisitor.Visit(ExpBuilder.ExpAssign);
-            Sql.Append($"INSERT INTO {DbProvider.KeywordAegis(Name)} {strinsertAssemble};");
+            Sql.Append($"INSERT INTO {DbProvider.KeywordAegis(Name)} {strinsertAssemble}");
             return this;
         }
 
@@ -181,8 +181,8 @@ namespace FS.Sql.Infrastructure
         /// </summary>
         public virtual ISqlParam Update()
         {
-            var strWhereSql = WhereVisitor.Visit(ExpBuilder.ExpWhere);
             var strAssemble = AssignVisitor.Visit(ExpBuilder.ExpAssign);
+            var strWhereSql = WhereVisitor.Visit(ExpBuilder.ExpWhere);
 
             // 主键如果有值、或者设置成只读条件，则自动转成条件
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
@@ -242,8 +242,8 @@ namespace FS.Sql.Infrastructure
         {
             Check.IsTure(ExpBuilder.ExpAssign == null, "赋值的参数不能为空！");
 
-            var strWhereSql = WhereVisitor.Visit(ExpBuilder.ExpWhere);
             var strAssemble = AssignVisitor.Visit(ExpBuilder.ExpAssign);
+            var strWhereSql = WhereVisitor.Visit(ExpBuilder.ExpWhere);
 
             if (!string.IsNullOrWhiteSpace(strWhereSql)) { strWhereSql = "WHERE " + strWhereSql; }
 

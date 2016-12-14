@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using FS.Cache;
 using FS.Utils.Common;
 using System.Reflection;
+using FS.Log;
 using FS.Sql.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -19,10 +20,23 @@ namespace FS.Extends
         /// </summary>
         /// <param name="reader">源IDataReader</param>
         /// <typeparam name="TEntity">实体类</typeparam>
-        public static TEntity ToEntity<TEntity>(this IDataReader reader) where TEntity : class, new()
+        public static List<TEntity> ToList<TEntity>(this IDataReader reader)
         {
+            var mapData = ConvertHelper.DataReaderToDictionary(reader);
             var type = new EntityDynamics().GetEntityType<TEntity>();
-            return (TEntity)InstanceStaticCacheManger.Cache(type, "ConvertDataReader", reader);
+            return (List<TEntity>)InstanceStaticCacheManger.Cache(type, "ToList", (object)mapData);
+        }
+
+        /// <summary>
+        ///     数据填充
+        /// </summary>
+        /// <param name="reader">源IDataReader</param>
+        /// <typeparam name="TEntity">实体类</typeparam>
+        public static TEntity ToEntity<TEntity>(this IDataReader reader)
+        {
+            var mapData = ConvertHelper.DataReaderToDictionary(reader);
+            var type = new EntityDynamics().GetEntityType<TEntity>();
+            return (TEntity)InstanceStaticCacheManger.Cache(type, "ToEntity", (object)mapData, 0);
         }
 
         /// <summary>
@@ -30,10 +44,11 @@ namespace FS.Extends
         /// </summary>
         /// <param name="dt">源DataTable</param>
         /// <typeparam name="TEntity">实体类</typeparam>
-        public static List<TEntity> ToList<TEntity>(this DataTable dt) where TEntity : class, new()
+        public static List<TEntity> ToList<TEntity>(this DataTable dt)
         {
+            var mapData = ConvertHelper.DataTableToDictionary(dt);
             var type = new EntityDynamics().GetEntityType<TEntity>();
-            return (List<TEntity>)InstanceStaticCacheManger.Cache(type, "ConvertDataTable", dt);
+            return (List<TEntity>)InstanceStaticCacheManger.Cache(type, "ToList", (object)mapData);
         }
 
         /// <summary>
@@ -41,21 +56,11 @@ namespace FS.Extends
         /// </summary>
         /// <param name="dt">源DataTable</param>
         /// <typeparam name="TEntity">实体类</typeparam>
-        public static TEntity[] ToArray<TEntity>(this DataTable dt) where TEntity : class, new()
+        public static TEntity[] ToArray<TEntity>(this DataTable dt)
         {
+            var mapData = ConvertHelper.DataTableToDictionary(dt);
             var type = new EntityDynamics().GetEntityType<TEntity>();
-            return ((List<TEntity>)InstanceStaticCacheManger.Cache(type, "ConvertDataTable", dt)).ToArray();
-        }
-
-        /// <summary>
-        ///     将DataRow转成实体类
-        /// </summary>
-        /// <typeparam name="TEntity">实体类</typeparam>
-        /// <param name="dr">源DataRow</param>
-        public static TEntity ToEntity<TEntity>(this DataRow dr) where TEntity : class, new()
-        {
-            var type = new EntityDynamics().GetEntityType<TEntity>();
-            return (TEntity)InstanceStaticCacheManger.Cache(type, "ConvertDataRow", dr);
+            return ((List<TEntity>)InstanceStaticCacheManger.Cache(type, "ToList", (object)mapData)).ToArray();
         }
 
         /// <summary>
@@ -115,25 +120,30 @@ namespace FS.Extends
             var dt = new DataTable();
             if (lst.Count == 0) { return dt; }
             var map = SetMapCacheManger.Cache(typeof(TEntity));
-            var lstFields = map.MapList.Where(o => o.Value.Field.IsMap).ToList();
+            var lstFields = map.MapList.Where(o => o.Value.Field.IsMap).OrderBy(o => o.Value.Field.FieldIndex).ToList();
+            // 添加DataTable列
             foreach (var field in lstFields)
             {
-                var type = field.Key.PropertyType;
                 // 对   List 类型处理
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) { type = type.GetGenericArguments()[0]; }
-                dt.Columns.Add(field.Value.Field.Name, type);
+                var type = field.Key.PropertyType.GetNullableArguments();
+                if (type.IsEnum) { type = typeof(int); }
+                var col = new DataColumn(field.Value.Field.Name, type) { AutoIncrement = field.Value.Field.IsDbGenerated };
+                dt.Columns.Add(col);
             }
 
             foreach (var info in lst)
             {
-                dt.Rows.Add(dt.NewRow());
+                var dr = dt.NewRow();
                 foreach (var field in lstFields)
                 {
                     var value = ConvertHelper.GetValue(info, field.Key.Name, (object)null);
-                    if (value == null) { continue; }
-                    if (!dt.Columns.Contains(field.Value.Field.Name)) { dt.Columns.Add(field.Value.Field.Name); }
-                    dt.Rows[dt.Rows.Count - 1][field.Value.Field.Name] = value;
+                    var type = field.Key.PropertyType.GetNullableArguments();
+                    // 枚举特殊处理
+                    if (type.IsEnum) { value = (int)(value ?? 0); }
+
+                    dr[field.Value.Field.Name] = (value == null && !type.IsClass) || field.Value.Field.IsDbGenerated ? 0 : value;
                 }
+                dt.Rows.Add(dr);
             }
             return dt;
         }
