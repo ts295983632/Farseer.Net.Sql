@@ -113,7 +113,7 @@ namespace FS.Sql.Internal
             // 数据库提供者
             DbProvider = AbsDbProvider.CreateInstance(ContextConnection.DbType, ContextConnection.DataVer);
             // 默认SQL执行者
-            Executeor = new ExecuteSql(new DbExecutor(ContextConnection.ConnectionString, ContextConnection.DbType, ContextConnection.CommandTimeout, !IsUnitOfWork && DbProvider.IsSupportTransaction ? IsolationLevel.Serializable : IsolationLevel.Unspecified), this);
+            Executeor = new ExecuteSql(new DbExecutor(ContextConnection.ConnectionString, ContextConnection.DbType, ContextConnection.CommandTimeout, !IsUnitOfWork && DbProvider.IsSupportTransaction ? IsolationLevel.RepeatableRead : IsolationLevel.Unspecified), this);
             // 代理SQL记录
             if (SystemConfigs.ConfigEntity.IsWriteSqlRunLog) { Executeor = new ExecuteSqlLogProxy(Executeor); }
             // 代理异常记录

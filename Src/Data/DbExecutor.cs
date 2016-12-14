@@ -21,7 +21,12 @@ namespace FS.Sql.Data
         /// <param name="dbType">数据库类型</param>
         /// <param name="connectionString">数据库连接字符串</param>
         /// <param name="commandTimeout">数据库执行时间，单位秒</param>
-        /// <param name="tranLevel">开启事务等级</param>
+        /// <param name="tranLevel">
+        /// 未提交读（read uncommitted）: 当事务A更新某条数据时，不容许其他事务来更新该数据，但可以读取。
+        /// 提交读（read committed）:    当事务A更新某条数据时，不容许其他事务进行任何操作包括读取，但事务A读取时，其他事务可以进行读取、更新。
+        /// 重复读（repeatable read）: 当事务A更新数据时，不容许其他事务进行任何操作，但当事务A进行读取时，其他事务只能读取，不能更新。
+        /// 序列化（serializable）：     最严格的隔离级别，事务必须依次进行。
+        /// </param>
         public DbExecutor(string connectionString, eumDbType dbType = eumDbType.SqlServer, int commandTimeout = 30, IsolationLevel tranLevel = IsolationLevel.Unspecified)
         {
             _connectionString = connectionString;
