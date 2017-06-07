@@ -129,6 +129,7 @@ namespace FS.Sql.Internal
                             }}", entityType.FullName);
             return sb.ToString();
         }
+
         /// <summary> 生成CreateToEntity转换方法 </summary>
         private string CreateToEntity(Type entityType, SetPhysicsMap setPhysicsMap)
         {
@@ -151,6 +152,7 @@ namespace FS.Sql.Internal
             }}", entityType.FullName, CreateSwitchCase(setPhysicsMap));
             return sb.ToString();
         }
+
         /// <summary> 生成赋值操作 </summary>
         private static string CreateSwitchCase(SetPhysicsMap setPhysicsMap)
         {
@@ -183,7 +185,7 @@ namespace FS.Sql.Internal
                 {
                     // 字符串不需要处理
                     if (propertyType == typeof(string)) { sb.Append($"{propertyAssign} = col.ToString();"); }
-                    else if (propertyType.IsEnum) { sb.Append($"if (typeof({propertyType.FullName}).GetEnumUnderlyingType() == col.GetType()) {{ {propertyAssign} = ({propertyType.FullName})col; }} else {{ {propertyType.FullName} {filedName}_Out; if (Enum.TryParse(col.ToString(), out {filedName}_Out)) {{ {propertyAssign} = {filedName}_Out; }} }}"); }
+                    else if (propertyType.IsEnum) { sb.Append($"if (typeof({propertyType.FullName}).GetEnumUnderlyingType() == col.GetType()) {{ {propertyAssign} = ({propertyType.FullName})col; }} else {{ {propertyType.FullName} {filedName}_Out; if (System.Enum.TryParse(col.ToString(), out {filedName}_Out)) {{ {propertyAssign} = {filedName}_Out; }} }}"); }
                     else if (propertyType == typeof(bool)) { sb.Append($"{propertyAssign} = ConvertHelper.ConvertType(col,false);"); }
                     else if (!propertyType.IsClass) { sb.Append($"if (col is {propertyType.FullName}) {{ {propertyAssign} = ({propertyType.FullName})col; }} else {{ {propertyType.FullName} {filedName}_Out; if ({propertyType.FullName}.TryParse(col.ToString(), out {filedName}_Out)) {{ {propertyAssign} = {filedName}_Out; }} }}"); }
                 }
