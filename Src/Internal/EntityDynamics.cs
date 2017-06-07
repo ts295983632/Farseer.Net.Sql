@@ -71,31 +71,48 @@ namespace FS.Sql.Internal
             compilerParams.ReferencedAssemblies.Add(ass.FirstOrDefault(o => o.ManifestModule.Name == "Farseer.Net.dll")?.Location);
             compilerParams.ReferencedAssemblies.Add(ass.FirstOrDefault(o => o.ManifestModule.Name == "Farseer.Net.Sql.dll")?.Location);
 
-            // 需要把基类型的dll，也载进来
-            var baseType = entityType;
-            while (baseType != null)
-            {
-                compilerParams.ReferencedAssemblies.Add(baseType.Assembly.Location);
-                baseType = baseType.BaseType;
-            }
-
-            var compiler = CodeDomProvider.CreateProvider("CSharp");
             CompilerResults results = null;
             try
             {
+                // 加载成员依赖的类型所在的程序集
+                var properties = entityType.GetProperties();
+                foreach (var propertyInfo in properties)
+                {
+                    // 找到真实程序集
+                    var declaringType = propertyInfo.PropertyType.GetNullableArguments();
+                    while (declaringType.IsGenericType) { declaringType = declaringType.GetGenericType(); }
+
+                    compilerParams.ReferencedAssemblies.Add(declaringType.Assembly.Location);
+                }
+
+                // 需要把基类型的dll，也载进来
+                var baseType = entityType;
+                while (baseType != null)
+                {
+                    compilerParams.ReferencedAssemblies.Add(baseType.Assembly.Location);
+                    baseType = baseType.BaseType;
+                }
+
+                var compiler = CodeDomProvider.CreateProvider("CSharp");
+
                 //编译
                 results = compiler.CompileAssemblyFromSource(compilerParams, sb.ToString());
                 return results.CompiledAssembly.GetExportedTypes()[0];
             }
-            catch (Exception)
+            catch (Exception exp)
             {
-                var error = new string[results.Errors.Count];
-                for (int i = 0; i < results.Errors.Count; i++)
+                if (results != null)
                 {
-                    error[i] = results.Errors[i].ErrorText;
-                    LogManger.Log.Error(error[i]);
+                    var error = new string[results.Errors.Count];
+                    for (int i = 0; i < error.Length; i++)
+                    {
+                        error[i] = results.Errors[i].ErrorText;
+                        LogManger.Log.Error(error[i]);
+                    }
+                    throw new Exception(error.ToString(","));
                 }
-                throw new Exception(error.ToString(","));
+                LogManger.Log.Error(exp.ToString());
+                throw exp;
             }
         }
 

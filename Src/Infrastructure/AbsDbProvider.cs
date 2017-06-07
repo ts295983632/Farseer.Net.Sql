@@ -128,33 +128,15 @@ namespace FS.Sql.Infrastructure
                 default: len = 8000; return DbType.String;
             }
         }
-
         /// <summary>
         ///     创建一个数据库参数对象
         /// </summary>
         /// <param name="name">参数名称</param>
         /// <param name="valu">参数值</param>
-        /// <param name="type">参数类型</param>
-        /// <param name="len">参数长度</param>
         /// <param name="output">是否是输出值</param>
-        public DbParameter CreateDbParam(string name, object valu, DbType type, int len, bool output = false)
+        public DbParameter CreateDbParam(string name, object valu, bool output = false)
         {
-            var param = CreateDbParam(type);
-            param.ParameterName = ParamsPrefix + Regex.Replace(name, "[\\(\\),=\\-\\+ ]*", "");
-            param.Value = ParamConvertValue(valu, type);
-            if (len > 0) param.Size = len;
-            if (output) param.Direction = ParameterDirection.Output;
-            return param;
-        }
-        /// <summary>
-        ///     创建一个数据库参数对象（不同数据库，重写实现）
-        /// </summary>
-        /// <param name="type">参数类型</param>
-        protected virtual DbParameter CreateDbParam(DbType type)
-        {
-            var param = DbProviderFactory.CreateParameter();
-            param.DbType = type;
-            return param;
+            return CreateDbParam(name, valu, valu.GetType(), output);
         }
 
         /// <summary>
@@ -168,7 +150,7 @@ namespace FS.Sql.Infrastructure
         {
             int len;
             var dbType = GetDbType(valType, out len);
-            return CreateDbParam(name, valu, dbType, len, output);
+            return CreateDbParam(name, valu, dbType, output, len);
         }
 
         /// <summary>
@@ -176,10 +158,21 @@ namespace FS.Sql.Infrastructure
         /// </summary>
         /// <param name="name">参数名称</param>
         /// <param name="valu">参数值</param>
+        /// <param name="type">参数类型</param>
+        /// <param name="len">参数长度</param>
         /// <param name="output">是否是输出值</param>
-        public DbParameter CreateDbParam(string name, object valu, bool output = false)
+        public DbParameter CreateDbParam(string name, object valu, DbType type, bool output = false, int len = 0)
         {
-            return CreateDbParam(name, valu, valu.GetType(), output);
+            var param = DbProviderFactory.CreateParameter();
+            if (param != null)
+            {
+                param.DbType = type;
+                param.ParameterName = ParamsPrefix + Regex.Replace(name, "[\\(\\),=\\-\\+ ]*", "");
+                param.Value = ParamConvertValue(valu, type);
+                if (len > 0) param.Size = len;
+                if (output) { param.Direction = ParameterDirection.Output; }
+            }
+            return param;
         }
         #endregion
 
