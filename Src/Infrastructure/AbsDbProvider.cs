@@ -146,11 +146,11 @@ namespace FS.Sql.Infrastructure
         /// <param name="valu">参数值</param>
         /// <param name="valType">值类型</param>
         /// <param name="output">是否是输出值</param>
-        public DbParameter CreateDbParam(string name, object valu, Type valType, bool output = false)
+        /// <param name="len">参数长度，不指定时自动判断</param>
+        public DbParameter CreateDbParam(string name, object valu, Type valType, bool output = false, int len = 0)
         {
-            int len;
-            var dbType = GetDbType(valType, out len);
-            return CreateDbParam(name, valu, dbType, output, len);
+            var dbType = GetDbType(valType, out int dblen);
+            return CreateDbParam(name, valu, dbType, output, len >0 ?len: dblen);
         }
 
         /// <summary>
