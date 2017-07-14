@@ -216,7 +216,7 @@ namespace FS.Sql.ExpressionVisitor
             }
             else
             {
-                CurrentDbParameter = DbProvider.CreateDbParam($"p{ParamList.Count}_{ (CurrentField.Key != null ? CurrentField.Key.Name : CurrentFieldName)}", cexp.Value, cexp.Type, false, CurrentField.Value.Field.DbSize);
+                CurrentDbParameter = DbProvider.CreateDbParam($"p{ParamList.Count}_{ (CurrentField.Key != null ? CurrentField.Key.Name : CurrentFieldName)}", cexp.Value, cexp.Type, false, CurrentField.Value?.Field.DbSize ?? 0);
             }
 
             ParamList.Add(CurrentDbParameter);
