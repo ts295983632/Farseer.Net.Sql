@@ -125,7 +125,7 @@ namespace FS.Sql.Infrastructure
                 case "Double":
                 case "Decimal": len = 8; return DbType.Decimal;
                 case "Guid": len = 16; return DbType.Guid;
-                default: len = 8000; return DbType.String;
+                default: len = 0; return DbType.String;
             }
         }
         /// <summary>
@@ -163,6 +163,10 @@ namespace FS.Sql.Infrastructure
         /// <param name="output">是否是输出值</param>
         public DbParameter CreateDbParam(string name, object valu, DbType type, bool output = false, int len = 0)
         {
+            // DbType.String——> nvarchar
+            // DbType.StringFixedLength——> nchar
+            // DbType.AnsiString——> varchar
+            // DbType.AnsiStringFixedLength——> char
             var param = DbProviderFactory.CreateParameter();
             if (param != null)
             {

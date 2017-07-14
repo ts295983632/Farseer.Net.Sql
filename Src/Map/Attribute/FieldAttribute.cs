@@ -40,6 +40,11 @@ namespace FS.Sql.Map.Attribute
         public DbType DbType { get; set; } = DbType.Object;
 
         /// <summary>
+        ///     指定对应的数据库字段长度
+        /// </summary>
+        public int DbSize { get; set; }
+
+        /// <summary>
         ///     是否映射到数据库字段中(默认为true)
         /// </summary>
         public bool IsMap { get; set; } = true;

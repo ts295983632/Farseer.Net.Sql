@@ -212,7 +212,7 @@ namespace FS.Sql.ExpressionVisitor
             if (CurrentFieldName != null && CurrentField.Value != null && CurrentField.Value.Field.DbType != DbType.Object)
             {
                 // 手动指定字段类型
-                CurrentDbParameter = DbProvider.CreateDbParam($"p{ParamList.Count}_{CurrentField.Key.Name}", cexp.Value, CurrentField.Value.Field.DbType);
+                CurrentDbParameter = DbProvider.CreateDbParam($"p{ParamList.Count}_{CurrentField.Key.Name}", cexp.Value, CurrentField.Value.Field.DbType, false, CurrentField.Value.Field.DbSize);
             }
             else
             {
